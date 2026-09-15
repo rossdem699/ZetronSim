@@ -1,0 +1,3947 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#121212] text-black antialiased selection:bg-blue-600 selection:text-white">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZETRON DCS5020 Dispatch Console | Mawson Station Air-Ground Voice Simulator</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* Classic Zetron DCS5020 3D Bevel Styling */
+    .beveled-out {
+      border-top: 2px solid #ffffff;
+      border-left: 2px solid #ffffff;
+      border-right: 2px solid #444444;
+      border-bottom: 2px solid #444444;
+    }
+    .beveled-in {
+      border-top: 2px solid #383838;
+      border-left: 2px solid #383838;
+      border-right: 2px solid #ffffff;
+      border-bottom: 2px solid #ffffff;
+    }
+    .btn-3d {
+      border-top: 2px solid #ffffff;
+      border-left: 2px solid #ffffff;
+      border-right: 2px solid #3a3a3a;
+      border-bottom: 2px solid #3a3a3a;
+      transition: all 0.04s ease-in-out;
+    }
+    .btn-3d:active, .btn-3d-active {
+      border-top: 2px solid #282828 !important;
+      border-left: 2px solid #282828 !important;
+      border-right: 2px solid #ffffff !important;
+      border-bottom: 2px solid #ffffff !important;
+      transform: translate(1px, 1px);
+    }
+
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #222222;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #555555;
+      border: 1px solid #777777;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #777777;
+    }
+
+    @keyframes blink-fast {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.15; }
+    }
+    .animate-blink {
+      animation: blink-fast 0.6s infinite;
+    }
+
+    /* Virtual Operator Spotlight & Click Animations */
+    .operator-focus-ring {
+      box-shadow: 0 0 0 4px #fbbf24, 0 0 25px #f59e0b !important;
+      outline: 2px solid #ffffff !important;
+      position: relative;
+      z-index: 40 !important;
+      animation: operator-pulse 0.7s infinite alternate !important;
+    }
+    @keyframes operator-pulse {
+      0% { transform: scale(1); filter: brightness(1); }
+      100% { transform: scale(0.97); filter: brightness(1.3); }
+    }
+    @keyframes fadeInSlide {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn {
+      animation: fadeInSlide 0.25s ease-out forwards;
+    }
+    .hud-banner-bar {
+      background: linear-gradient(90deg, #0d1e38 0%, #1a355b 50%, #0d1e38 100%) !important;
+      border-bottom: 3px solid #fbbf24 !important;
+      color: #ffffff !important;
+    }
+    .active-channel-glow {
+      box-shadow: 0 0 0 3px #06b6d4, 0 0 25px rgba(6, 182, 212, 0.7) !important;
+      border: 3px solid #22d3ee !important;
+      animation: channel-pulse 1.8s infinite alternate !important;
+    }
+    @keyframes channel-pulse {
+      0% { box-shadow: 0 0 0 3px #06b6d4, 0 0 15px rgba(6, 182, 212, 0.5); }
+      100% { box-shadow: 0 0 0 4px #22d3ee, 0 0 28px rgba(34, 211, 238, 0.9); }
+    }
+    .ptt-active-glow {
+      box-shadow: 0 0 0 4px #ef4444, 0 0 32px rgba(239, 68, 68, 0.9) !important;
+      background-color: #dc2626 !important;
+      color: #ffffff !important;
+      transform: translateY(2px) scale(0.98) !important;
+    }
+  </style>
+</head>
+
+<body class="h-full bg-[#1c1c1c] text-slate-900 flex flex-col select-none overflow-hidden font-sans">
+
+  <!-- ========================================================================= -->
+  <!-- 1. TOP WHITE BANNER (ZETRON LOGO & DCS5020 TITLE)                         -->
+  <!-- ========================================================================= -->
+  <header class="h-10 bg-white border-b-2 border-[#555555] flex items-center justify-between px-3 flex-shrink-0 shadow-sm relative z-30">
+    <div class="flex items-center gap-2.5">
+      <!-- Zetron Brand Logo with Blue Wave -->
+      <div class="flex flex-col">
+        <div class="flex items-center">
+          <span class="font-extrabold font-sans text-xl tracking-tighter text-[#111111] italic">ZETRON</span>
+          <span class="text-xs font-bold text-blue-700 ml-0.5">®</span>
+        </div>
+        <div class="w-20 h-1 bg-gradient-to-r from-blue-700 via-cyan-500 to-transparent -mt-1 rounded-full"></div>
+      </div>
+
+      <div class="h-6 w-[2px] bg-slate-300 mx-1"></div>
+
+      <div class="flex items-baseline gap-2">
+        <h1 class="text-sm font-extrabold text-[#222222] uppercase tracking-wide font-sans">
+          DCS5020 Dispatch Console
+        </h1>
+        <span class="text-[11px] font-bold text-slate-600 font-mono">
+          MAWSON STATION (AAD)
+        </span>
+      </div>
+    </div>
+
+    <!-- Right Blue Digital Header (Local Time & Date) -->
+    <div class="flex items-center h-full">
+      <div class="h-full bg-gradient-to-r from-[#0d274c] to-[#1c4b8b] text-white px-4 flex items-center gap-4 text-xs font-mono font-bold shadow-inner border-l-2 border-white">
+        <div class="flex items-center gap-1.5">
+          <span class="text-cyan-300">MAWSON LOCAL:</span>
+          <span id="local-clock" class="text-white text-sm">12:29:00</span>
+        </div>
+        <span>•</span>
+        <div class="flex items-center gap-1.5">
+          <span class="text-amber-300">ZULU:</span>
+          <span id="utc-clock" class="text-white text-sm">07:29:00 UTC</span>
+        </div>
+        <span>•</span>
+        <span id="date-display" class="text-slate-200">15-09-2026</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- 2. CONSOLE CONTROL BAR (DIRECT CONTROLS - NO TABS NEEDED)                  -->
+  <!-- ========================================================================= -->
+  <nav class="bg-[#c8c8c8] px-3 py-1.5 border-b-2 border-[#808080] flex items-center justify-between flex-shrink-0 shadow-sm">
+    <div class="flex items-center gap-2.5">
+      <div class="flex items-center gap-2 bg-[#1b2533] text-white px-2.5 py-1 rounded border border-cyan-500/60 shadow-inner">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="text-xs font-black font-sans tracking-wide text-cyan-300">ZETRON DCS5020</span>
+        <span class="text-[10px] font-mono text-slate-300 hidden md:inline">| AIR-GROUND MATRIX</span>
+      </div>
+
+      <!-- Live Weather Telemetry Badges directly visible on bar -->
+      <div class="hidden lg:flex items-center gap-2 text-xs font-mono">
+        <div class="bg-white/80 px-2 py-0.5 rounded border border-slate-400 text-slate-800 font-bold flex items-center gap-1 shadow-sm">
+          <span class="text-slate-500 text-[10px]">WIND:</span>
+          <span id="nav-wind-val" class="text-blue-900 font-black">140° @ 25kt</span>
+        </div>
+        <div class="bg-white/80 px-2 py-0.5 rounded border border-slate-400 text-slate-800 font-bold flex items-center gap-1 shadow-sm">
+          <span class="text-slate-500 text-[10px]">QNH:</span>
+          <span id="nav-qnh-val" class="text-amber-900 font-black">992 hPa</span>
+        </div>
+        <div class="bg-white/80 px-2 py-0.5 rounded border border-slate-400 text-slate-800 font-bold flex items-center gap-1 shadow-sm">
+          <span class="text-slate-500 text-[10px]">SARWATCH:</span>
+          <span id="nav-sar-val" class="text-emerald-700 font-black">ACTIVE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Direct Scenario Selection & Quick Action Controls -->
+    <div class="flex items-center gap-2 text-xs font-mono">
+      <div class="flex items-center gap-1.5">
+        <label for="scenario-dropdown" class="font-bold text-slate-800 hidden sm:inline text-xs font-sans">SCENARIO:</label>
+        <select id="scenario-dropdown" onchange="stageEngine.initScenario(this.value)" class="bg-[#111923] text-amber-300 font-mono text-xs font-bold px-2 py-1 rounded border border-slate-600 shadow-inner cursor-pointer focus:outline-none focus:border-amber-400">
+          <option value="A">A: Rumdoodle Skiway (Twin Otter VHG-FBO)</option>
+          <option value="B">B: Sea Ice Skiway (Basler BT-67 VKB-BTG)</option>
+          <option value="C">C: SAR Emergency (Overdue Aircraft)</option>
+        </select>
+      </div>
+
+      <button onclick="randomizeWeather()" title="Cycle Weather Telemetry" class="btn-3d px-2 py-1 bg-[#dfdfdf] hover:bg-[#eaeaea] text-slate-800 text-xs font-sans font-bold rounded flex items-center gap-1 border border-slate-400 shadow">
+        <i data-lucide="cloud-snow" class="w-3.5 h-3.5 text-blue-700"></i>
+        <span class="hidden sm:inline">New Weather</span>
+      </button>
+
+      <button onclick="audioEngine.testBeep()" title="Audio Test" class="btn-3d px-2 py-1 bg-[#dfdfdf] hover:bg-[#eaeaea] text-slate-800 text-xs font-sans font-bold rounded flex items-center gap-1 border border-slate-400 shadow">
+        <i data-lucide="volume-2" class="w-3.5 h-3.5 text-blue-700"></i>
+        <span>Test Beep</span>
+      </button>
+
+      <!-- Instant Mr. T Voice Test Button -->
+      <button onclick="triggerMrTCelebration('Aircraft down and safe, waiting for pick up.')" title="Instant Test: Mr. T Mission Complete Voice-Over" class="btn-3d px-2 py-1 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 text-xs font-sans font-black rounded flex items-center gap-1 border border-amber-700 shadow cursor-pointer">
+        <span>🎖️</span>
+        <span class="hidden md:inline">Mr. T Voice</span>
+      </button>
+
+      <!-- Prominent Example Play Scenario Button -->
+      <button id="btn-example-play" onclick="autoPlayEngine.toggle()" title="Auto-Play Scenario with Voice & Button Actions" class="btn-3d px-3 py-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:from-amber-300 hover:to-yellow-200 text-slate-950 font-black text-xs rounded border border-amber-700 flex items-center gap-1.5 shadow-md transition-all hover:scale-105 select-none cursor-pointer">
+        <span class="text-sm">▶</span>
+        <span id="example-play-btn-text">EXAMPLE PLAY SCENARIO</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ========================================================================= -->
+  <!-- 2.5 AUTO-PLAY SIMULATION HUD BANNER (COLLAPSIBLE / DYNAMIC)               -->
+  <!-- ========================================================================= -->
+  <div id="autoplay-hud" class="hidden hud-banner-bar px-3 py-1.5 flex flex-col gap-1 shadow-2xl text-xs font-mono flex-shrink-0 animate-fadeIn z-30">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3 overflow-hidden">
+        <div class="flex items-center gap-2 flex-shrink-0 bg-black/60 px-2 py-0.5 rounded border border-amber-400/60 shadow-inner">
+          <span class="relative flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-400"></span>
+          </span>
+          <span class="font-black text-amber-300 tracking-wider text-[11px]">AUTO-PLAY SIMULATION</span>
+        </div>
+
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <span id="hud-step-badge" class="px-2.5 py-0.5 rounded bg-amber-400 text-slate-950 font-black text-[11px] shadow-sm">
+            STEP 1/12
+          </span>
+          <span id="hud-action-title" class="font-bold text-white text-sm">
+            Radio Setup & Link Verification
+          </span>
+        </div>
+
+        <div class="hidden md:flex items-center text-cyan-300 text-xs truncate max-w-2xl">
+          <span class="text-slate-500 mr-2">|</span>
+          <span id="hud-narration-text" class="text-cyan-200 font-sans italic truncate">
+            Station Operator verifies Tone Remote 1 is selected on AIR VHF 126.700 MHz.
+          </span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <button id="btn-hud-pause" onclick="autoPlayEngine.togglePause()" class="btn-3d px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded font-sans text-xs flex items-center gap-1 font-bold">
+          <span id="hud-pause-icon">⏸</span>
+          <span id="hud-pause-text">Pause</span>
+        </button>
+
+        <button onclick="autoPlayEngine.nextStep()" class="btn-3d px-3 py-1 bg-blue-700 hover:bg-blue-600 text-white rounded font-sans text-xs flex items-center gap-1 font-bold">
+          <span>⏭ Skip</span>
+        </button>
+
+        <button onclick="autoPlayEngine.stop()" class="btn-3d px-3 py-1 bg-red-600 hover:bg-red-500 text-white rounded font-sans text-xs font-black flex items-center gap-1">
+          <span>⏹ Exit</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Live Execution Status Bar -->
+    <div class="flex items-center justify-between bg-black/60 border border-amber-400/40 rounded px-2.5 py-0.5 text-[11px]">
+      <div class="flex items-center gap-2 overflow-hidden">
+        <span id="hud-status-badge" class="px-1.5 py-0.2 bg-amber-400 text-slate-950 font-black text-[10px] rounded uppercase shrink-0">
+          CONSOLE ACTION:
+        </span>
+        <span id="hud-live-action-text" class="font-mono text-amber-200 font-bold truncate">
+          [READY] Click 'Example Play Scenario' to start simulation
+        </span>
+      </div>
+      <div class="flex items-center gap-2 shrink-0 ml-2">
+        <span id="hud-channel-state-tag" class="px-1.5 py-0.2 bg-emerald-600 text-slate-950 font-black text-[10px] rounded shadow">
+          CH 1: ON (126.700 MHz)
+        </span>
+        <span id="hud-ptt-state-tag" class="px-1.5 py-0.2 bg-slate-800 text-slate-300 font-black text-[10px] rounded">
+          PTT: IDLE
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 3. MAIN WORKBENCH (EXACT DCS5020 DISPATCH CONSOLE LAYOUT)                 -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 flex gap-2 p-2 bg-[#262626] overflow-hidden min-h-0">
+
+    <!-- ======================================================================= -->
+    <!-- LEFT PANEL: TETRA / SELECTED AIR CHANNEL DISPLAY & REPORT SCRIPT CARD   -->
+    <!-- ======================================================================= -->
+    <section class="w-64 md:w-72 bg-[#d4d4d4] beveled-out p-1.5 flex flex-col justify-between flex-shrink-0 shadow-md h-full overflow-hidden">
+      <div class="flex flex-col flex-1 min-h-0 overflow-hidden">
+        <div class="text-[11px] font-bold font-sans tracking-wide text-red-700 border-b border-[#999999] pb-0.5 mb-1 flex items-center justify-between flex-shrink-0">
+          <span>AIR CHANNEL FOCUS</span>
+          <span class="w-2 h-2 rounded-full bg-red-600 animate-pulse"></span>
+        </div>
+
+        <!-- Teal LCD Screen (Simulating Sepura / TETRA Radio Display) -->
+        <div class="bg-[#009b9e] beveled-in p-1.5 text-black font-sans rounded shadow-inner mb-1 relative overflow-hidden flex-shrink-0">
+          <div class="flex items-start justify-between">
+            <div class="w-7 h-9 bg-white/80 rounded border border-black/40 p-0.5 flex flex-col items-center justify-between shadow-sm">
+              <div class="w-1 h-1.5 bg-black rounded-t"></div>
+              <div class="w-5 h-2.5 bg-cyan-200 border border-black/40 rounded-sm"></div>
+              <div class="grid grid-cols-2 gap-0.5 w-4">
+                <span class="w-1.5 h-1 bg-black/60"></span>
+                <span class="w-1.5 h-1 bg-black/60"></span>
+              </div>
+            </div>
+
+            <div class="text-right flex-1 pl-2">
+              <div class="flex items-center justify-end gap-1 mb-0.5">
+                <span class="w-1.5 h-2 bg-black"></span>
+                <span class="w-1.5 h-3 bg-black"></span>
+                <span class="w-1.5 h-4 bg-black"></span>
+                <span class="w-1.5 h-4 bg-black"></span>
+              </div>
+              <div class="text-[11px] font-extrabold tracking-tight text-slate-900 leading-none">MAWSON BASE</div>
+              <div id="screen-channel-title" class="text-[11px] font-black text-black leading-tight mt-0.5">AIR VHF 126.700</div>
+              <div id="screen-aircraft-call" class="text-[10px] font-bold text-blue-950 mt-0.5">CALL: VHG-FBO</div>
+            </div>
+          </div>
+
+          <div class="mt-1 pt-0.5 border-t border-black/20 flex items-center justify-between text-[10px] font-mono font-bold">
+            <span id="screen-mode-text">AM • AIR TRAFFIC</span>
+            <span id="screen-rx-tx-badge" class="px-1 bg-black text-cyan-300 rounded text-[9px]">RX READY</span>
+          </div>
+
+          <!-- Prominent Active Channel State Pill -->
+          <div id="screen-channel-on-pill" class="mt-1 bg-emerald-950/90 border border-emerald-400 text-emerald-300 font-mono text-[10px] font-black px-1.5 py-0.5 rounded flex items-center justify-between shadow-sm">
+            <span id="screen-channel-on-label">CH 1 AIR VHF 126.700:</span>
+            <span id="screen-channel-on-status" class="px-1 bg-emerald-600 text-white rounded text-[9px] animate-pulse">● ON</span>
+          </div>
+        </div>
+
+        <!-- 3x2 Keypad Quick Actions Grid -->
+        <div class="grid grid-cols-3 gap-1 mb-1 font-sans text-[10px] flex-shrink-0">
+          <button onclick="quickPhrase(1)" title="Initial Inbound Readback" class="btn-3d bg-[#ececec] p-1 flex flex-col items-center justify-center rounded">
+            <i data-lucide="activity" class="w-3.5 h-3.5 text-blue-800 mb-0.5"></i>
+            <span class="font-bold">Call Stat</span>
+          </button>
+          
+          <button onclick="quickPhrase(2)" title="Descent Check Readback" class="btn-3d bg-[#ececec] p-1 flex flex-col items-center justify-center rounded">
+            <i data-lucide="arrow-right-circle" class="w-3.5 h-3.5 text-emerald-700 mb-0.5"></i>
+            <span class="font-bold">Descent</span>
+          </button>
+
+          <button onclick="audioEngine.playBreachAlarm()" title="Emergency Warning Horn" class="btn-3d bg-[#ececec] p-1 flex flex-col items-center justify-center rounded">
+            <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-red-600 mb-0.5"></i>
+            <span class="font-bold">Alert</span>
+          </button>
+
+          <button onclick="quickPhrase(3)" title="Circuit Downwind Readback" class="btn-3d bg-[#ececec] p-1 flex flex-col items-center justify-center rounded">
+            <i data-lucide="compass" class="w-3.5 h-3.5 text-indigo-700 mb-0.5"></i>
+            <span class="font-bold">Circuit</span>
+          </button>
+
+          <button onclick="quickPhrase(4)" title="Touchdown Down & Safe Readback" class="btn-3d bg-[#ececec] p-1 flex flex-col items-center justify-center rounded">
+            <i data-lucide="check-circle" class="w-3.5 h-3.5 text-teal-700 mb-0.5"></i>
+            <span class="font-bold">Down Safe</span>
+          </button>
+
+          <button onclick="randomizeWeather()" title="Cycle Weather Telemetry" class="btn-3d bg-[#ececec] p-1 flex flex-col items-center justify-center rounded">
+            <i data-lucide="cloud-snow" class="w-3.5 h-3.5 text-cyan-700 mb-0.5"></i>
+            <span class="font-bold">AWS Met</span>
+          </button>
+        </div>
+
+        <!-- NEW: LIVE REPORT SCRIPT & TELEMETRY CHECKLIST CARD (OCCUPIES PREVIOUSLY EMPTY SPACE) -->
+        <div id="side-script-card" class="bg-[#101721] border-2 border-cyan-500/90 rounded p-2 flex flex-col justify-between shadow-xl flex-1 overflow-hidden min-h-0">
+          <div class="flex flex-col flex-1 overflow-hidden">
+            <!-- Header: Title & Phase Badge -->
+            <div class="flex items-center justify-between border-b border-cyan-700/60 pb-1 mb-1 flex-shrink-0">
+              <div class="flex items-center gap-1.5">
+                <span class="text-amber-400 text-xs">📋</span>
+                <span class="text-[11px] font-black text-cyan-200 uppercase tracking-wide font-sans">REPORT SCRIPT</span>
+              </div>
+              <span id="side-script-phase-badge" class="px-1.5 py-0.2 bg-amber-400 text-slate-950 font-black text-[9px] rounded font-mono uppercase">
+                STAGE 1/4
+              </span>
+            </div>
+
+            <!-- Stage Subtitle -->
+            <div id="side-stage-title" class="text-[10px] font-bold text-amber-300 font-sans truncate mb-1 flex-shrink-0">
+              Initial Inbound Contact (~35-40 min out)
+            </div>
+
+            <!-- Telemetry Checklist (List format) -->
+            <div class="bg-black/70 border border-slate-700/80 rounded p-1.5 mb-1.5 font-mono text-[10px] space-y-0.5 flex-shrink-0">
+              <div class="text-[9px] font-bold text-cyan-400 border-b border-slate-800 pb-0.5 mb-0.5 flex items-center justify-between">
+                <span>DATA TO REPORT:</span>
+                <span id="side-checklist-aircraft" class="text-white font-bold">VHG-FBO</span>
+              </div>
+              <div class="flex justify-between items-center text-slate-300">
+                <span class="text-slate-400">AIRCRAFT:</span>
+                <span id="side-flight-ident" class="text-white font-bold truncate max-w-[140px] text-right">DHC-6 Twin Otter</span>
+              </div>
+              <div class="flex justify-between items-center text-slate-300">
+                <span class="text-slate-400">EST ARRIVAL:</span>
+                <span id="side-eta-ident" class="text-amber-300 font-bold">07:45 UTC</span>
+              </div>
+              <div class="flex justify-between items-center text-slate-300">
+                <span class="text-slate-400">SKIWAY (SLA):</span>
+                <span id="side-check-sla" class="text-emerald-300 font-bold"><span id="side-sla-ident">RUMDOODLE</span> CLEAR</span>
+              </div>
+              <div class="flex justify-between items-center text-slate-300">
+                <span class="text-slate-400">SURFACE WIND:</span>
+                <span id="side-check-wind" class="text-cyan-300 font-bold">140° @ 25 kt (G34kt)</span>
+              </div>
+              <div class="flex justify-between items-center text-slate-300">
+                <span class="text-slate-400">VIS / TEMP:</span>
+                <span id="side-check-vis-temp" class="text-slate-200">10 km / -16°C</span>
+              </div>
+              <div class="flex justify-between items-center text-slate-300">
+                <span class="text-slate-400">QNH ALTIMETER:</span>
+                <span id="side-check-qnh" class="text-amber-300 font-black">992 hPa</span>
+              </div>
+            </div>
+
+            <!-- Current Script Box (What to say) -->
+            <div class="flex flex-col flex-1 min-h-0 overflow-hidden">
+              <div class="text-[9px] font-bold text-amber-300 font-mono flex items-center justify-between mb-0.5 flex-shrink-0">
+                <span>WHAT TO SAY (AROC SCRIPT):</span>
+                <span class="text-[8px] text-slate-400 italic">Click box to copy</span>
+              </div>
+              <div id="side-script-box" onclick="copyModelToInput()" title="Click to copy into TX Text box" class="p-1.5 bg-black/90 border border-amber-400/70 rounded text-[10.5px] font-mono text-amber-100 leading-relaxed overflow-y-auto shadow-inner cursor-pointer hover:border-amber-300 hover:bg-black transition flex-1 select-text">
+                "Foxtrot-Bravo-Oscar, Mawson Base, read you strength 5. Rumdoodle Ski Landing Area currently reported clear. Surface wind 140 degrees at 25 knots, visibility 10 kilometres, temperature minus 16, QNH 992. No conflicting traffic."
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Actions & Safety Notice -->
+          <div class="mt-1 pt-1 border-t border-slate-800 flex-shrink-0">
+            <div class="text-[8.5px] font-mono text-red-400 font-bold flex items-center gap-1 mb-1">
+              <span>⚠️</span>
+              <span>UNICOM: Never say "Cleared to land"</span>
+            </div>
+            <div class="grid grid-cols-2 gap-1">
+              <button onclick="copyModelToInput()" title="Copy script into bottom TX text box" class="btn-3d px-1.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px] rounded flex items-center justify-center gap-1 shadow">
+                <span>📋</span>
+                <span>Copy Script</span>
+              </button>
+              <button onclick="speakCurrentScript()" title="Hold PTT and broadcast script over radio" class="btn-3d px-1.5 py-1 bg-cyan-700 hover:bg-cyan-600 text-white font-black text-[10px] rounded flex items-center justify-center gap-1 shadow">
+                <span>🎙️</span>
+                <span>PTT Read</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two Large Bottom Red/Coral Buttons -->
+      <div class="flex flex-col gap-1 mt-1 flex-shrink-0">
+        <button id="btn-terminate-sarwatch" onclick="terminateSARWATCH()" class="btn-3d bg-[#d93838] hover:bg-[#c32f2f] text-white font-extrabold py-1.5 px-1 text-xs rounded text-center tracking-wide uppercase shadow">
+          TERMINATE SARWATCH
+        </button>
+
+        <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#b82828] hover:bg-[#a32020] text-white font-extrabold py-1.5 px-1 text-xs rounded text-center tracking-wide uppercase shadow">
+          EMERGENCY ACK
+        </button>
+      </div>
+    </section>
+
+    <!-- ======================================================================= -->
+    <!-- CENTER PANEL: RADIO LINES (SQUARE TILES & REPEATERS) & CALL HISTORY     -->
+    <!-- ======================================================================= -->
+    <section class="flex-1 flex flex-col gap-2 min-w-0">
+
+      <!-- ===================================================================== -->
+      <!-- RADIO LINES BOX (SQUARE TILES MATRIX WITH REPEATER CONTROLS)          -->
+      <!-- ===================================================================== -->
+      <div class="bg-[#202020] beveled-in p-2 rounded shadow-inner flex flex-col">
+        <div class="text-[11px] font-bold font-sans text-slate-300 border-b border-[#444444] pb-1 mb-1.5 flex items-center justify-between">
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="radio" class="w-3.5 h-3.5 text-yellow-400"></i>
+            <span class="text-white font-sans font-bold">Radio Lines</span>
+          </div>
+          <div class="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-cyan-400 inline-block"></span> RPT (Repeater)</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-amber-400 inline-block"></span> DIR (Direct)</span>
+            <span>ZETRON DCS5020 MATRIX</span>
+          </div>
+        </div>
+
+        <!-- LIVE SIMULATION ACTION INDICATOR BANNER (WHAT WE PRESSED & WHEN) -->
+        <div id="sim-action-banner" class="mb-2 px-2.5 py-1 bg-[#141414] border-2 border-amber-400/80 rounded flex items-center justify-between text-xs font-mono shadow-md">
+          <div class="flex items-center gap-2 overflow-hidden">
+            <span id="sim-action-badge" class="px-2 py-0.5 bg-amber-400 text-slate-950 font-black text-[10px] rounded tracking-wide uppercase shrink-0 animate-pulse">
+              👉 CONSOLE ACTION
+            </span>
+            <span id="sim-action-text" class="font-mono text-cyan-200 text-[11px] font-bold truncate">
+              [READY] Primary Channel Tone Remote 1 (126.700 MHz) is active &amp; ready
+            </span>
+          </div>
+          <div class="flex items-center gap-2 shrink-0 ml-2">
+            <span id="sim-action-channel-indicator" class="px-1.5 py-0.5 bg-emerald-600 text-slate-950 font-black text-[10px] rounded shadow animate-pulse">
+              CH 1: ON (126.700 MHz)
+            </span>
+            <span id="sim-action-ptt-indicator" class="px-1.5 py-0.5 bg-slate-800 text-slate-300 font-bold text-[10px] rounded">
+              PTT: IDLE
+            </span>
+          </div>
+        </div>
+
+        <!-- 12 SQUARE TILES GRID (4 COLUMNS x 3 ROWS) -->
+        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2">
+
+          <!-- TILE 1: Tone Remote 1 (AIR VHF 126.7) - White Card (Square) -->
+          <div id="tile-1" class="radio-card bg-[#ffffff] beveled-out p-1.5 rounded flex flex-col justify-between transition-all active-channel-glow h-28">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-1">
+                <div class="w-5 h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                  <div class="w-1 h-1 bg-black"></div>
+                  <div class="w-3 h-2 bg-cyan-200 border border-black/30"></div>
+                </div>
+                <div>
+                  <div class="text-[11px] font-black text-black leading-tight">Tone Remote 1</div>
+                  <div class="text-[10px] font-extrabold text-blue-700">126.700 MHz AM</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-1">
+                <span id="channel-state-badge-1" class="px-1.5 py-0.5 bg-emerald-600 text-white font-black text-[9px] rounded shadow animate-pulse">● ON</span>
+                <div id="rx-led-1" class="w-2.5 h-2.5 rounded-full bg-slate-400 border border-black"></div>
+              </div>
+            </div>
+
+            <!-- Repeater Status / Channel Badge -->
+            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-slate-100 rounded border border-slate-300">
+              <span class="font-bold text-slate-700">AIR TRAFFIC</span>
+              <span id="rpt-badge-1" class="px-1 bg-cyan-700 text-white rounded font-bold">RPT: RUMD</span>
+            </div>
+
+            <!-- Square Tactical Pushbuttons -->
+            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
+              <button onclick="selectTile(1)" id="sel-btn-1" class="btn-3d h-6 bg-emerald-500 text-slate-950 font-black rounded flex items-center justify-center shadow-md ring-2 ring-emerald-300 animate-pulse">● ON</button>
+              <button id="tile-ptt-1" onmousedown="tilePTTStart(1)" onmouseup="tilePTTEnd(1)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="toggleRepeater(1)" id="rpt-btn-1" class="btn-3d h-6 bg-cyan-700 text-white rounded flex items-center justify-center font-bold" title="Toggle Repeater">RPT</button>
+              <button onclick="toggleDirect(1)" id="dir-btn-1" class="btn-3d h-6 bg-slate-200 text-slate-800 rounded flex items-center justify-center" title="Direct Simplex">DIR</button>
+            </div>
+          </div>
+
+          <!-- TILE 2: Tone Remote 2 (AIR HF SEC 5484) - Teal Card (Square) -->
+          <div id="tile-2" class="radio-card bg-[#009999] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-1">
+                <div class="w-5 h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                  <div class="w-1 h-1 bg-black"></div>
+                  <div class="w-3 h-2 bg-yellow-200 border border-black/30"></div>
+                </div>
+                <div>
+                  <div class="text-[11px] font-black text-white leading-tight">Tone Remote 2</div>
+                  <div class="text-[10px] font-extrabold text-cyan-200">5484.0 kHz USB</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-1">
+                <span id="channel-state-badge-2" class="px-1.5 py-0.5 bg-slate-700 text-slate-300 font-bold text-[9px] rounded">STBY</span>
+                <div id="rx-led-2" class="w-2.5 h-2.5 rounded-full bg-slate-700 border border-black"></div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-teal-950/60 rounded border border-teal-800 text-cyan-200">
+              <span>HF RELAY</span>
+              <span id="rpt-badge-2" class="px-1 bg-teal-800 text-white rounded font-bold">DAVIS</span>
+            </div>
+
+            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
+              <button onclick="selectTile(2)" id="sel-btn-2" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
+              <button id="tile-ptt-2" onmousedown="tilePTTStart(2)" onmouseup="tilePTTEnd(2)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="toggleRepeater(2)" id="rpt-btn-2" class="btn-3d h-6 bg-teal-800 text-white rounded flex items-center justify-center">RPT</button>
+              <button onclick="toggleDirect(2)" id="dir-btn-2" class="btn-3d h-6 bg-teal-800 text-white rounded flex items-center justify-center">DIR</button>
+            </div>
+          </div>
+
+          <!-- TILE 3: Radio 3 (STN OPS VHF CH 1) - Sage Green (Square) -->
+          <div id="tile-3" class="radio-card bg-[#8bc38b] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-1">
+                <div class="w-5 h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                  <div class="w-1 h-1 bg-black"></div>
+                  <div class="w-3 h-2 bg-green-200 border border-black/30"></div>
+                </div>
+                <div>
+                  <div class="text-[11px] font-black text-black leading-tight">Radio 3 (Ops)</div>
+                  <div class="text-[10px] font-extrabold text-slate-800">156.800 MHz FM</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-1">
+                <span id="channel-state-badge-3" class="px-1.5 py-0.5 bg-slate-700 text-slate-300 font-bold text-[9px] rounded">STBY</span>
+                <div id="rx-led-3" class="w-2.5 h-2.5 rounded-full bg-slate-700 border border-black"></div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-green-900/30 rounded border border-green-800 text-slate-900 font-bold">
+              <span>BASE OPS</span>
+              <span class="px-1 bg-green-900 text-white rounded font-bold">Ws1</span>
+            </div>
+
+            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
+              <button onclick="selectTile(3)" id="sel-btn-3" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
+              <button id="tile-ptt-3" onmousedown="tilePTTStart(3)" onmouseup="tilePTTEnd(3)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="toggleRepeater(3)" id="rpt-btn-3" class="btn-3d h-6 bg-green-800 text-white rounded flex items-center justify-center">RPT</button>
+              <button onclick="toggleDirect(3)" id="dir-btn-3" class="btn-3d h-6 bg-green-800 text-white rounded flex items-center justify-center">DIR</button>
+            </div>
+          </div>
+
+          <!-- TILE 4: Radio 4 (HÄGGLUNDS CH 2) - Amber/Orange (Square) -->
+          <div id="tile-4" class="radio-card bg-[#e89938] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-1">
+                <div class="w-5 h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                  <div class="w-1 h-1 bg-black"></div>
+                  <div class="w-3 h-2 bg-amber-200 border border-black/30"></div>
+                </div>
+                <div>
+                  <div class="text-[11px] font-black text-black leading-tight">Radio 4 (Hägg)</div>
+                  <div class="text-[10px] font-extrabold text-amber-950">148.250 MHz FM</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-1">
+                <span id="channel-state-badge-4" class="px-1.5 py-0.5 bg-slate-700 text-slate-300 font-bold text-[9px] rounded">STBY</span>
+                <div id="rx-led-4" class="w-2.5 h-2.5 rounded-full bg-slate-700 border border-black"></div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-amber-950/30 rounded border border-amber-800 text-amber-950 font-bold">
+              <span>FIELD CREW</span>
+              <span class="px-1 bg-amber-950 text-amber-200 rounded font-bold">MST</span>
+            </div>
+
+            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
+              <button onclick="selectTile(4)" id="sel-btn-4" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
+              <button id="tile-ptt-4" onmousedown="tilePTTStart(4)" onmouseup="tilePTTEnd(4)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="toggleRepeater(4)" id="rpt-btn-4" class="btn-3d h-6 bg-amber-900 text-amber-100 rounded flex items-center justify-center">RPT</button>
+              <button onclick="toggleDirect(4)" id="dir-btn-4" class="btn-3d h-6 bg-amber-900 text-amber-100 rounded flex items-center justify-center">DIR</button>
+            </div>
+          </div>
+
+          <!-- TILE 5: RUMDOODLE SLA REPEATER - Cyan/Teal (Square) -->
+          <div id="tile-5" class="radio-card bg-[#008b8b] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-1">
+                <div class="w-5 h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                  <div class="w-1 h-1 bg-black"></div>
+                  <div class="w-3 h-2 bg-cyan-200 border border-black/30"></div>
+                </div>
+                <div>
+                  <div class="text-[11px] font-black text-white leading-tight">Rumdoodle RPT</div>
+                  <div class="text-[10px] font-extrabold text-cyan-200">149.800 MHz FM</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-1">
+                <span id="channel-state-badge-5" class="px-1.5 py-0.5 bg-slate-700 text-slate-300 font-bold text-[9px] rounded">STBY</span>
+                <div id="rx-led-5" class="w-2.5 h-2.5 rounded-full bg-slate-700 border border-black"></div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-teal-950/60 rounded border border-teal-800 text-cyan-200">
+              <span>PLATEAU SLA</span>
+              <span class="px-1 bg-cyan-400 text-slate-900 rounded font-bold">RPT-1</span>
+            </div>
+
+            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
+              <button onclick="selectTile(5)" id="sel-btn-5" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
+              <button id="tile-ptt-5" onmousedown="tilePTTStart(5)" onmouseup="tilePTTEnd(5)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="toggleRepeater(5)" id="rpt-btn-5" class="btn-3d h-6 bg-teal-700 text-white rounded flex items-center justify-center font-bold">RPT</button>
+              <button onclick="toggleDirect(5)" id="dir-btn-5" class="btn-3d h-6 bg-teal-700 text-white rounded flex items-center justify-center">DIR</button>
+            </div>
+          </div>
+
+          <!-- TILE 6: MT HENDERSON REPEATER - Sage Green (Square) -->
+          <div id="tile-6" class="radio-card bg-[#8bc38b] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-1">
+                <div class="w-5 h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                  <div class="w-1 h-1 bg-black"></div>
+                  <div class="w-3 h-2 bg-green-200 border border-black/30"></div>
+                </div>
+                <div>
+                  <div class="text-[11px] font-black text-black leading-tight">Mt Henderson</div>
+                  <div class="text-[10px] font-extrabold text-slate-900">148.500 MHz FM</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-1">
+                <span id="channel-state-badge-6" class="px-1.5 py-0.5 bg-slate-700 text-slate-300 font-bold text-[9px] rounded">STBY</span>
+                <div id="rx-led-6" class="w-2.5 h-2.5 rounded-full bg-slate-700 border border-black"></div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-green-900/30 rounded border border-green-800 text-slate-900 font-bold">
+              <span>ELEV 1020m</span>
+              <span class="px-1 bg-green-900 text-white rounded font-bold">RPT-2</span>
+            </div>
+
+            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
+              <button onclick="selectTile(6)" id="sel-btn-6" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
+              <button id="tile-ptt-6" onmousedown="tilePTTStart(6)" onmouseup="tilePTTEnd(6)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="toggleRepeater(6)" id="rpt-btn-6" class="btn-3d h-6 bg-green-800 text-white rounded flex items-center justify-center">RPT</button>
+              <button onclick="toggleDirect(6)" id="dir-btn-6" class="btn-3d h-6 bg-green-800 text-white rounded flex items-center justify-center">DIR</button>
+            </div>
+          </div>
+
+          <!-- TILE 7: FRAMNES RANGE REPEATER - Sage Green (Square) -->
+          <div id="tile-7" class="radio-card bg-[#8bc38b] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-1">
+                <div class="w-5 h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                  <div class="w-1 h-1 bg-black"></div>
+                  <div class="w-3 h-2 bg-green-200 border border-black/30"></div>
+                </div>
+                <div>
+                  <div class="text-[11px] font-black text-black leading-tight">Framnes Range</div>
+                  <div class="text-[10px] font-extrabold text-slate-900">149.250 MHz FM</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-1">
+                <span id="channel-state-badge-7" class="px-1.5 py-0.5 bg-slate-700 text-slate-300 font-bold text-[9px] rounded">STBY</span>
+                <div id="rx-led-7" class="w-2.5 h-2.5 rounded-full bg-slate-700 border border-black"></div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-green-900/30 rounded border border-green-800 text-slate-900 font-bold">
+              <span>INLAND RPT</span>
+              <span class="px-1 bg-green-900 text-white rounded font-bold">RPT-3</span>
+            </div>
+
+            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
+              <button onclick="selectTile(7)" id="sel-btn-7" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
+              <button id="tile-ptt-7" onmousedown="tilePTTStart(7)" onmouseup="tilePTTEnd(7)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="toggleRepeater(7)" id="rpt-btn-7" class="btn-3d h-6 bg-green-800 text-white rounded flex items-center justify-center">RPT</button>
+              <button onclick="toggleDirect(7)" id="dir-btn-7" class="btn-3d h-6 bg-green-800 text-white rounded flex items-center justify-center">DIR</button>
+            </div>
+          </div>
+
+          <!-- TILE 8: AIR GUARD 121.5 - White Card (Emergency) -->
+          <div id="tile-8" class="radio-card bg-[#ffffff] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-1">
+                <div class="w-5 h-6 bg-red-100 rounded border border-red-600 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                  <div class="w-1 h-1 bg-red-700"></div>
+                  <div class="w-3 h-2 bg-red-200 border border-red-500"></div>
+                </div>
+                <div>
+                  <div class="text-[11px] font-black text-red-700 leading-tight">Air Guard 121.5</div>
+                  <div class="text-[10px] font-extrabold text-black">121.500 MHz AM</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-1">
+                <span id="channel-state-badge-8" class="px-1.5 py-0.5 bg-slate-700 text-slate-300 font-bold text-[9px] rounded">STBY</span>
+                <div id="rx-led-8" class="w-2.5 h-2.5 rounded-full bg-slate-700 border border-black"></div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-red-100 rounded border border-red-300 text-red-900 font-bold">
+              <span>DISTRESS</span>
+              <span class="px-1 bg-red-800 text-white rounded font-bold">EMERG</span>
+            </div>
+
+            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
+              <button onclick="selectTile(8)" id="sel-btn-8" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
+              <button id="tile-ptt-8" onmousedown="tilePTTStart(8)" onmouseup="tilePTTEnd(8)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="audioEngine.playBreachAlarm()" id="rpt-btn-8" class="btn-3d h-6 bg-red-800 text-white rounded flex items-center justify-center">ALM</button>
+              <button onclick="toggleDirect(8)" id="dir-btn-8" class="btn-3d h-6 bg-slate-300 text-slate-800 rounded flex items-center justify-center">DIR</button>
+            </div>
+          </div>
+
+          <!-- TILE 9: ANTARCTIC SAR HF 3023 - Sage Green (Square) -->
+          <div id="tile-9" class="radio-card bg-[#8bc38b] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-1">
+                <div class="w-5 h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                  <div class="w-1 h-1 bg-black"></div>
+                  <div class="w-3 h-2 bg-green-200 border border-black/30"></div>
+                </div>
+                <div>
+                  <div class="text-[11px] font-black text-black leading-tight">SAR HF Net</div>
+                  <div class="text-[10px] font-extrabold text-slate-900">3023.0 kHz USB</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-1">
+                <span id="channel-state-badge-9" class="px-1.5 py-0.5 bg-slate-700 text-slate-300 font-bold text-[9px] rounded">STBY</span>
+                <div id="rx-led-9" class="w-2.5 h-2.5 rounded-full bg-slate-700 border border-black"></div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-green-900/30 rounded border border-green-800 text-slate-900 font-bold">
+              <span>SEARCH & RESCUE</span>
+              <span class="px-1 bg-green-900 text-white rounded font-bold">SAR</span>
+            </div>
+
+            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
+              <button onclick="selectTile(9)" id="sel-btn-9" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
+              <button id="tile-ptt-9" onmousedown="tilePTTStart(9)" onmouseup="tilePTTEnd(9)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="toggleRepeater(9)" id="rpt-btn-9" class="btn-3d h-6 bg-green-800 text-white rounded flex items-center justify-center">RPT</button>
+              <button onclick="toggleDirect(9)" id="dir-btn-9" class="btn-3d h-6 bg-green-800 text-white rounded flex items-center justify-center">DIR</button>
+            </div>
+          </div>
+
+          <!-- TILE 10: AIR-TO-AIR TAC 123.45 - White Card (Square) -->
+          <div id="tile-10" class="radio-card bg-[#ffffff] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-1">
+                <div class="w-5 h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                  <div class="w-1 h-1 bg-black"></div>
+                  <div class="w-3 h-2 bg-blue-200 border border-black/30"></div>
+                </div>
+                <div>
+                  <div class="text-[11px] font-black text-black leading-tight">Air-to-Air Tac</div>
+                  <div class="text-[10px] font-extrabold text-blue-700">123.450 MHz AM</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-1">
+                <span id="channel-state-badge-10" class="px-1.5 py-0.5 bg-slate-700 text-slate-300 font-bold text-[9px] rounded">STBY</span>
+                <div id="rx-led-10" class="w-2.5 h-2.5 rounded-full bg-slate-700 border border-black"></div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-slate-100 rounded border border-slate-300 text-slate-800 font-bold">
+              <span>PILOT CHAT</span>
+              <span class="px-1 bg-blue-900 text-white rounded font-bold">TAC</span>
+            </div>
+
+            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
+              <button onclick="selectTile(10)" id="sel-btn-10" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
+              <button id="tile-ptt-10" onmousedown="tilePTTStart(10)" onmouseup="tilePTTEnd(10)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="toggleRepeater(10)" id="rpt-btn-10" class="btn-3d h-6 bg-slate-200 text-slate-800 rounded flex items-center justify-center">RPT</button>
+              <button onclick="toggleDirect(10)" id="dir-btn-10" class="btn-3d h-6 bg-slate-200 text-slate-800 rounded flex items-center justify-center">DIR</button>
+            </div>
+          </div>
+
+          <!-- TILE 11: FANG PEAK REPEATER - Sage Green (Square) -->
+          <div id="tile-11" class="radio-card bg-[#8bc38b] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-1">
+                <div class="w-5 h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                  <div class="w-1 h-1 bg-black"></div>
+                  <div class="w-3 h-2 bg-green-200 border border-black/30"></div>
+                </div>
+                <div>
+                  <div class="text-[11px] font-black text-black leading-tight">Fang Peak RPT</div>
+                  <div class="text-[10px] font-extrabold text-slate-900">150.100 MHz FM</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-1">
+                <span id="channel-state-badge-11" class="px-1.5 py-0.5 bg-slate-700 text-slate-300 font-bold text-[9px] rounded">STBY</span>
+                <div id="rx-led-11" class="w-2.5 h-2.5 rounded-full bg-slate-700 border border-black"></div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-green-900/30 rounded border border-green-800 text-slate-900 font-bold">
+              <span>WEST ROUTE</span>
+              <span class="px-1 bg-green-900 text-white rounded font-bold">RPT-4</span>
+            </div>
+
+            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
+              <button onclick="selectTile(11)" id="sel-btn-11" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
+              <button id="tile-ptt-11" onmousedown="tilePTTStart(11)" onmouseup="tilePTTEnd(11)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="toggleRepeater(11)" id="rpt-btn-11" class="btn-3d h-6 bg-green-800 text-white rounded flex items-center justify-center">RPT</button>
+              <button onclick="toggleDirect(11)" id="dir-btn-11" class="btn-3d h-6 bg-green-800 text-white rounded flex items-center justify-center">DIR</button>
+            </div>
+          </div>
+
+          <!-- TILE 12: DAVIS / CASEY HF RELAY - Teal Card (Square) -->
+          <div id="tile-12" class="radio-card bg-[#009999] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-1">
+                <div class="w-5 h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                  <div class="w-1 h-1 bg-black"></div>
+                  <div class="w-3 h-2 bg-yellow-200 border border-black/30"></div>
+                </div>
+                <div>
+                  <div class="text-[11px] font-black text-white leading-tight">Casey/Davis HF</div>
+                  <div class="text-[10px] font-extrabold text-cyan-200">8833.0 kHz USB</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-1">
+                <span id="channel-state-badge-12" class="px-1.5 py-0.5 bg-slate-700 text-slate-300 font-bold text-[9px] rounded">STBY</span>
+                <div id="rx-led-12" class="w-2.5 h-2.5 rounded-full bg-slate-700 border border-black"></div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-teal-950/60 rounded border border-teal-800 text-cyan-200">
+              <span>TRUNK LINK</span>
+              <span class="px-1 bg-teal-950 text-cyan-200 rounded font-bold">CASEY</span>
+            </div>
+
+            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
+              <button onclick="selectTile(12)" id="sel-btn-12" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
+              <button id="tile-ptt-12" onmousedown="tilePTTStart(12)" onmouseup="tilePTTEnd(12)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="toggleRepeater(12)" id="rpt-btn-12" class="btn-3d h-6 bg-teal-800 text-white rounded flex items-center justify-center">RPT</button>
+              <button onclick="toggleDirect(12)" id="dir-btn-12" class="btn-3d h-6 bg-teal-800 text-white rounded flex items-center justify-center">DIR</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- CALL HISTORY & LIVE TRANSCRIPT TABLE (AUTHENTIC DCS5020 LOOK)         -->
+      <!-- ===================================================================== -->
+      <div class="flex-1 bg-[#1a1a1a] beveled-in p-2 rounded flex flex-col min-h-0">
+        <div class="flex items-center justify-between pb-1 mb-1 border-b border-[#333333]">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-white uppercase font-sans">Call History</span>
+            <span id="call-history-status" class="text-[10px] font-mono text-cyan-400 bg-cyan-950 px-1.5 py-0.2 rounded border border-cyan-800">
+              AUDIO BUFFER ACTIVE
+            </span>
+          </div>
+
+          <div class="flex items-center gap-1.5 text-xs font-sans">
+            <button onclick="irrEngine.replay(0)" class="btn-3d px-2 py-0.5 bg-[#4472c4] text-white text-[10px] font-bold rounded">CALL BACK</button>
+            <button onclick="clearTranscript()" class="btn-3d px-2 py-0.5 bg-[#ed7d31] text-white text-[10px] font-bold rounded">CLEAR LOG</button>
+          </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto bg-black border border-[#444444] rounded">
+          <table class="w-full text-left font-mono text-[11px] border-collapse">
+            <thead class="bg-[#333333] text-slate-200 uppercase text-[10px] sticky top-0 border-b border-slate-600">
+              <tr>
+                <th class="p-1 border-r border-[#444444] w-28">Caller</th>
+                <th class="p-1 border-r border-[#444444] w-16">Priority</th>
+                <th class="p-1 border-r border-[#444444] w-14">Dir</th>
+                <th class="p-1 border-r border-[#444444] w-16">Time</th>
+                <th class="p-1 border-r border-[#444444]">Transmission Transcript</th>
+                <th class="p-1 w-24 text-right">AROC Status</th>
+              </tr>
+            </thead>
+            <tbody id="call-history-tbody">
+              <!-- Color-coded rows -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Quick Fallback Input Bar -->
+        <div class="mt-1.5 pt-1.5 border-t border-[#333333] flex items-center gap-2">
+          <span class="text-[11px] font-bold text-slate-300 font-mono">TX Text:</span>
+          <input type="text" id="manual-tx-input" placeholder="Type transmission here or hold Spacebar / click PTT button..." class="flex-1 bg-black border border-[#555555] rounded px-2 py-1 text-xs font-mono text-cyan-300 focus:outline-none focus:border-yellow-400">
+          <button onclick="submitManualTransmission()" class="btn-3d px-3 py-1 bg-cyan-700 text-white text-xs font-bold font-sans rounded">
+            Send TX
+          </button>
+          <button onclick="copyModelToInput()" class="btn-3d px-2 py-1 bg-slate-700 text-slate-200 text-[11px] font-sans rounded">
+            Copy Model Readback
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ======================================================================= -->
+    <!-- RIGHT PANEL: RADIO FUNCTIONS & GENERAL FUNCTIONS                        -->
+    <!-- ======================================================================= -->
+    <section class="w-60 bg-[#d4d4d4] beveled-out p-1.5 flex flex-col justify-between flex-shrink-0 shadow-md">
+      
+      <!-- TOP BOX: RADIO FUNCTIONS -->
+      <div class="bg-[#dcdcdc] beveled-in p-1.5 rounded mb-2">
+        <div class="text-[11px] font-bold font-sans text-slate-800 border-b border-[#aaaaaa] pb-0.5 mb-1.5">
+          Radio Functions
+        </div>
+
+        <div class="grid grid-cols-2 gap-1 mb-2 font-sans text-[10px] font-bold">
+          <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1.5 rounded flex items-center justify-center gap-1">
+            <i data-lucide="link" class="w-3.5 h-3.5 text-slate-900"></i>
+            <span>Patch</span>
+          </button>
+
+          <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1.5 rounded flex items-center justify-center">
+            <span>Simul Select</span>
+          </button>
+
+          <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1.5 rounded flex items-center justify-center">
+            <span>SELCAL</span>
+          </button>
+
+          <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1.5 rounded flex items-center justify-center">
+            <span>Working Group</span>
+          </button>
+
+          <button onclick="audioEngine.toggleRF()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1.5 rounded flex items-center justify-center">
+            <span id="btn-vox-label">VOX Filter: ON</span>
+          </button>
+
+          <button onclick="audioEngine.playMicClick(true)" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1.5 rounded flex items-center justify-center gap-1">
+            <i data-lucide="headphones" class="w-3.5 h-3.5 text-slate-900"></i>
+            <span>Monitor</span>
+          </button>
+        </div>
+
+        <!-- Giant Coral PTT Pushbutton -->
+        <button id="ptt-btn" onmousedown="speechInput.startPTT()" onmouseup="speechInput.stopPTT()" onmouseleave="speechInput.stopPTT()" ontouchstart="speechInput.startPTT(); event.preventDefault();" ontouchend="speechInput.stopPTT(); event.preventDefault();" class="btn-3d w-full bg-[#f26666] hover:bg-[#e45555] active:bg-[#c93d3d] text-slate-950 font-black text-sm py-3 rounded flex items-center justify-center gap-2 shadow-md uppercase tracking-wider select-none">
+          <span class="text-xl text-yellow-300 filter drop-shadow">⚡</span>
+          <span id="ptt-label-text">PTT TRANSMIT</span>
+        </button>
+        <div class="text-[9px] text-center font-mono text-slate-600 mt-1">HOLD SPACEBAR OR CLICK PTT</div>
+      </div>
+
+      <!-- BOTTOM BOX: GENERAL FUNCTIONS -->
+      <div class="bg-[#dcdcdc] beveled-in p-1.5 rounded flex flex-col justify-between flex-1">
+        <div>
+          <div class="text-[11px] font-bold font-sans text-slate-800 border-b border-[#aaaaaa] pb-0.5 mb-1.5">
+            General Functions
+          </div>
+
+          <div class="grid grid-cols-2 gap-1 mb-2 font-sans text-[10px] font-bold">
+            <button onclick="toggleTileMute(selectedTileId)" id="gen-mute-btn" class="btn-3d bg-[#efa764] hover:bg-[#e09854] p-1.5 rounded flex items-center justify-center gap-1">
+              <i data-lucide="volume-x" class="w-3.5 h-3.5 text-red-800"></i>
+              <span>Mute Line</span>
+            </button>
+
+            <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#efa764] hover:bg-[#e09854] p-1.5 rounded flex items-center justify-center gap-1">
+              <i data-lucide="mic-off" class="w-3.5 h-3.5 text-red-800"></i>
+              <span>Mic Mute</span>
+            </button>
+
+            <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#efa764] hover:bg-[#e09854] p-1.5 rounded flex items-center justify-center">
+              <span>Speaker Enable</span>
+            </button>
+
+            <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#efa764] hover:bg-[#e09854] p-1.5 rounded flex items-center justify-center">
+              <span>Ring Disable</span>
+            </button>
+
+            <!-- Yellow IRR Button -->
+            <button onclick="irrEngine.replay(0)" class="btn-3d bg-[#ffd700] hover:bg-[#e6c200] text-black font-black p-2 rounded flex items-center justify-center gap-1 shadow">
+              <span class="text-xs font-mono font-extrabold bg-black text-yellow-300 px-1 rounded">IRR</span>
+              <span>REPLAY LAST</span>
+            </button>
+
+            <!-- Green ALARM Button -->
+            <button onclick="audioEngine.playBreachAlarm()" class="btn-3d bg-[#00dd55] hover:bg-[#00bb44] text-slate-950 font-black p-2 rounded flex items-center justify-center gap-1 shadow">
+              <i data-lucide="bell" class="w-3.5 h-3.5 text-black"></i>
+              <span>ALARM</span>
+            </button>
+          </div>
+
+          <!-- Volume Sliders -->
+          <div class="grid grid-cols-2 gap-1 mb-2 text-[9px] font-sans font-bold">
+            <div class="bg-white/80 p-1 rounded border border-slate-300 text-center">
+              <div>HS Volume</div>
+              <input type="range" min="0" max="100" value="90" oninput="audioEngine.setVolume(this.value)" class="w-full accent-blue-600 h-1">
+            </div>
+            <div class="bg-white/80 p-1 rounded border border-slate-300 text-center">
+              <div>Line Volume</div>
+              <input type="range" min="0" max="100" value="85" class="w-full accent-blue-600 h-1">
+            </div>
+          </div>
+        </div>
+
+        <!-- Vertical Dual 10-Segment LED VU Ladder -->
+        <div class="bg-black beveled-in p-1.5 rounded flex items-center justify-around">
+          <div class="flex flex-col items-center">
+            <span class="text-[9px] font-bold text-slate-300 font-mono">TX</span>
+            <div class="flex flex-col gap-0.5 mt-0.5" id="tx-led-ladder">
+              <span class="w-3 h-1 bg-red-950 rounded-xs" id="tx-led-10"></span>
+              <span class="w-3 h-1 bg-red-950 rounded-xs" id="tx-led-9"></span>
+              <span class="w-3 h-1 bg-amber-950 rounded-xs" id="tx-led-8"></span>
+              <span class="w-3 h-1 bg-amber-950 rounded-xs" id="tx-led-7"></span>
+              <span class="w-3 h-1 bg-amber-950 rounded-xs" id="tx-led-6"></span>
+              <span class="w-3 h-1 bg-emerald-950 rounded-xs" id="tx-led-5"></span>
+              <span class="w-3 h-1 bg-emerald-950 rounded-xs" id="tx-led-4"></span>
+              <span class="w-3 h-1 bg-emerald-950 rounded-xs" id="tx-led-3"></span>
+              <span class="w-3 h-1 bg-emerald-950 rounded-xs" id="tx-led-2"></span>
+              <span class="w-3 h-1 bg-emerald-950 rounded-xs" id="tx-led-1"></span>
+            </div>
+          </div>
+
+          <div class="h-14 w-[1px] bg-[#333333]"></div>
+
+          <div class="flex flex-col items-center">
+            <span class="text-[9px] font-bold text-slate-300 font-mono">RX</span>
+            <div class="flex flex-col gap-0.5 mt-0.5" id="rx-led-ladder">
+              <span class="w-3 h-1 bg-red-950 rounded-xs" id="rx-led-10"></span>
+              <span class="w-3 h-1 bg-red-950 rounded-xs" id="rx-led-9"></span>
+              <span class="w-3 h-1 bg-amber-950 rounded-xs" id="rx-led-8"></span>
+              <span class="w-3 h-1 bg-amber-950 rounded-xs" id="rx-led-7"></span>
+              <span class="w-3 h-1 bg-amber-950 rounded-xs" id="rx-led-6"></span>
+              <span class="w-3 h-1 bg-emerald-950 rounded-xs" id="rx-led-5"></span>
+              <span class="w-3 h-1 bg-emerald-950 rounded-xs" id="rx-led-4"></span>
+              <span class="w-3 h-1 bg-emerald-950 rounded-xs" id="rx-led-3"></span>
+              <span class="w-3 h-1 bg-emerald-950 rounded-xs" id="rx-led-2"></span>
+              <span class="w-3 h-1 bg-emerald-950 rounded-xs" id="rx-led-1"></span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- 4. BOTTOM HARDWARE STATUS BAR                                             -->
+  <!-- ========================================================================= -->
+  <footer class="h-7 bg-[#cfcfcf] border-t-2 border-[#777777] px-2 flex items-center justify-between text-[11px] font-sans font-bold flex-shrink-0 z-30">
+    <div class="flex items-center gap-1.5 h-full py-0.5">
+      <div class="beveled-in bg-[#dfdfdf] px-2 h-full flex items-center gap-1">
+        <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+        <span class="text-emerald-900">On Line</span>
+      </div>
+
+      <div class="beveled-in bg-[#dfdfdf] px-2 h-full flex items-center">
+        <span>Mode: H/Set</span>
+      </div>
+
+      <div class="beveled-in bg-[#dfdfdf] px-3 h-full flex items-center text-blue-900 truncate max-w-xl">
+        <span class="text-slate-500 mr-1">Status:</span>
+        <span id="bottom-status-message">Tone Remote 1 Selected (126.700 MHz) • Rumdoodle Skiway Clear • Wind 140°@25kt QNH 992</span>
+      </div>
+
+      <div class="beveled-in bg-[#dfdfdf] px-2 h-full flex items-center">
+        <span>Console: 02</span>
+      </div>
+    </div>
+
+    <!-- Right Side System Pushbuttons -->
+    <div class="flex items-center gap-1 h-full py-0.5">
+      <button onclick="stageEngine.replayPilotPrompt()" class="btn-3d bg-[#e6d080] px-2 h-full flex items-center gap-1 text-[10px]">
+        <i data-lucide="repeat" class="w-3 h-3 text-black"></i>
+        <span>Repeat Pilot Call</span>
+      </button>
+
+      <button onclick="resetCurrentScenario()" class="btn-3d bg-[#dfdfdf] px-2 h-full flex items-center text-[10px]">
+        <span>Restart Sim</span>
+      </button>
+
+      <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#dfdfdf] px-2 h-full flex items-center text-[10px]">
+        <span>EXIT</span>
+      </button>
+    </div>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- 5. MODAL / OVERLAY FOR AUXILIARY PANELS                                   -->
+  <!-- ========================================================================= -->
+  <div id="aux-modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+    <div class="bg-[#dcdcdc] beveled-out w-full max-w-2xl p-3 rounded shadow-2xl flex flex-col">
+      <div class="flex items-center justify-between pb-1.5 mb-2 border-b-2 border-slate-400">
+        <h2 id="aux-modal-title" class="font-extrabold font-sans text-sm text-black uppercase">
+          Station AWS Met Telemetry
+        </h2>
+        <button onclick="closeAuxModal()" class="btn-3d w-6 h-6 bg-red-600 text-white font-bold flex items-center justify-center rounded">
+          ✕
+        </button>
+      </div>
+
+      <div id="aux-modal-content" class="text-xs font-mono">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 5.5 MR. T (A-TEAM) MISSION COMPLETE CELEBRATION MODAL                      -->
+  <!-- ========================================================================= -->
+  <div id="mrt-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-all">
+    <div class="relative bg-gradient-to-b from-stone-900 via-neutral-900 to-black border-4 border-amber-500 rounded-xl p-6 shadow-[0_0_50px_rgba(245,158,11,0.6)] max-w-xl w-full text-center border-double transform scale-100 transition-all">
+      <!-- Gold Chain Top Badge -->
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-amber-600 via-yellow-400 to-amber-600 text-black font-black text-xs uppercase tracking-wider shadow-lg mb-3 ring-2 ring-yellow-300">
+        <span>🎖️</span>
+        <span>SGT. B.A. BARACUS • THE A-TEAM</span>
+        <span>🎖️</span>
+      </div>
+
+      <!-- Character Title & Emoticons -->
+      <div class="text-3xl mb-2">💪 🛩️ 🍻</div>
+      <h2 class="text-amber-400 font-black text-xl md:text-2xl font-sans tracking-wide uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+        MISSION ACCOMPLISHED!
+      </h2>
+
+      <div class="my-4 p-4 rounded-lg bg-black/90 border-2 border-amber-400/80 shadow-inner">
+        <p class="text-xs text-amber-300/80 font-mono uppercase tracking-wider mb-1">
+          ★ OFFICIAL MR. T VOICE-OVER DEBRIEF ★
+        </p>
+        <p id="mrt-speech-text" class="text-lg md:text-xl font-black text-white font-sans tracking-tight italic drop-shadow-md">
+          “GREAT JOB FOOL, YOU LANDED THE PLANE NOW GO GET A DRINK!”
+        </p>
+      </div>
+
+      <div class="bg-slate-900/80 border border-slate-700 rounded p-2.5 mb-4 text-left font-mono text-[11px] text-slate-300 space-y-1">
+        <div class="text-cyan-400 font-bold flex items-center justify-between">
+          <span>✈️ PILOT ANNOUNCEMENT:</span>
+          <span class="text-emerald-400">DOWN & SAFE</span>
+        </div>
+        <div id="mrt-pilot-quote" class="text-slate-200 italic">
+          "Foxtrot-Bravo-Oscar, down and safe, skiway clear, shutting down. Waiting for pick up."
+        </div>
+        <div class="text-[10px] text-slate-400 border-t border-slate-800 pt-1 flex justify-between">
+          <span>STATUS: EXERCISE COMPLETED</span>
+          <span class="text-amber-400 font-bold">SARWATCH TERMINATED</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center justify-center gap-3">
+        <button onclick="replayMrTVoice()" class="btn-3d px-4 py-2 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-xs md:text-sm rounded-lg flex items-center gap-2 shadow-lg ring-2 ring-yellow-400 cursor-pointer">
+          <span>🔊</span>
+          <span>REPLAY MR. T VOICE</span>
+        </button>
+        <button onclick="closeMrTModal()" class="btn-3d px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs md:text-sm rounded-lg flex items-center gap-1 cursor-pointer">
+          <span>✕</span>
+          <span>DISMISS</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 6. DCS5020 CONSOLE JAVASCRIPT ENGINE (MODULAR ES6)                        -->
+  <!-- ========================================================================= -->
+  <script>
+    /* =========================================================================
+     * 1. WEB AUDIO RADIO SOUND SYNTHESIZER
+     * ========================================================================= */
+    class RadioAudioEngine {
+      constructor() {
+        this.ctx = null;
+        this.masterVolume = 0.9;
+        this.squelchLevel = 0.65;
+        this.rfFilterEnabled = true;
+        this.rfNoiseNode = null;
+        this.rfNoiseGain = null;
+        this.cockpitNodes = null;
+      }
+
+      initContext() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      setVolume(val) {
+        this.masterVolume = val / 100;
+      }
+
+      toggleRF() {
+        this.rfFilterEnabled = !this.rfFilterEnabled;
+        const btn = document.getElementById('btn-vox-label');
+        if (btn) btn.innerText = `VOX Filter: ${this.rfFilterEnabled ? 'ON' : 'OFF'}`;
+        this.testBeep();
+      }
+
+      playMicClick(isKeyOn = true) {
+        try {
+          this.initContext();
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const filter = this.ctx.createBiquadFilter();
+
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(isKeyOn ? 1800 : 900, now);
+          filter.Q.setValueAtTime(4, now);
+
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(isKeyOn ? 2200 : 700, now);
+          osc.frequency.exponentialRampToValueAtTime(isKeyOn ? 400 : 250, now + 0.025);
+
+          gain.gain.setValueAtTime(0.12 * this.masterVolume, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
+
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start(now);
+          osc.stop(now + 0.03);
+        } catch (e) {}
+      }
+
+      playSquelchTail() {
+        try {
+          this.initContext();
+          const duration = 0.085;
+          const bufferSize = Math.floor(this.ctx.sampleRate * duration);
+          const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+
+          let b0 = 0, b1 = 0, b2 = 0;
+          for (let i = 0; i < bufferSize; i++) {
+            const white = Math.random() * 2 - 1;
+            b0 = 0.99886 * b0 + white * 0.0555179;
+            b1 = 0.99332 * b1 + white * 0.0750759;
+            b2 = 0.96900 * b2 + white * 0.1538520;
+            data[i] = (b0 + b1 + b2 + white * 0.5362) * 0.25;
+          }
+
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = buffer;
+
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.value = 1400;
+          filter.Q.value = 2.5;
+
+          const gain = this.ctx.createGain();
+          const now = this.ctx.currentTime;
+          gain.gain.setValueAtTime(0.35 * this.masterVolume * this.squelchLevel, now);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          noise.start(now);
+        } catch (e) {}
+      }
+
+      playRogerBeep() {
+        try {
+          this.initContext();
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(1200, now);
+
+          gain.gain.setValueAtTime(0.09 * this.masterVolume, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start(now);
+          osc.stop(now + 0.08);
+        } catch (e) {}
+      }
+
+      playBreachAlarm() {
+        try {
+          this.initContext();
+          const now = this.ctx.currentTime;
+          for (let i = 0; i < 2; i++) {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const start = now + (i * 0.18);
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(800, start);
+            osc.frequency.exponentialRampToValueAtTime(320, start + 0.14);
+
+            gain.gain.setValueAtTime(0.25 * this.masterVolume, start);
+            gain.gain.exponentialRampToValueAtTime(0.001, start + 0.15);
+
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            osc.start(start);
+            osc.stop(start + 0.16);
+          }
+        } catch (e) {}
+      }
+
+      startRFHiss() {
+        if (!this.rfFilterEnabled) return;
+        try {
+          this.initContext();
+          if (this.rfNoiseNode) return;
+
+          const bufferSize = this.ctx.sampleRate * 2;
+          const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * 0.08;
+          }
+
+          this.rfNoiseNode = this.ctx.createBufferSource();
+          this.rfNoiseNode.buffer = buffer;
+          this.rfNoiseNode.loop = true;
+
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.value = 1800;
+          filter.Q.value = 1.2;
+
+          this.rfNoiseGain = this.ctx.createGain();
+          this.rfNoiseGain.gain.setValueAtTime(0.04 * this.masterVolume, this.ctx.currentTime);
+
+          this.rfNoiseNode.connect(filter);
+          filter.connect(this.rfNoiseGain);
+          this.rfNoiseGain.connect(this.ctx.destination);
+
+          this.rfNoiseNode.start();
+        } catch (e) {}
+      }
+
+      stopRFHiss() {
+        if (this.rfNoiseNode) {
+          try {
+            this.rfNoiseNode.stop();
+            this.rfNoiseNode.disconnect();
+          } catch (e) {}
+          this.rfNoiseNode = null;
+          this.rfNoiseGain = null;
+        }
+      }
+
+      startCockpitEngine() {
+        try {
+          this.initContext();
+          if (this.cockpitNodes) {
+            this.stopCockpitEngine();
+          }
+
+          const now = this.ctx.currentTime;
+
+          // Master cockpit engine gain with smooth ramp-in
+          const masterEngineGain = this.ctx.createGain();
+          masterEngineGain.gain.setValueAtTime(0.0001, now);
+          masterEngineGain.gain.exponentialRampToValueAtTime(0.14 * this.masterVolume, now + 0.12);
+
+          // 1. Dual turboprop fundamental propeller blade frequency ~95 Hz
+          const oscProp1 = this.ctx.createOscillator();
+          oscProp1.type = 'sawtooth';
+          oscProp1.frequency.setValueAtTime(95, now);
+
+          // 2. Turbine whine / secondary harmonic ~190 Hz
+          const oscProp2 = this.ctx.createOscillator();
+          oscProp2.type = 'sine';
+          oscProp2.frequency.setValueAtTime(190, now);
+
+          // 3. Higher harmonic drone ~285 Hz
+          const oscProp3 = this.ctx.createOscillator();
+          oscProp3.type = 'triangle';
+          oscProp3.frequency.setValueAtTime(285, now);
+
+          // 4. Propeller blade passage modulation (tremolo LFO ~13.5 Hz)
+          const tremoloLFO = this.ctx.createOscillator();
+          tremoloLFO.type = 'sine';
+          tremoloLFO.frequency.setValueAtTime(13.5, now);
+
+          const tremoloGain = this.ctx.createGain();
+          tremoloGain.gain.setValueAtTime(0.22, now);
+
+          const engineBusGain = this.ctx.createGain();
+          engineBusGain.gain.setValueAtTime(0.65, now);
+
+          tremoloLFO.connect(tremoloGain);
+          tremoloGain.connect(engineBusGain.gain);
+
+          // 5. Cabin air / propeller slipstream noise
+          const bufferSize = Math.floor(this.ctx.sampleRate * 1.5);
+          const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const noiseData = noiseBuffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            noiseData[i] = (Math.random() * 2 - 1) * 0.06;
+          }
+          const airNoise = this.ctx.createBufferSource();
+          airNoise.buffer = noiseBuffer;
+          airNoise.loop = true;
+
+          const airFilter = this.ctx.createBiquadFilter();
+          airFilter.type = 'bandpass';
+          airFilter.frequency.setValueAtTime(500, now);
+          airFilter.Q.setValueAtTime(1.6, now);
+
+          const airGain = this.ctx.createGain();
+          airGain.gain.setValueAtTime(0.04, now);
+
+          airNoise.connect(airFilter);
+          airFilter.connect(airGain);
+          airGain.connect(masterEngineGain);
+
+          // Headset cockpit lowpass filter (simulates aviation noise-canceling headset)
+          const engineFilter = this.ctx.createBiquadFilter();
+          engineFilter.type = 'lowpass';
+          engineFilter.frequency.setValueAtTime(450, now);
+          engineFilter.Q.setValueAtTime(1.8, now);
+
+          const g1 = this.ctx.createGain(); g1.gain.value = 0.55;
+          const g2 = this.ctx.createGain(); g2.gain.value = 0.35;
+          const g3 = this.ctx.createGain(); g3.gain.value = 0.18;
+
+          oscProp1.connect(g1);
+          oscProp2.connect(g2);
+          oscProp3.connect(g3);
+
+          g1.connect(engineBusGain);
+          g2.connect(engineBusGain);
+          g3.connect(engineBusGain);
+
+          engineBusGain.connect(engineFilter);
+          engineFilter.connect(masterEngineGain);
+
+          masterEngineGain.connect(this.ctx.destination);
+
+          oscProp1.start(now);
+          oscProp2.start(now);
+          oscProp3.start(now);
+          tremoloLFO.start(now);
+          airNoise.start(now);
+
+          this.cockpitNodes = {
+            masterEngineGain,
+            oscProp1,
+            oscProp2,
+            oscProp3,
+            tremoloLFO,
+            airNoise
+          };
+        } catch (e) {
+          console.warn("Cockpit sound error:", e);
+        }
+      }
+
+      stopCockpitEngine() {
+        if (!this.cockpitNodes) return;
+        try {
+          const now = this.ctx ? this.ctx.currentTime : 0;
+          const nodes = this.cockpitNodes;
+          this.cockpitNodes = null;
+
+          if (this.ctx && nodes.masterEngineGain) {
+            nodes.masterEngineGain.gain.setValueAtTime(nodes.masterEngineGain.gain.value, now);
+            nodes.masterEngineGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+          }
+
+          setTimeout(() => {
+            try {
+              if (nodes.oscProp1) nodes.oscProp1.stop();
+              if (nodes.oscProp2) nodes.oscProp2.stop();
+              if (nodes.oscProp3) nodes.oscProp3.stop();
+              if (nodes.tremoloLFO) nodes.tremoloLFO.stop();
+              if (nodes.airNoise) nodes.airNoise.stop();
+              if (nodes.masterEngineGain) nodes.masterEngineGain.disconnect();
+            } catch (err) {}
+          }, 180);
+        } catch (e) {}
+      }
+
+      playATeamFanfare(callback = null) {
+        try {
+          this.initContext();
+          if (!this.ctx) {
+            if (callback) callback();
+            return;
+          }
+
+          const now = this.ctx.currentTime;
+          const fanfareBus = this.ctx.createGain();
+          fanfareBus.gain.setValueAtTime(0.38 * this.masterVolume, now);
+          fanfareBus.connect(this.ctx.destination);
+
+          // Iconic 1980s triumphant synth brass chords:
+          const chords = [
+            { t: 0.00, d: 0.16, freqs: [349.23, 261.63], vol: 0.75 },         // F4 + C4
+            { t: 0.20, d: 0.16, freqs: [349.23, 261.63], vol: 0.75 },         // F4 + C4
+            { t: 0.42, d: 0.18, freqs: [415.30, 311.13], vol: 0.85 },         // Ab4 + Eb4
+            { t: 0.65, d: 0.20, freqs: [466.16, 349.23], vol: 0.90 },         // Bb4 + F4
+            { t: 0.90, d: 1.10, freqs: [523.25, 392.00, 261.63], vol: 1.0 }   // C5 + G4 + C4 (Climax)
+          ];
+
+          chords.forEach(c => {
+            const startTime = now + c.t;
+            const stopTime = startTime + c.d;
+
+            const filter = this.ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.Q.value = 3.5;
+            filter.frequency.setValueAtTime(800, startTime);
+            filter.frequency.exponentialRampToValueAtTime(3600, startTime + 0.04);
+            filter.frequency.exponentialRampToValueAtTime(1100, stopTime);
+
+            const chordGain = this.ctx.createGain();
+            chordGain.gain.setValueAtTime(0.001, startTime);
+            chordGain.gain.exponentialRampToValueAtTime(c.vol * 0.25, startTime + 0.03);
+            chordGain.gain.exponentialRampToValueAtTime(0.0001, stopTime);
+
+            chordGain.connect(filter);
+            filter.connect(fanfareBus);
+
+            c.freqs.forEach(f => {
+              [-5, 5].forEach(cents => {
+                const osc = this.ctx.createOscillator();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(f, startTime);
+                osc.detune.setValueAtTime(cents, startTime);
+                osc.connect(chordGain);
+                osc.start(startTime);
+                osc.stop(stopTime + 0.05);
+              });
+            });
+          });
+
+          // Retro 80s action bass drum boom on the resolving hit
+          const kickTime = now + 0.90;
+          const kickOsc = this.ctx.createOscillator();
+          const kickGain = this.ctx.createGain();
+          kickOsc.type = 'sine';
+          kickOsc.frequency.setValueAtTime(140, kickTime);
+          kickOsc.frequency.exponentialRampToValueAtTime(35, kickTime + 0.35);
+          kickGain.gain.setValueAtTime(0.65 * this.masterVolume, kickTime);
+          kickGain.gain.exponentialRampToValueAtTime(0.001, kickTime + 0.38);
+          kickOsc.connect(kickGain);
+          kickGain.connect(this.ctx.destination);
+          kickOsc.start(kickTime);
+          kickOsc.stop(kickTime + 0.40);
+
+          if (callback) {
+            setTimeout(callback, 1450);
+          }
+        } catch (err) {
+          console.warn("Fanfare error:", err);
+          if (callback) callback();
+        }
+      }
+
+      testBeep() {
+        this.playMicClick(true);
+        setTimeout(() => this.playRogerBeep(), 100);
+        setTimeout(() => this.playSquelchTail(), 200);
+      }
+    }
+
+    const audioEngine = new RadioAudioEngine();
+
+    /* =========================================================================
+     * 2. 12 RADIO TILES CONFIGURATION & MATRIX STATE (SQUARE CARDS)
+     * ========================================================================= */
+    const TILES = [
+      { id: 1, name: 'Tone Remote 1', label: 'AIR VHF 126.700', freq: '126.700 MHz', mode: 'AM' },
+      { id: 2, name: 'Tone Remote 2', label: 'AIR HF 5484.0', freq: '5484.0 kHz', mode: 'USB' },
+      { id: 3, name: 'Radio 3 (Ops)', label: 'STN OPS 156.800', freq: '156.800 MHz', mode: 'FM' },
+      { id: 4, name: 'Radio 4 (Hägg)', label: 'HÄGGLUNDS 148.250', freq: '148.250 MHz', mode: 'FM' },
+      { id: 5, name: 'Rumdoodle RPT', label: 'RUMDOODLE 149.800', freq: '149.800 MHz', mode: 'FM' },
+      { id: 6, name: 'Mt Henderson', label: 'HENDERSON 148.500', freq: '148.500 MHz', mode: 'FM' },
+      { id: 7, name: 'Framnes Range', label: 'FRAMNES 149.250', freq: '149.250 MHz', mode: 'FM' },
+      { id: 8, name: 'Air Guard 121.5', label: 'GUARD 121.500', freq: '121.500 MHz', mode: 'AM' },
+      { id: 9, name: 'SAR HF Net', label: 'SAR HF 3023.0', freq: '3023.0 kHz', mode: 'USB' },
+      { id: 10, name: 'Air-to-Air Tac', label: 'TACTICAL 123.450', freq: '123.450 MHz', mode: 'AM' },
+      { id: 11, name: 'Fang Peak RPT', label: 'FANG PEAK 150.100', freq: '150.100 MHz', mode: 'FM' },
+      { id: 12, name: 'Casey/Davis HF', label: 'RELAY 8833.0', freq: '8833.0 kHz', mode: 'USB' }
+    ];
+
+    let selectedTileId = 1;
+    let mutedTiles = new Set();
+    let repeaterMode = {}; // tileId -> 'RPT' | 'DIR'
+    let vuInterval = null;
+
+    function selectTile(id) {
+      selectedTileId = id;
+      audioEngine.playMicClick(false);
+
+      TILES.forEach(t => {
+        const el = document.getElementById(`tile-${t.id}`);
+        const selBtn = document.getElementById(`sel-btn-${t.id}`);
+        const stateBadge = document.getElementById(`channel-state-badge-${t.id}`);
+        if (!el) return;
+
+        if (t.id === id) {
+          el.classList.add('active-channel-glow');
+          el.classList.remove('shadow-md');
+          if (selBtn) {
+            selBtn.innerHTML = '● ON';
+            selBtn.className = 'btn-3d h-6 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded flex items-center justify-center shadow-lg ring-2 ring-emerald-300 animate-pulse';
+          }
+          if (stateBadge) {
+            stateBadge.innerText = '● ON';
+            stateBadge.className = 'px-1.5 py-0.5 bg-emerald-600 text-white font-black text-[9px] rounded shadow animate-pulse';
+          }
+        } else {
+          el.classList.remove('active-channel-glow');
+          el.classList.add('shadow-md');
+          if (selBtn) {
+            selBtn.innerHTML = 'SEL';
+            selBtn.className = 'btn-3d h-6 bg-slate-800 text-slate-200 rounded flex items-center justify-center font-bold hover:bg-slate-700';
+          }
+          if (stateBadge) {
+            stateBadge.innerText = 'STBY';
+            stateBadge.className = 'px-1.5 py-0.5 bg-slate-700 text-slate-300 font-bold text-[9px] rounded';
+          }
+        }
+      });
+
+      const info = TILES.find(t => t.id === id);
+      const titleEl = document.getElementById('screen-channel-title');
+      if (titleEl) titleEl.innerText = info.label;
+      const modeEl = document.getElementById('screen-mode-text');
+      if (modeEl) modeEl.innerText = `${info.mode} • ${info.name.toUpperCase()}`;
+      
+      const onLabelEl = document.getElementById('screen-channel-on-label');
+      if (onLabelEl) onLabelEl.innerText = `CH ${id} (${info.label}):`;
+      const onStatusEl = document.getElementById('screen-channel-on-status');
+      if (onStatusEl) onStatusEl.innerText = '● ON';
+
+      const hudTag = document.getElementById('hud-channel-state-tag');
+      if (hudTag) hudTag.innerText = `CH ${id}: ON (${info.freq})`;
+
+      const simIndicator = document.getElementById('sim-action-channel-indicator');
+      if (simIndicator) simIndicator.innerText = `CH ${id}: ON (${info.freq})`;
+
+      const btm = document.getElementById('bottom-status-message');
+      if (btm) btm.innerText = `ACTIVE CHANNEL (ON): ${info.name} (${info.freq}) • Mode: ${repeaterMode[id] || 'RPT'}`;
+    }
+
+    function toggleRepeater(id) {
+      repeaterMode[id] = 'RPT';
+      const rptBtn = document.getElementById(`rpt-btn-${id}`);
+      const dirBtn = document.getElementById(`dir-btn-${id}`);
+      const badge = document.getElementById(`rpt-badge-${id}`);
+      if (rptBtn) rptBtn.className = 'btn-3d h-6 bg-cyan-700 text-white rounded flex items-center justify-center font-bold';
+      if (dirBtn) dirBtn.className = 'btn-3d h-6 bg-slate-200 text-slate-800 rounded flex items-center justify-center';
+      if (badge) badge.innerText = 'RPT LINK';
+      audioEngine.playMicClick(true);
+      addCallHistoryRow('CONSOLE', 'Normal', 'Out', getUtcTimeString(), `Channel ${TILES.find(t => t.id === id).name} set to REPEATER LINK`, 'RPT', 'white');
+    }
+
+    function toggleDirect(id) {
+      repeaterMode[id] = 'DIR';
+      const rptBtn = document.getElementById(`rpt-btn-${id}`);
+      const dirBtn = document.getElementById(`dir-btn-${id}`);
+      const badge = document.getElementById(`rpt-badge-${id}`);
+      if (dirBtn) dirBtn.className = 'btn-3d h-6 bg-amber-600 text-white rounded flex items-center justify-center font-bold';
+      if (rptBtn) rptBtn.className = 'btn-3d h-6 bg-slate-200 text-slate-800 rounded flex items-center justify-center';
+      if (badge) badge.innerText = 'DIR SIMPLEX';
+      audioEngine.playMicClick(true);
+      addCallHistoryRow('CONSOLE', 'Normal', 'Out', getUtcTimeString(), `Channel ${TILES.find(t => t.id === id).name} set to DIRECT SIMPLEX (Bypass Repeater)`, 'DIR', 'white');
+    }
+
+    function toggleTileMute(id) {
+      const btn = document.getElementById('gen-mute-btn');
+      if (mutedTiles.has(id)) {
+        mutedTiles.delete(id);
+        if (btn) btn.classList.remove('bg-red-600', 'text-white');
+      } else {
+        mutedTiles.add(id);
+        if (btn) btn.classList.add('bg-red-600', 'text-white');
+      }
+      audioEngine.playMicClick(true);
+    }
+
+    function tilePTTStart(id) {
+      if (selectedTileId !== id) selectTile(id);
+      speechInput.startPTT();
+    }
+
+    function tilePTTEnd(id) {
+      speechInput.stopPTT();
+    }
+
+    function setTileRX(id, active) {
+      const led = document.getElementById(`rx-led-${id}`);
+      if (led) {
+        led.className = active ? 'w-2.5 h-2.5 rounded-full bg-emerald-400 animate-blink border border-black shadow' : 'w-2.5 h-2.5 rounded-full bg-slate-700 border border-black';
+      }
+      const badge = document.getElementById('screen-rx-tx-badge');
+      if (badge) {
+        badge.innerText = active ? 'RX AUDIO' : 'RX READY';
+        badge.className = active ? 'px-1 bg-emerald-700 text-white rounded text-[9px] animate-pulse' : 'px-1 bg-black text-cyan-300 rounded text-[9px]';
+      }
+      animateLadder('rx', active);
+    }
+
+    function setTileTX(id, active) {
+      const pttBtn = document.getElementById('ptt-btn');
+      const pttLabel = document.getElementById('ptt-label-text');
+      const tilePtt = document.getElementById(`tile-ptt-${id}`);
+      const badge = document.getElementById('screen-rx-tx-badge');
+      const hudPtt = document.getElementById('hud-ptt-state-tag');
+      const simPtt = document.getElementById('sim-action-ptt-indicator');
+
+      if (active) {
+        if (pttBtn) {
+          pttBtn.classList.add('ptt-active-glow');
+        }
+        if (pttLabel) {
+          pttLabel.innerText = '🔴 PTT ACTIVE - TRANSMITTING';
+        }
+        if (tilePtt) {
+          tilePtt.className = 'btn-3d h-6 bg-red-600 text-white font-black rounded flex items-center justify-center ring-2 ring-red-400 shadow animate-pulse';
+        }
+        if (badge) {
+          badge.innerText = 'TX ACTIVE';
+          badge.className = 'px-1 bg-red-600 text-white rounded text-[9px] animate-pulse';
+        }
+        if (hudPtt) {
+          hudPtt.innerText = 'PTT: 🔴 TRANSMITTING';
+          hudPtt.className = 'px-1.5 py-0.2 bg-red-600 text-white font-black text-[10px] rounded animate-pulse';
+        }
+        if (simPtt) {
+          simPtt.innerText = 'PTT: 🔴 TRANSMITTING';
+          simPtt.className = 'px-1.5 py-0.5 bg-red-600 text-white font-black text-[10px] rounded animate-pulse shadow';
+        }
+      } else {
+        if (pttBtn) {
+          pttBtn.classList.remove('ptt-active-glow');
+        }
+        if (pttLabel) {
+          pttLabel.innerText = 'PTT TRANSMIT';
+        }
+        if (tilePtt) {
+          tilePtt.className = 'btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold';
+        }
+        if (badge) {
+          badge.innerText = 'RX READY';
+          badge.className = 'px-1 bg-black text-cyan-300 rounded text-[9px]';
+        }
+        if (hudPtt) {
+          hudPtt.innerText = 'PTT: IDLE';
+          hudPtt.className = 'px-1.5 py-0.2 bg-slate-800 text-slate-300 font-black text-[10px] rounded';
+        }
+        if (simPtt) {
+          simPtt.innerText = 'PTT: IDLE';
+          simPtt.className = 'px-1.5 py-0.5 bg-slate-800 text-slate-300 font-bold text-[10px] rounded';
+        }
+      }
+      animateLadder('tx', active);
+    }
+
+    function animateLadder(type, active) {
+      if (vuInterval) {
+        clearInterval(vuInterval);
+        vuInterval = null;
+      }
+
+      const resetLadder = (t) => {
+        for (let i = 1; i <= 10; i++) {
+          const el = document.getElementById(`${t}-led-${i}`);
+          if (!el) continue;
+          if (i >= 9) el.className = 'w-3 h-1 bg-red-950 rounded-xs';
+          else if (i >= 6) el.className = 'w-3 h-1 bg-amber-950 rounded-xs';
+          else el.className = 'w-3 h-1 bg-emerald-950 rounded-xs';
+        }
+      };
+
+      if (!active) {
+        resetLadder('tx');
+        resetLadder('rx');
+        return;
+      }
+
+      vuInterval = setInterval(() => {
+        const level = Math.floor(Math.random() * 8) + 2;
+        for (let i = 1; i <= 10; i++) {
+          const el = document.getElementById(`${type}-led-${i}`);
+          if (!el) continue;
+          if (i <= level) {
+            if (i >= 9) el.className = 'w-3 h-1 bg-red-500 rounded-xs shadow';
+            else if (i >= 6) el.className = 'w-3 h-1 bg-amber-400 rounded-xs shadow';
+            else el.className = 'w-3 h-1 bg-emerald-400 rounded-xs shadow';
+          } else {
+            if (i >= 9) el.className = 'w-3 h-1 bg-red-950 rounded-xs';
+            else if (i >= 6) el.className = 'w-3 h-1 bg-amber-950 rounded-xs';
+            else el.className = 'w-3 h-1 bg-emerald-950 rounded-xs';
+          }
+        }
+      }, 90);
+    }
+
+    /* =========================================================================
+     * 3. PILOT SPEECH SYNTHESIS ENGINE (TTS WITH RF SIMULATION)
+     * ========================================================================= */
+    class PilotSpeechEngine {
+      constructor() {
+        this.synth = window.speechSynthesis;
+        this.voices = [];
+        this.selectedVoice = null;
+        this.isSpeaking = false;
+        this.loadVoices();
+      }
+
+      loadVoices() {
+        if (!this.synth) return;
+        const update = () => {
+          this.voices = this.synth.getVoices();
+        };
+        update();
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+          speechSynthesis.onvoiceschanged = update;
+        }
+      }
+
+      getBestPilotVoice() {
+        if (this.selectedVoice) return this.selectedVoice;
+        if (!this.synth) return null;
+        const voices = this.synth.getVoices();
+        if (!voices || voices.length === 0) return null;
+
+        const femaleTerms = [
+          'female', 'woman', 'girl', 'karen', 'catherine', 'samantha', 'victoria',
+          'zira', 'susan', 'fiona', 'moira', 'tessa', 'helena', 'eva', 'hazel',
+          'veena', 'alice', 'jenny', 'stephanie', 'lisa', 'sarah', 'mary',
+          'cortana', 'siri', 'julie'
+        ];
+
+        const maleTerms = [
+          'male', 'david', 'guy', 'daniel', 'george', 'alex', 'fred', 'james',
+          'richard', 'mark', 'lee', 'tom', 'russell', 'oliver', 'brian', 'arthur',
+          'michael', 'robert', 'john', 'paul', 'peter', 'andrew', 'matthew'
+        ];
+
+        const matches = (v, terms) => {
+          const str = ((v.name || '') + ' ' + (v.voiceURI || '')).toLowerCase();
+          return terms.some(t => str.includes(t));
+        };
+
+        // 1. Explicit male English voice
+        const maleEn = voices.find(v => v.lang.startsWith('en') && matches(v, maleTerms) && !matches(v, femaleTerms));
+        if (maleEn) return maleEn;
+
+        // 2. Any English voice that is not identified as female
+        const notFemaleEn = voices.find(v => v.lang.startsWith('en') && !matches(v, femaleTerms));
+        if (notFemaleEn) return notFemaleEn;
+
+        // 3. Fallback
+        const anyEn = voices.find(v => v.lang.startsWith('en'));
+        return anyEn || voices[0] || null;
+      }
+
+      speak(text, sender = 'PILOT', callback = null) {
+        if (!this.synth) {
+          if (callback) callback();
+          return;
+        }
+
+        if (this.safetyTimer) clearTimeout(this.safetyTimer);
+        this.synth.cancel();
+        this.isSpeaking = true;
+
+        setTileRX(selectedTileId, true);
+        audioEngine.playMicClick(true);
+        audioEngine.startCockpitEngine();
+        audioEngine.startRFHiss();
+
+        const chan = TILES.find(t => t.id === selectedTileId);
+        const chanName = chan ? `${chan.name} (${chan.freq})` : 'Tone Remote 1';
+        logConsoleAction('PILOT RX', `✈️ ${sender} TRANSMITTING on ${chanName}: "${text}"`);
+        const liveBtm = document.getElementById('bottom-status-message');
+        if (liveBtm) liveBtm.innerText = `RX INCOMING: ${sender} on ${chanName}: "${text}"`;
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        const voice = this.getBestPilotVoice();
+        if (voice) utterance.voice = voice;
+        
+        // Rugged male cockpit pilot profile: lower pitch, natural aviation cadence
+        utterance.rate = 1.0;
+        utterance.pitch = 0.78;
+        utterance.volume = audioEngine.masterVolume;
+
+        let finished = false;
+        const finish = () => {
+          if (finished) return;
+          finished = true;
+          if (this.safetyTimer) clearTimeout(this.safetyTimer);
+          this.isSpeaking = false;
+          audioEngine.stopCockpitEngine();
+          audioEngine.stopRFHiss();
+          audioEngine.playSquelchTail();
+          setTimeout(() => audioEngine.playRogerBeep(), 80);
+          setTileRX(selectedTileId, false);
+
+          logConsoleAction('RX STANDBY', `🎧 Pilot transmission ended on ${chanName}. Standby for station reply.`);
+          const btm = document.getElementById('bottom-status-message');
+          if (btm) btm.innerText = `STANDBY: Press & hold PTT (or Spacebar) to reply to aircraft on ${chanName}`;
+
+          irrEngine.addRecord({
+            sender: sender,
+            channel: TILES.find(t => t.id === selectedTileId).name,
+            text: text,
+            timestamp: getUtcTimeString()
+          });
+
+          if (callback) callback();
+        };
+
+        utterance.onend = finish;
+        utterance.onerror = finish;
+
+        // Safety fallback timer in case speech synthesis stalls
+        const estTime = Math.max(2000, (text.length / 12) * 1000);
+        this.safetyTimer = setTimeout(finish, estTime + 2800);
+
+        this.synth.speak(utterance);
+      }
+
+      cancel() {
+        if (this.safetyTimer) clearTimeout(this.safetyTimer);
+        if (this.synth) this.synth.cancel();
+        audioEngine.stopCockpitEngine();
+        audioEngine.stopRFHiss();
+        setTileRX(selectedTileId, false);
+        this.isSpeaking = false;
+      }
+    }
+
+    const pilotSpeech = new PilotSpeechEngine();
+
+    /* =========================================================================
+     * 3.5 MAWSON STATION OPERATOR SPEECH ENGINE (GROUND DISPATCHER)
+     * ========================================================================= */
+    class StationOperatorSpeechEngine {
+      constructor() {
+        this.synth = window.speechSynthesis;
+        this.isSpeaking = false;
+        this.safetyTimer = null;
+      }
+
+      getBestOperatorVoice() {
+        if (!this.synth) return null;
+        const voices = this.synth.getVoices();
+        const pilotVoice = pilotSpeech.getBestPilotVoice();
+
+        // Distinct dispatcher voice from pilot
+        const auAlt = voices.find(v => v.lang === 'en-AU' && v !== pilotVoice);
+        if (auAlt) return auAlt;
+        const gb = voices.find(v => (v.lang === 'en-GB' || v.lang.includes('GB')) && v !== pilotVoice);
+        if (gb) return gb;
+        const enFemale = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Samantha') || v.name.includes('Karen') || v.name.includes('Victoria')) && v !== pilotVoice);
+        if (enFemale) return enFemale;
+        const enOther = voices.find(v => v.lang.startsWith('en') && v !== pilotVoice);
+        if (enOther) return enOther;
+
+        return pilotVoice;
+      }
+
+      speak(text, channelId = selectedTileId, callback = null) {
+        if (channelId && channelId !== selectedTileId) {
+          selectTile(channelId);
+        }
+
+        if (this.safetyTimer) clearTimeout(this.safetyTimer);
+
+        if (!this.synth) {
+          addCallHistoryRow('MAWSON COMMS', 'Normal', 'Out', getUtcTimeString(), text, 'PASSED (100%)', 'yellow');
+          if (callback) callback();
+          return;
+        }
+
+        this.synth.cancel();
+        this.isSpeaking = true;
+
+        // Visual and audio TX indicators on console
+        setTileTX(selectedTileId, true);
+        audioEngine.playMicClick(true);
+
+        const input = document.getElementById('manual-tx-input');
+        if (input) input.value = text;
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        const voice = this.getBestOperatorVoice();
+        if (voice) utterance.voice = voice;
+
+        // Ground station dispatcher profile: crisp, authoritative
+        utterance.rate = 1.0;
+        utterance.pitch = (voice && voice === pilotSpeech.getBestPilotVoice()) ? 1.25 : 1.08;
+        utterance.volume = audioEngine.masterVolume;
+
+        let finished = false;
+        const finish = () => {
+          if (finished) return;
+          finished = true;
+          if (this.safetyTimer) clearTimeout(this.safetyTimer);
+          this.isSpeaking = false;
+          setTileTX(selectedTileId, false);
+          audioEngine.playSquelchTail();
+          addCallHistoryRow('MAWSON COMMS', 'Normal', 'Out', getUtcTimeString(), text, 'PASSED (100%)', 'yellow');
+          if (callback) callback();
+        };
+
+        utterance.onend = finish;
+        utterance.onerror = finish;
+
+        const estTime = Math.max(1800, (text.length / 13) * 1000);
+        this.safetyTimer = setTimeout(finish, estTime + 2500);
+
+        this.synth.speak(utterance);
+      }
+
+      cancel() {
+        if (this.safetyTimer) clearTimeout(this.safetyTimer);
+        if (this.synth) this.synth.cancel();
+        setTileTX(selectedTileId, false);
+        this.isSpeaking = false;
+      }
+    }
+
+    const stationOperatorSpeech = new StationOperatorSpeechEngine();
+
+    /* =========================================================================
+     * 3.8 MR. T (A-TEAM) SPEECH ENGINE & DEBRIEF SYSTEM
+     * ========================================================================= */
+    class MrTSpeechEngine {
+      constructor() {
+        this.synth = window.speechSynthesis;
+        this.safetyTimer = null;
+        this.isSpeaking = false;
+        this.phrase = "Great job fool, you landed the plane now go get a drink";
+        this.loadVoices();
+      }
+
+      loadVoices() {
+        if (!this.synth) return;
+        const update = () => {
+          this.voices = this.synth.getVoices();
+        };
+        update();
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+          speechSynthesis.onvoiceschanged = update;
+        }
+      }
+
+      getBestMrTVoice() {
+        if (!this.synth) return null;
+        const voices = this.synth.getVoices();
+        if (!voices || voices.length === 0) return null;
+
+        const femaleTerms = [
+          'female', 'woman', 'girl', 'karen', 'catherine', 'samantha', 'victoria',
+          'zira', 'susan', 'fiona', 'moira', 'tessa', 'helena', 'eva', 'hazel',
+          'veena', 'alice', 'jenny', 'stephanie', 'lisa', 'sarah', 'mary',
+          'cortana', 'siri', 'julie'
+        ];
+
+        const mrTPreferences = [
+          'guy', 'david', 'alex', 'fred', 'george', 'richard', 'mark', 'michael',
+          'james', 'daniel', 'john', 'paul', 'peter', 'brian', 'male', 'google us english'
+        ];
+
+        const matches = (v, terms) => {
+          const str = ((v.name || '') + ' ' + (v.voiceURI || '')).toLowerCase();
+          return terms.some(t => str.includes(t));
+        };
+
+        // 1. Prefer US English male voice
+        const usMale = voices.find(v => (v.lang === 'en-US' || v.lang.startsWith('en-US')) && matches(v, mrTPreferences) && !matches(v, femaleTerms));
+        if (usMale) return usMale;
+
+        // 2. Any US English non-female
+        const usNotFemale = voices.find(v => (v.lang === 'en-US' || v.lang.startsWith('en-US')) && !matches(v, femaleTerms));
+        if (usNotFemale) return usNotFemale;
+
+        // 3. Any English male voice
+        const enMale = voices.find(v => v.lang.startsWith('en') && matches(v, mrTPreferences) && !matches(v, femaleTerms));
+        if (enMale) return enMale;
+
+        // 4. Fallback: Any English voice not female
+        const enNotFemale = voices.find(v => v.lang.startsWith('en') && !matches(v, femaleTerms));
+        if (enNotFemale) return enNotFemale;
+
+        return voices.find(v => v.lang.startsWith('en')) || voices[0] || null;
+      }
+
+      speak(text = this.phrase, callback = null) {
+        if (!this.synth) {
+          if (callback) callback();
+          return;
+        }
+
+        if (this.safetyTimer) clearTimeout(this.safetyTimer);
+        this.synth.cancel();
+        this.isSpeaking = true;
+
+        // Punchy phrasing with emphatic commas and exclamations for Mr. T's iconic delivery
+        const punchyText = "Great job, fool! You landed the plane! Now go get a drink!";
+        const utterance = new SpeechSynthesisUtterance(punchyText);
+        const voice = this.getBestMrTVoice();
+        if (voice) utterance.voice = voice;
+
+        // Mr. T vocal profile: deep, gravelly, booming baritone (pitch: 0.62), aggressive rhythm (rate: 0.94), max volume
+        utterance.pitch = 0.62;
+        utterance.rate = 0.94;
+        utterance.volume = 1.0;
+
+        let finished = false;
+        const finish = () => {
+          if (finished) return;
+          finished = true;
+          if (this.safetyTimer) clearTimeout(this.safetyTimer);
+          this.isSpeaking = false;
+          if (callback) callback();
+        };
+
+        utterance.onend = finish;
+        utterance.onerror = finish;
+
+        this.safetyTimer = setTimeout(finish, 4500);
+        this.synth.speak(utterance);
+      }
+
+      cancel() {
+        if (this.safetyTimer) clearTimeout(this.safetyTimer);
+        if (this.synth) this.synth.cancel();
+        this.isSpeaking = false;
+      }
+    }
+
+    const mrTSpeech = new MrTSpeechEngine();
+
+    function triggerMrTCelebration(pilotQuote = '') {
+      const modal = document.getElementById('mrt-modal');
+      if (modal) {
+        if (pilotQuote) {
+          const quoteEl = document.getElementById('mrt-pilot-quote');
+          if (quoteEl) quoteEl.innerText = `"${pilotQuote}"`;
+        }
+        modal.classList.remove('hidden');
+      }
+
+      const utc = getUtcTimeString();
+      addCallHistoryRow('MR. T (A-TEAM)', 'ALERT', 'In', utc, 'GREAT JOB FOOL, YOU LANDED THE PLANE NOW GO GET A DRINK!', 'MISSION ACCOMPLISHED', 'yellow');
+      logConsoleAction('MR. T VOICE-OVER', '🎖️ MR. T (THE A-TEAM): "Great job fool, you landed the plane now go get a drink!"');
+
+      // 1. Play iconic 1980s A-Team brass fanfare synth chord progression
+      audioEngine.playATeamFanfare(() => {
+        // 2. Speak Mr. T booming gravelly voice-over
+        mrTSpeech.speak();
+      });
+    }
+
+    function replayMrTVoice() {
+      audioEngine.playATeamFanfare(() => {
+        mrTSpeech.speak();
+      });
+    }
+
+    function closeMrTModal() {
+      const modal = document.getElementById('mrt-modal');
+      if (modal) modal.classList.add('hidden');
+      mrTSpeech.cancel();
+    }
+
+    /* =========================================================================
+     * 4. INSTANT RECALL RECORDER (IRR) BUFFER
+     * ========================================================================= */
+    class IRREngine {
+      constructor() {
+        this.buffer = [];
+        this.maxRecords = 3;
+      }
+
+      addRecord(record) {
+        this.buffer.unshift(record);
+        if (this.buffer.length > this.maxRecords) {
+          this.buffer.pop();
+        }
+      }
+
+      replay(index) {
+        const item = this.buffer[index];
+        if (!item) return;
+        addCallHistoryRow('SYSTEM (IRR)', 'Normal', 'In', item.timestamp, `[REPLAY] ${item.text}`, 'IRR Replay', 'yellow');
+        pilotSpeech.speak(item.text, `IRR (${item.sender})`);
+      }
+    }
+
+    const irrEngine = new IRREngine();
+
+    /* =========================================================================
+     * 5. SPEECH RECOGNITION (STT) & PTT HANDLER
+     * ========================================================================= */
+    class SpeechInputEngine {
+      constructor() {
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        this.isSupported = !!SpeechRec;
+        this.recognition = null;
+        this.isPTTActive = false;
+        this.accumulatedTranscript = '';
+        this.lastInterim = '';
+        this.latestTranscript = '';
+
+        if (this.isSupported) {
+          try {
+            this.recognition = new SpeechRec();
+            this.recognition.continuous = true;
+            this.recognition.interimResults = true;
+            this.recognition.lang = 'en-AU';
+
+            this.setupEvents();
+          } catch (e) {
+            console.warn("SpeechRec init error:", e);
+          }
+        }
+      }
+
+      setupEvents() {
+        this.recognition.onresult = (event) => {
+          let interim = '';
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            const tr = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              this.accumulatedTranscript += ' ' + tr;
+            } else {
+              interim += tr;
+            }
+          }
+          this.lastInterim = interim;
+          const fullInterim = (this.accumulatedTranscript + ' ' + interim).trim();
+          this.latestTranscript = fullInterim;
+
+          // Stream real-time speech directly into the bottom TX text input
+          const input = document.getElementById('manual-tx-input');
+          if (input && fullInterim.length > 0) {
+            input.value = fullInterim;
+          }
+
+          // Live status message at bottom
+          const btm = document.getElementById('bottom-status-message');
+          if (btm) {
+            btm.innerText = `TRANSMITTING: "${fullInterim}"`;
+          }
+
+          // Live console action banner update
+          const bannerText = document.getElementById('sim-action-text');
+          if (bannerText && fullInterim.length > 0) {
+            bannerText.innerText = `🎙️ TRANSMITTING: "${fullInterim}"`;
+          }
+        };
+
+        this.recognition.onerror = (event) => {
+          console.warn("Speech recognition error:", event.error);
+          if (event.error === 'not-allowed') {
+            logConsoleAction('MIC PERMISSION', '⚠️ Microphone access blocked by browser. Please enable microphone permissions in browser address bar.');
+          }
+        };
+
+        this.recognition.onend = () => {
+          if (this.isPTTActive) {
+            try { this.recognition.start(); } catch(e) {}
+          }
+        };
+      }
+
+      startPTT() {
+        if (this.isPTTActive) return;
+        this.isPTTActive = true;
+        this.accumulatedTranscript = '';
+        this.lastInterim = '';
+        this.latestTranscript = '';
+
+        audioEngine.initContext();
+        pilotSpeech.cancel();
+        stationOperatorSpeech.cancel();
+
+        audioEngine.playMicClick(true);
+        setTileTX(selectedTileId, true);
+
+        const pttLabel = document.getElementById('ptt-label-text');
+        if (pttLabel) pttLabel.innerText = '🔴 PTT ACTIVE - TRANSMITTING';
+
+        const chan = TILES.find(t => t.id === selectedTileId);
+        const chanName = chan ? `${chan.name} (${chan.freq})` : 'Tone Remote 1';
+
+        logConsoleAction('PTT TRANSMIT', `🔴 PTT DEPRESSED ON ${chanName} ➔ Speak into microphone or hold Spacebar...`);
+
+        const btm = document.getElementById('bottom-status-message');
+        if (btm) btm.innerText = `PTT ACTIVE: Transmitting on ${chanName} - Speak into microphone...`;
+
+        if (this.isSupported && this.recognition) {
+          try { this.recognition.start(); } catch(e) {}
+        }
+      }
+
+      stopPTT() {
+        if (!this.isPTTActive) return;
+        this.isPTTActive = false;
+
+        audioEngine.playSquelchTail();
+        setTileTX(selectedTileId, false);
+
+        const pttLabel = document.getElementById('ptt-label-text');
+        if (pttLabel) pttLabel.innerText = 'PTT TRANSMIT';
+
+        if (this.isSupported && this.recognition) {
+          try { this.recognition.stop(); } catch(e) {}
+        }
+
+        // Wait 250ms for speech recognition to finalize any trailing results
+        setTimeout(() => {
+          const inputEl = document.getElementById('manual-tx-input');
+          const inputValue = inputEl ? inputEl.value.trim() : '';
+          const finalSpoken = (this.latestTranscript || this.accumulatedTranscript || this.lastInterim || inputValue).trim();
+
+          const chan = TILES.find(t => t.id === selectedTileId);
+          const chanName = chan ? `${chan.name} (${chan.freq})` : 'Tone Remote 1';
+
+          if (finalSpoken.length > 0) {
+            handleUserTransmission(finalSpoken);
+          } else {
+            // PTT keyed without any voice audio
+            logConsoleAction('PTT IDLE', `⚠️ Keyed PTT on ${chanName} - No voice audio detected.`);
+            addCallHistoryRow('MAWSON COMMS', 'Warning', 'Out', getUtcTimeString(), '[PTT Keyed - Carrier Only]', 'NO MODULATION', 'yellow');
+
+            setTimeout(() => {
+              const sc = SCENARIOS[stageEngine.currentScenarioId];
+              const pilotQuery = `${sc.pilotCallPhonetic}, unreadable carrier, say again Mawson Base?`;
+              addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Warning', 'In', getUtcTimeString(), pilotQuery, 'SAY AGAIN', 'blue');
+              pilotSpeech.speak(pilotQuery, `PILOT (${sc.aircraftCall})`);
+            }, 800);
+          }
+
+          // Clear transcript buffers
+          this.accumulatedTranscript = '';
+          this.lastInterim = '';
+          this.latestTranscript = '';
+        }, 250);
+      }
+    }
+
+    const speechInput = new SpeechInputEngine();
+
+    /* =========================================================================
+     * 6. WEATHER AMDS (AUTOMATED WEATHER STATION) ENGINE
+     * ========================================================================= */
+    const weatherData = {
+      windDir: 140,
+      windSpeed: 25,
+      windGust: 34,
+      visKm: 10,
+      driftCondition: 'Light blowing drift',
+      tempC: -16,
+      chillC: -32,
+      qnh: 992,
+      slaName: 'RUMDOODLE (Plateau - Elev 498m)',
+      slaSurface: 'Firm wind-packed sastrugi 10-15cm, clear'
+    };
+
+    function randomizeWeather() {
+      weatherData.windDir = Math.floor(130 + Math.random() * 30);
+      weatherData.windSpeed = Math.floor(22 + Math.random() * 12);
+      weatherData.windGust = weatherData.windSpeed + Math.floor(8 + Math.random() * 10);
+      weatherData.qnh = Math.floor(984 + Math.random() * 16);
+      weatherData.tempC = -Math.floor(14 + Math.random() * 8);
+      weatherData.chillC = weatherData.tempC - Math.floor(12 + Math.random() * 6);
+      updateSideScriptCard();
+      addCallHistoryRow('SYSTEM (AWS)', 'Normal', 'In', getUtcTimeString(), `AWS Telemetry Refreshed: Wind ${weatherData.windDir}@${weatherData.windSpeed}kt QNH ${weatherData.qnh}hPa`, 'AWS OK', 'white');
+    }
+
+    /* =========================================================================
+     * 7. SCENARIO & MISSION ENGINE
+     * ========================================================================= */
+    const SCENARIOS = {
+      A: {
+        id: 'A',
+        name: 'A: Rumdoodle (DHC-6 Twin Otter)',
+        aircraftCall: 'VHG-FBO',
+        pilotCallPhonetic: 'Foxtrot-Bravo-Oscar',
+        aircraftType: 'Twin Otter DHC-6',
+        route: 'DAVIS -> RUMDOODLE',
+        slaName: 'RUMDOODLE (Plateau - Elev 498m)',
+        slaSurface: 'Firm sastrugi 10-15cm, runway markers clear',
+        initialEtaMinutes: 38,
+        stages: [
+          {
+            stageNum: 1,
+            title: 'Initial Inbound Contact (~35-40 min out)',
+            pilotCall: 'Mawson Traffic, Twin Otter Foxtrot-Bravo-Oscar, 40 miles north-east, maintaining 7,500 feet, estimating Rumdoodle at [ETA] UTC, inbound for landing.',
+            expectedModel: 'Foxtrot-Bravo-Oscar, Mawson Base, read you strength 5. Rumdoodle Ski Landing Area currently reported clear. Surface wind [WIND], visibility [VIS] kilometres, temperature [TEMP], QNH [QNH]. No conflicting traffic.'
+          },
+          {
+            stageNum: 2,
+            title: 'Descent Check (~12 min out)',
+            pilotCall: 'QNH [QNH], Rumdoodle clear, Foxtrot-Bravo-Oscar descending to 3,000 feet.',
+            expectedModel: 'Foxtrot-Bravo-Oscar, Mawson Base copies descent to 3,000 feet.'
+          },
+          {
+            stageNum: 3,
+            title: 'Joining Downwind Circuit',
+            pilotCall: 'Mawson Traffic, Foxtrot-Bravo-Oscar, joining downwind for the Rumdoodle skiway.',
+            expectedModel: 'Foxtrot-Bravo-Oscar, copy downwind, surface wind now [WIND].'
+          },
+          {
+            stageNum: 4,
+            title: 'Touchdown & Runway Vacated',
+            pilotCall: 'Foxtrot-Bravo-Oscar, down and safe at Rumdoodle, skiway clear, shutting down. Waiting for pick up.',
+            expectedModel: 'Foxtrot-Bravo-Oscar, Mawson Base copies down and safe at [UTC] UTC. Welcome to Mawson.'
+          }
+        ]
+      },
+      B: {
+        id: 'B',
+        name: 'B: Sea Ice SLA (Basler BT-67)',
+        aircraftCall: 'VKB-BTG',
+        pilotCallPhonetic: 'Bravo-Tango-Golf',
+        aircraftType: 'Basler BT-67',
+        route: 'CASEY -> MAWSON ICE',
+        slaName: 'MAWSON SEA ICE (Sea Level - Seasonal)',
+        slaSurface: 'Annual sea ice 1.5m, tide cracks flagged, moderate drift',
+        initialEtaMinutes: 25,
+        stages: [
+          {
+            stageNum: 1,
+            title: 'Initial Inbound Sea Ice Contact',
+            pilotCall: 'Mawson Traffic, Basler Bravo-Tango-Golf, 30 miles east, 6,000 feet, estimating Mawson Sea Ice skiway at [ETA] UTC, inbound.',
+            expectedModel: 'Bravo-Tango-Golf, Mawson Base, read you strength 5. Sea Ice Ski Landing Area reported clear, surface wind [WIND], visibility [VIS] kilometres, QNH [QNH]. No conflicting traffic.'
+          },
+          {
+            stageNum: 2,
+            title: 'Descent over Continental Margin',
+            pilotCall: 'QNH [QNH], Bravo-Tango-Golf descending 2,500 feet over ice plateau.',
+            expectedModel: 'Bravo-Tango-Golf, Mawson copies descent to 2,500 feet.'
+          },
+          {
+            stageNum: 3,
+            title: 'Circuit Call over Horseshoe Harbour',
+            pilotCall: 'Mawson Traffic, Bravo-Tango-Golf, base leg for Sea Ice skiway heading 320.',
+            expectedModel: 'Bravo-Tango-Golf, copy base leg, wind [WIND], skiway clear.'
+          },
+          {
+            stageNum: 4,
+            title: 'Touchdown on Fast Ice',
+            pilotCall: 'Bravo-Tango-Golf, down and safe on Mawson sea ice, taxiing to refuel point. Waiting for pick up.',
+            expectedModel: 'Bravo-Tango-Golf, Mawson copies down and safe at [UTC] UTC.'
+          }
+        ]
+      },
+      C: {
+        id: 'C',
+        name: 'C: SARWATCH Alert (Overdue)',
+        aircraftCall: 'VHG-FBO',
+        pilotCallPhonetic: 'Foxtrot-Bravo-Oscar',
+        aircraftType: 'Twin Otter DHC-6',
+        route: 'DAVIS -> RUMDOODLE',
+        slaName: 'RUMDOODLE (Plateau - Elev 498m)',
+        slaSurface: 'Firm sastrugi, wind gusting 38 kts',
+        initialEtaMinutes: 15,
+        stages: [
+          {
+            stageNum: 1,
+            title: 'Initial Check-in',
+            pilotCall: 'Mawson Traffic, Twin Otter Foxtrot-Bravo-Oscar, 25 miles out, estimating Rumdoodle at [ETA] UTC.',
+            expectedModel: 'Foxtrot-Bravo-Oscar, Mawson Base, strength 5. Rumdoodle reported clear, wind [WIND], QNH [QNH].'
+          },
+          {
+            stageNum: 2,
+            title: 'SARWATCH Alert (Overdue Report)',
+            pilotCall: '[RADIO SILENCE] Aircraft has missed the 10-minute descent call. SARWATCH countdown alert triggered!',
+            expectedModel: 'Foxtrot-Bravo-Oscar, Mawson Base on 126.7, do you read? Foxtrot-Bravo-Oscar, Mawson.'
+          },
+          {
+            stageNum: 3,
+            title: 'Re-establishing Contact',
+            pilotCall: 'Mawson Base, Foxtrot-Bravo-Oscar re-establishing, minor VHF antenna icing now resolved, joining Rumdoodle downwind.',
+            expectedModel: 'Foxtrot-Bravo-Oscar, Mawson copies, glad to hear you. Surface wind [WIND], skiway clear.'
+          },
+          {
+            stageNum: 4,
+            title: 'Touchdown & Termination',
+            pilotCall: 'Foxtrot-Bravo-Oscar, down and safe at Rumdoodle, shutting down. Waiting for pick up.',
+            expectedModel: 'Foxtrot-Bravo-Oscar, Mawson copies down and safe at [UTC] UTC. Terminating SARWATCH.'
+          }
+        ]
+      }
+    };
+
+    class MissionStageEngine {
+      constructor() {
+        this.currentScenarioId = 'A';
+        this.currentStageIndex = 0;
+        this.sarwatchActive = true;
+        this.simulatedEta = '07:45 UTC';
+      }
+
+      initScenario(id, autoPlayPilot = true) {
+        this.currentScenarioId = id;
+        this.currentStageIndex = 0;
+        this.sarwatchActive = true;
+        const sc = SCENARIOS[id];
+
+        const now = new Date();
+        const etaDate = new Date(now.getTime() + sc.initialEtaMinutes * 60000);
+        const etaHours = String(etaDate.getUTCHours()).padStart(2, '0');
+        const etaMins = String(etaDate.getUTCMinutes()).padStart(2, '0');
+        this.simulatedEta = `${etaHours}:${etaMins} UTC`;
+
+        const pill = document.getElementById('active-scenario-pill');
+        if (pill) pill.innerText = sc.name;
+        const screenCall = document.getElementById('screen-aircraft-call');
+        if (screenCall) screenCall.innerText = `CALL: ${sc.aircraftCall}`;
+        const flightIdent = document.getElementById('side-flight-ident');
+        if (flightIdent) flightIdent.innerText = `${sc.aircraftType}`;
+        const slaIdent = document.getElementById('side-sla-ident');
+        if (slaIdent) slaIdent.innerText = sc.slaName.split(' ')[0];
+        const etaIdent = document.getElementById('side-eta-ident');
+        if (etaIdent) etaIdent.innerText = this.simulatedEta;
+
+        updateSideScriptCard();
+        this.loadStage(0, autoPlayPilot);
+      }
+
+      loadStage(stageIndex, autoPlayPilot = false) {
+        this.currentStageIndex = stageIndex;
+        const sc = SCENARIOS[this.currentScenarioId];
+        const stage = sc.stages[stageIndex];
+
+        updateSideScriptCard();
+
+        let pilotMsg = stage.pilotCall
+          .replace('[ETA]', this.simulatedEta.replace(' UTC', ''))
+          .replace('[QNH]', weatherData.qnh);
+
+        if (this.currentScenarioId === 'C' && stage.stageNum === 2) {
+          addCallHistoryRow('SARWATCH ALERT', 'Emergency', 'In', getUtcTimeString(), pilotMsg, 'OVERDUE', 'red');
+          audioEngine.playBreachAlarm();
+        } else {
+          addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotMsg, 'Received', 'blue');
+          if (autoPlayPilot) {
+            setTimeout(() => {
+              pilotSpeech.speak(pilotMsg, `PILOT (${sc.aircraftCall})`);
+            }, 600);
+          }
+        }
+      }
+
+      replayPilotPrompt() {
+        const sc = SCENARIOS[this.currentScenarioId];
+        const stage = sc.stages[this.currentStageIndex];
+        let pilotMsg = stage.pilotCall
+          .replace('[ETA]', this.simulatedEta.replace(' UTC', ''))
+          .replace('[QNH]', weatherData.qnh);
+        pilotSpeech.speak(pilotMsg, `PILOT (${sc.aircraftCall})`);
+      }
+
+      advanceStage() {
+        const sc = SCENARIOS[this.currentScenarioId];
+        if (this.currentStageIndex < sc.stages.length - 1) {
+          this.loadStage(this.currentStageIndex + 1, true);
+        }
+        updateSideScriptCard();
+      }
+
+      updateModelPhraseology() {
+        updateSideScriptCard();
+      }
+    }
+
+    const stageEngine = new MissionStageEngine();
+
+    /* =========================================================================
+     * 8. AROC PHRASEOLOGY EVALUATOR & CALL HISTORY RENDERER
+     * ========================================================================= */
+    function handleUserTransmission(text) {
+      if (!text || text.trim().length === 0) return;
+
+      const chan = TILES.find(t => t.id === selectedTileId);
+      const chanName = chan ? `${chan.name} (${chan.freq})` : 'Tone Remote 1';
+
+      logConsoleAction('STATION TX', `🎙️ OPERATOR TRANSMITTED on ${chanName}: "${text}"`);
+      const btm = document.getElementById('bottom-status-message');
+      if (btm) btm.innerText = `TRANSMITTED: "${text}" (Evaluating readback...)`;
+
+      evaluateTransmission(text);
+
+      const input = document.getElementById('manual-tx-input');
+      if (input) input.value = '';
+    }
+
+    function evaluateTransmission(rawText) {
+      const text = rawText.toLowerCase().trim();
+      const sc = SCENARIOS[stageEngine.currentScenarioId];
+      const stage = sc.stages[stageEngine.currentStageIndex];
+
+      const atcClearancePatterns = [
+        /cleared\s+to\s+land/i,
+        /cleared\s+for\s+takeoff/i,
+        /cleared\s+for\s+take-off/i,
+        /cleared\s+to\s+descend/i,
+        /cleared\s+approach/i,
+        /clear\s+to\s+land/i
+      ];
+
+      for (let pat of atcClearancePatterns) {
+        if (pat.test(text)) {
+          audioEngine.playBreachAlarm();
+          addCallHistoryRow('MAWSON COMMS', 'CRITICAL', 'Out', getUtcTimeString(), rawText, 'ATC BREACH (0%)', 'red');
+          logConsoleAction('AROC BREACH', '❌ CRITICAL AROC BREACH: Issued unauthorized ATC clearance! UNICOM cannot clear to land.');
+
+          setTimeout(() => {
+            const refuse = `${sc.pilotCallPhonetic}, Mawson Base, note UNICOM station cannot issue air traffic clearance. Advise skiway condition and weather advisory only.`;
+            addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Warning', 'In', getUtcTimeString(), refuse, 'REJECTED', 'blue');
+            pilotSpeech.speak(refuse, `PILOT (${sc.aircraftCall})`);
+          }, 900);
+          return;
+        }
+      }
+
+      const hasCallsign = (
+        text.includes('foxtrot') || text.includes('bravo') || text.includes('oscar') ||
+        text.includes('fbo') || text.includes('btg') || text.includes('tango') ||
+        text.includes('golf') || text.includes('twin otter') || text.includes('basler') ||
+        text.includes('aircraft') || text.includes('inbound')
+      );
+
+      const hasMawson = (
+        text.includes('mawson') || text.includes('base') || text.includes('traffic') ||
+        text.includes('station') || text.includes('radio') || text.includes('ground') ||
+        text.includes('comms') || text.includes('morrison') || text.includes('molson')
+      );
+
+      const hasQnh = (
+        text.includes(String(weatherData.qnh)) || text.includes('qnh') ||
+        text.includes('altimeter') || text.includes('hectopascal') || text.includes('hpa') ||
+        text.includes('99') || text.includes('98')
+      );
+
+      const hasWind = (
+        text.includes(String(weatherData.windDir)) || text.includes('wind') ||
+        text.includes('knot') || text.includes('knots') || text.includes('degrees')
+      );
+
+      const hasRunwayStatus = (
+        text.includes('clear') || text.includes('reported clear') ||
+        text.includes('rumdoodle') || text.includes('sea ice') ||
+        text.includes('skiway') || text.includes('runway') ||
+        text.includes('landing area') || text.includes('sastrugi') ||
+        text.includes('no conflicting')
+      );
+
+      const hasReadability = (
+        text.includes('read') || text.includes('strength') ||
+        text.includes('five') || text.includes('5') || text.includes('loud')
+      );
+
+      const hasAcks = (
+        text.includes('copy') || text.includes('copies') || text.includes('copied') ||
+        text.includes('roger') || text.includes('wilco') || text.includes('affirm') ||
+        text.includes('down') || text.includes('safe') || text.includes('welcome')
+      );
+
+      let score = 0;
+      let total = 4;
+      let missingType = '';
+
+      if (stageEngine.currentStageIndex === 0) {
+        // Stage 0: Initial Inbound AROC Advisory
+        total = 4;
+        if (hasCallsign || hasMawson) score++;
+        if (hasRunwayStatus) score++;
+        if (hasQnh || hasWind) score++;
+        if (hasReadability || hasAcks) score++;
+
+        if (!hasQnh && !hasWind) missingType = 'weather';
+        else if (!hasRunwayStatus) missingType = 'runway';
+        else if (!hasCallsign && !hasMawson) missingType = 'callsign';
+      } else if (stageEngine.currentStageIndex === 1) {
+        // Stage 1: Descent Check (acknowledges descent to 3,000 ft)
+        total = 2;
+        if (hasCallsign || hasMawson) score++;
+        if (text.includes('descent') || text.includes('descend') || text.includes('3000') || text.includes('3,000') || text.includes('feet') || hasAcks) score++;
+        if (score < total) missingType = 'descent';
+      } else if (stageEngine.currentStageIndex === 2) {
+        // Stage 2: Circuit / Downwind report (copies downwind, gives wind)
+        total = 2;
+        if (hasCallsign || hasMawson) score++;
+        if (text.includes('downwind') || text.includes('circuit') || text.includes('base') || hasWind || hasAcks) score++;
+        if (score < total) missingType = 'circuit';
+      } else {
+        // Stage 3: Touchdown & safe
+        total = 2;
+        if (hasCallsign || hasMawson) score++;
+        if (text.includes('down') || text.includes('safe') || text.includes('shut') || text.includes('welcome') || hasAcks) score++;
+        if (score < total) missingType = 'touchdown';
+      }
+
+      const pct = Math.min(100, Math.max(30, Math.round((score / total) * 100)));
+      const isPassing = (pct >= 50 || score >= 2 || (total === 2 && score >= 1));
+
+      if (isPassing) {
+        addCallHistoryRow('MAWSON COMMS', 'Normal', 'Out', getUtcTimeString(), rawText, `PASSED (${pct}%)`, 'yellow');
+        logConsoleAction('AROC PASSED', `✅ READBACK ACCEPTED (${pct}%): Transmission copied. Awaiting aircraft response...`);
+
+        setTimeout(() => {
+          if (stageEngine.currentStageIndex < sc.stages.length - 1) {
+            stageEngine.advanceStage();
+          } else {
+            // Touchdown completed
+            const endReply = `${sc.pilotCallPhonetic}, engine shutdown complete, skiway clear, waiting for pick up. Thanks Mawson!`;
+            addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), endReply, 'COMPLETED', 'blue');
+            pilotSpeech.speak(endReply, `PILOT (${sc.aircraftCall})`, () => {
+              logConsoleAction('MISSION COMPLETE', '🎉 Flight safely completed! Ready to terminate SARWATCH on console.');
+              addCallHistoryRow('STATION OPS', 'Normal', 'In', getUtcTimeString(), 'Aircraft down and safe. Please terminate SARWATCH on console.', 'Complete', 'white');
+              setTimeout(() => {
+                triggerMrTCelebration(endReply);
+              }, 600);
+            });
+          }
+        }, 1200);
+      } else {
+        // Transmission incomplete or missing details - pilot queries the station over radio!
+        addCallHistoryRow('MAWSON COMMS', 'Warning', 'Out', getUtcTimeString(), rawText, `INCOMPLETE (${pct}%)`, 'yellow');
+        logConsoleAction('PILOT QUERY', `⚠️ Readback incomplete (${pct}%). Pilot requesting clarification over radio...`);
+
+        setTimeout(() => {
+          let pilotQuery = '';
+          if (stageEngine.currentStageIndex === 0) {
+            if (missingType === 'weather') {
+              pilotQuery = `${sc.pilotCallPhonetic}, Mawson Base read you strength 4. Request current Rumdoodle QNH altimeter and surface wind?`;
+            } else if (missingType === 'runway') {
+              pilotQuery = `${sc.pilotCallPhonetic}, Mawson Base, confirm Rumdoodle skiway status and any conflicting traffic?`;
+            } else {
+              pilotQuery = `${sc.pilotCallPhonetic}, Mawson Base, transmission broken, say again advisory?`;
+            }
+          } else if (stageEngine.currentStageIndex === 1) {
+            pilotQuery = `${sc.pilotCallPhonetic}, Mawson Base, confirm descent to 3,000 feet copied?`;
+          } else if (stageEngine.currentStageIndex === 2) {
+            pilotQuery = `${sc.pilotCallPhonetic}, Mawson Base, downwind, request current surface wind update?`;
+          } else {
+            pilotQuery = `${sc.pilotCallPhonetic}, Mawson Base, confirm aircraft down and safe?`;
+          }
+
+          addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Warning', 'In', getUtcTimeString(), pilotQuery, 'SAY AGAIN', 'blue');
+          pilotSpeech.speak(pilotQuery, `PILOT (${sc.aircraftCall})`);
+        }, 1200);
+      }
+    }
+
+    function addCallHistoryRow(caller, priority, dir, time, text, status, colorCode) {
+      const tbody = document.getElementById('call-history-tbody');
+      if (!tbody) return;
+
+      const tr = document.createElement('tr');
+      tr.className = 'border-b border-[#333333] transition-all hover:bg-white/10';
+
+      if (colorCode === 'red') {
+        tr.className += ' bg-[#b30000] text-white font-bold';
+      } else if (colorCode === 'yellow') {
+        tr.className += ' bg-[#e6c200] text-black font-bold';
+      } else if (colorCode === 'blue') {
+        tr.className += ' bg-[#004080] text-white font-bold';
+      } else {
+        tr.className += ' bg-[#1e1e1e] text-slate-200';
+      }
+
+      tr.innerHTML = `
+        <td class="p-1 border-r border-[#444444] font-bold">${caller}</td>
+        <td class="p-1 border-r border-[#444444]">${priority}</td>
+        <td class="p-1 border-r border-[#444444]">${dir}</td>
+        <td class="p-1 border-r border-[#444444]">${time}</td>
+        <td class="p-1 border-r border-[#444444] truncate max-w-md" title="${text}">${text}</td>
+        <td class="p-1 text-right font-bold">${status}</td>
+      `;
+
+      tbody.insertBefore(tr, tbody.firstChild);
+    }
+
+    function clearTranscript() {
+      const tbody = document.getElementById('call-history-tbody');
+      if (tbody) tbody.innerHTML = '';
+      addCallHistoryRow('SYSTEM', 'Normal', 'In', getUtcTimeString(), 'Call history log cleared.', 'Ready', 'white');
+    }
+
+    function submitManualTransmission() {
+      const input = document.getElementById('manual-tx-input');
+      const text = input.value.trim();
+      if (text.length > 0) {
+        audioEngine.playMicClick(true);
+        setTimeout(() => audioEngine.playSquelchTail(), 120);
+        handleUserTransmission(text);
+      }
+    }
+
+    function getCurrentExpectedScript() {
+      const sc = SCENARIOS[stageEngine.currentScenarioId];
+      if (!sc || !sc.stages || !sc.stages[stageEngine.currentStageIndex]) return "";
+      const stage = sc.stages[stageEngine.currentStageIndex];
+      const utcStr = getUtcTimeString().substring(0, 5);
+
+      return stage.expectedModel
+        .replace('[WIND]', `${weatherData.windDir} degrees at ${weatherData.windSpeed} knots`)
+        .replace('[VIS]', weatherData.visKm)
+        .replace('[TEMP]', `minus ${Math.abs(weatherData.tempC)}`)
+        .replace('[QNH]', weatherData.qnh)
+        .replace('[UTC]', utcStr);
+    }
+
+    function updateSideScriptCard() {
+      const sc = SCENARIOS[stageEngine.currentScenarioId];
+      if (!sc) return;
+      const stageIndex = stageEngine.currentStageIndex;
+      const stage = sc.stages[stageIndex];
+      const stageNum = stage ? stage.stageNum : 1;
+      const totalStages = sc.stages.length;
+
+      // Update Phase Badge
+      const phaseBadge = document.getElementById('side-script-phase-badge');
+      if (phaseBadge) {
+        phaseBadge.innerText = `STAGE ${stageNum}/${totalStages}`;
+      }
+
+      // Update Stage Title
+      const stageTitleEl = document.getElementById('side-stage-title');
+      if (stageTitleEl && stage) {
+        stageTitleEl.innerText = stage.title;
+      }
+
+      // Update Checklist values
+      const checkAircraft = document.getElementById('side-checklist-aircraft');
+      if (checkAircraft) {
+        checkAircraft.innerText = `${sc.aircraftCall} (${sc.pilotCallPhonetic.split('-')[0]})`;
+      }
+
+      const flightIdent = document.getElementById('side-flight-ident');
+      if (flightIdent) flightIdent.innerText = sc.aircraftType;
+
+      const slaIdent = document.getElementById('side-sla-ident');
+      if (slaIdent) slaIdent.innerText = sc.slaName.split(' ')[0];
+
+      const etaIdent = document.getElementById('side-eta-ident');
+      if (etaIdent) etaIdent.innerText = stageEngine.simulatedEta;
+
+      const checkSla = document.getElementById('side-check-sla');
+      if (checkSla) {
+        const isSeaIce = sc.slaName.includes('SEA ICE');
+        checkSla.innerHTML = `<span id="side-sla-ident">${sc.slaName.split(' ')[0]}</span> CLEAR`;
+      }
+
+      const checkWind = document.getElementById('side-check-wind');
+      if (checkWind) {
+        checkWind.innerText = `${weatherData.windDir}° @ ${weatherData.windSpeed} kt (G${weatherData.windGust}kt)`;
+      }
+
+      const checkVisTemp = document.getElementById('side-check-vis-temp');
+      if (checkVisTemp) {
+        checkVisTemp.innerText = `${weatherData.visKm} km / ${weatherData.tempC}°C`;
+      }
+
+      const checkQnh = document.getElementById('side-check-qnh');
+      if (checkQnh) {
+        checkQnh.innerText = `${weatherData.qnh} hPa`;
+      }
+
+      // Update Top Nav Telemetry badges
+      const navWind = document.getElementById('nav-wind-val');
+      if (navWind) navWind.innerText = `${weatherData.windDir}° @ ${weatherData.windSpeed}kt`;
+      const navQnh = document.getElementById('nav-qnh-val');
+      if (navQnh) navQnh.innerText = `${weatherData.qnh} hPa`;
+
+      // Update Word-for-Word Script
+      const scriptBox = document.getElementById('side-script-box');
+      const scriptText = getCurrentExpectedScript();
+      if (scriptBox) {
+        scriptBox.innerText = `"${scriptText}"`;
+      }
+
+      // Update Scenario dropdown value if present
+      const scDropdown = document.getElementById('scenario-dropdown');
+      if (scDropdown && scDropdown.value !== stageEngine.currentScenarioId) {
+        scDropdown.value = stageEngine.currentScenarioId;
+      }
+    }
+
+    function speakCurrentScript() {
+      const scriptText = getCurrentExpectedScript();
+      if (!scriptText) return;
+      virtualHoldPTTAndTransmit("PTT BROADCAST SCRIPT", scriptText, 1, () => {
+        handleUserTransmission(scriptText);
+      });
+    }
+
+    function copyModelToInput() {
+      const model = getCurrentExpectedScript();
+      const input = document.getElementById('manual-tx-input');
+      if (input) {
+        input.value = model;
+        input.focus();
+      }
+      logConsoleAction('SCRIPT COPIED', `📋 Model readback script copied into TX Text box.`);
+    }
+
+    function quickPhrase(num) {
+      const input = document.getElementById('manual-tx-input');
+      const sc = SCENARIOS[stageEngine.currentScenarioId];
+      const call = sc.pilotCallPhonetic;
+      const utcStr = getUtcTimeString().substring(0, 5);
+      const isSeaIce = sc.slaName.includes('SEA ICE');
+      const slaDesc = isSeaIce ? 'Sea Ice Ski Landing Area' : 'Rumdoodle Ski Landing Area';
+
+      if (num === 1) {
+        input.value = `${call}, Mawson Base, read you strength 5. ${slaDesc} currently reported clear. Surface wind ${weatherData.windDir} degrees at ${weatherData.windSpeed} knots, visibility ${weatherData.visKm} kilometres, temperature minus 16, QNH ${weatherData.qnh}. No conflicting traffic.`;
+      } else if (num === 2) {
+        input.value = `${call}, Mawson Base copies descent.`;
+      } else if (num === 3) {
+        input.value = isSeaIce 
+          ? `${call}, copy base leg, surface wind now ${weatherData.windDir} degrees at ${weatherData.windSpeed} knots.`
+          : `${call}, copy downwind, surface wind now ${weatherData.windDir} degrees at ${weatherData.windSpeed} knots.`;
+      } else if (num === 4) {
+        input.value = `${call}, Mawson copies down and safe at ${utcStr} UTC. Welcome to Mawson.`;
+      }
+      input.focus();
+    }
+
+    function terminateSARWATCH() {
+      const utcStr = getUtcTimeString();
+      addCallHistoryRow('SARWATCH', 'Normal', 'In', utcStr, `SARWATCH for ${SCENARIOS[stageEngine.currentScenarioId].aircraftCall} formally terminated at ${utcStr}.`, 'TERMINATED', 'yellow');
+      audioEngine.playRogerBeep();
+
+      setTimeout(() => {
+        selectTile(4); // Switch to Hägglunds
+        addCallHistoryRow('HÄGGLUNDS 1', 'Normal', 'In', utcStr, 'Mawson Base, copies aircraft down and safe. Proceeding to skiway for pickup.', 'ACK', 'white');
+
+        if (stageEngine.currentStageIndex >= 3) {
+          setTimeout(() => {
+            const modal = document.getElementById('mrt-modal');
+            if (modal && modal.classList.contains('hidden')) {
+              const sc = SCENARIOS[stageEngine.currentScenarioId];
+              triggerMrTCelebration(`${sc.pilotCallPhonetic}, down and safe, skiway clear, shutting down. Waiting for pick up.`);
+            }
+          }, 1100);
+        }
+      }, 1000);
+    }
+
+    /* =========================================================================
+     * 9. TAB SWITCHER & AUXILIARY POPUPS
+     * ========================================================================= */
+    function switchMainTab(tab) {
+      if (tab === 'button') {
+        closeAuxModal();
+        return;
+      }
+
+      const modal = document.getElementById('aux-modal');
+      const title = document.getElementById('aux-modal-title');
+      const content = document.getElementById('aux-modal-content');
+      modal.classList.remove('hidden');
+
+      if (tab === 'met') {
+        title.innerText = 'STATION AUTOMATED WEATHER STATION (AWS) / AMDS';
+        content.innerHTML = `
+          <div class="bg-white p-3 rounded border border-slate-400 space-y-2 text-black">
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="bg-slate-100 p-2 rounded">
+                <strong>SURFACE WIND:</strong> ${weatherData.windDir}° @ ${weatherData.windSpeed} kts (Gusts: ${weatherData.windGust} kts)
+              </div>
+              <div class="bg-slate-100 p-2 rounded">
+                <strong>VISIBILITY:</strong> ${weatherData.visKm} km (${weatherData.driftCondition})
+              </div>
+              <div class="bg-slate-100 p-2 rounded">
+                <strong>TEMPERATURE:</strong> ${weatherData.tempC}°C (Wind Chill: ${weatherData.chillC}°C)
+              </div>
+              <div class="bg-amber-100 p-2 rounded border border-amber-400 font-bold text-amber-900">
+                <strong>QNH ALTIMETER:</strong> ${weatherData.qnh} hPa
+              </div>
+            </div>
+            <div class="p-2 bg-blue-50 rounded border border-blue-200">
+              <strong>SLA ACTIVE:</strong> ${weatherData.slaName}<br>
+              <strong>SURFACE:</strong> ${weatherData.slaSurface}
+            </div>
+            <div class="text-right">
+              <button onclick="randomizeWeather(); switchMainTab('met')" class="btn-3d px-3 py-1 bg-blue-700 text-white font-bold rounded">Cycle Weather Values</button>
+            </div>
+          </div>
+        `;
+      } else if (tab === 'flight') {
+        title.innerText = 'ELECTRONIC FLIGHT PROGRESS STRIP (EFPS)';
+        const sc = SCENARIOS[stageEngine.currentScenarioId];
+        content.innerHTML = `
+          <div class="bg-white p-3 rounded border border-slate-400 space-y-2 text-black">
+            <div class="grid grid-cols-3 gap-2 text-xs">
+              <div class="bg-slate-100 p-2 rounded"><strong>AIRCRAFT:</strong> ${sc.aircraftCall}</div>
+              <div class="bg-slate-100 p-2 rounded"><strong>TYPE:</strong> ${sc.aircraftType}</div>
+              <div class="bg-slate-100 p-2 rounded"><strong>ROUTE:</strong> ${sc.route}</div>
+              <div class="bg-slate-100 p-2 rounded"><strong>ETA:</strong> ${stageEngine.simulatedEta}</div>
+              <div class="bg-slate-100 p-2 rounded"><strong>POB:</strong> 4 Persons (VFR)</div>
+              <div class="bg-emerald-100 p-2 rounded font-bold text-emerald-900"><strong>SARWATCH:</strong> ACTIVE</div>
+            </div>
+            <div class="pt-2 text-right">
+              <button onclick="terminateSARWATCH(); closeAuxModal()" class="btn-3d px-3 py-1 bg-red-700 text-white font-bold rounded">Terminate SARWATCH</button>
+            </div>
+          </div>
+        `;
+      } else if (tab === 'coach') {
+        title.innerText = 'AROC PHRASEOLOGY COACH & MODEL READBACK';
+        const sc = SCENARIOS[stageEngine.currentScenarioId];
+        const stage = sc.stages[stageEngine.currentStageIndex];
+        content.innerHTML = `
+          <div class="bg-white p-3 rounded border border-slate-400 space-y-2 text-black">
+            <div class="text-xs font-bold text-blue-900">STAGE: ${stage.title}</div>
+            <div class="p-2 bg-slate-100 rounded text-xs leading-relaxed">
+              <strong>Pilot Transmission:</strong><br>
+              "${stage.pilotCall.replace('[ETA]', stageEngine.simulatedEta.replace(' UTC', '')).replace('[QNH]', weatherData.qnh)}"
+            </div>
+            <div class="p-2 bg-emerald-50 border border-emerald-300 rounded text-xs leading-relaxed text-emerald-950">
+              <strong>Standard Model Readback:</strong><br>
+              "${stage.expectedModel.replace('[WIND]', `${weatherData.windDir}° at ${weatherData.windSpeed}kt`).replace('[VIS]', weatherData.visKm).replace('[TEMP]', `minus ${Math.abs(weatherData.tempC)}`).replace('[QNH]', weatherData.qnh).replace('[UTC]', getUtcTimeString().substring(0,5))}"
+            </div>
+            <div class="p-2 bg-red-50 border border-red-300 rounded text-xs text-red-900">
+              <strong>AROC Safety Rule:</strong> Mawson Comms is an UNICOM station. NEVER say "Cleared to land".
+            </div>
+            <div class="text-right">
+              <button onclick="copyModelToInput(); closeAuxModal()" class="btn-3d px-3 py-1 bg-emerald-700 text-white font-bold rounded">Copy To Transmission Box</button>
+            </div>
+          </div>
+        `;
+      } else if (tab === 'scenario') {
+        title.innerText = 'SCENARIO SELECTION & AUTOMATED PRACTICE';
+        content.innerHTML = `
+          <div class="bg-white p-3 rounded border border-slate-400 space-y-2.5 text-black text-xs">
+            <div class="p-2.5 bg-slate-100 hover:bg-amber-50/60 rounded border border-slate-300 flex justify-between items-center transition">
+              <div>
+                <strong class="text-blue-950 font-bold">Scenario A:</strong> Standard VFR Inbound to Rumdoodle (Twin Otter DHC-6)
+                <div class="text-[11px] text-slate-600 mt-0.5">Plateau skiway arrival, wind/QNH advisory, descent check, SARWATCH termination & Hägglunds dispatch</div>
+              </div>
+              <div class="flex items-center gap-1.5 flex-shrink-0">
+                <button onclick="selectScenario('A'); closeAuxModal()" class="btn-3d px-2.5 py-1 bg-blue-700 text-white font-bold rounded">Manual Mode</button>
+                <button onclick="closeAuxModal(); autoPlayEngine.start('A')" class="btn-3d px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded flex items-center gap-1 shadow">▶ Auto-Play Demo</button>
+              </div>
+            </div>
+            <div class="p-2.5 bg-slate-100 hover:bg-amber-50/60 rounded border border-slate-300 flex justify-between items-center transition">
+              <div>
+                <strong class="text-blue-950 font-bold">Scenario B:</strong> Basler BT-67 Inbound to Mawson Sea Ice (Gusting Wind)
+                <div class="text-[11px] text-slate-600 mt-0.5">Seasonal sea ice skiway, high crosswind drift advisory, harbour circuit & safe landing protocol</div>
+              </div>
+              <div class="flex items-center gap-1.5 flex-shrink-0">
+                <button onclick="selectScenario('B'); closeAuxModal()" class="btn-3d px-2.5 py-1 bg-blue-700 text-white font-bold rounded">Manual Mode</button>
+                <button onclick="closeAuxModal(); autoPlayEngine.start('B')" class="btn-3d px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded flex items-center gap-1 shadow">▶ Auto-Play Demo</button>
+              </div>
+            </div>
+            <div class="p-2.5 bg-slate-100 hover:bg-amber-50/60 rounded border border-slate-300 flex justify-between items-center transition">
+              <div>
+                <strong class="text-blue-950 font-bold">Scenario C:</strong> Overdue Aircraft / SARWATCH Alert Exercise
+                <div class="text-[11px] text-slate-600 mt-0.5">Missed 10-minute check-in, console emergency alarm, guard channel sweep & re-establishment</div>
+              </div>
+              <div class="flex items-center gap-1.5 flex-shrink-0">
+                <button onclick="selectScenario('C'); closeAuxModal()" class="btn-3d px-2.5 py-1 bg-blue-700 text-white font-bold rounded">Manual Mode</button>
+                <button onclick="closeAuxModal(); autoPlayEngine.start('C')" class="btn-3d px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded flex items-center gap-1 shadow">▶ Auto-Play Demo</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function closeAuxModal() {
+      document.getElementById('aux-modal').classList.add('hidden');
+    }
+
+    function selectScenario(id, autoPlayPilot = true) {
+      pilotSpeech.cancel();
+      stationOperatorSpeech.cancel();
+      stageEngine.initScenario(id, autoPlayPilot);
+      addCallHistoryRow('SYSTEM', 'Normal', 'In', getUtcTimeString(), `Loaded ${SCENARIOS[id].name}`, 'Loaded', 'blue');
+    }
+
+    function resetCurrentScenario() {
+      pilotSpeech.cancel();
+      stationOperatorSpeech.cancel();
+      stageEngine.initScenario(stageEngine.currentScenarioId);
+      addCallHistoryRow('SYSTEM', 'Normal', 'In', getUtcTimeString(), 'Scenario reset to Stage 1.', 'Reset', 'white');
+    }
+
+    function getUtcTimeString() {
+      const now = new Date();
+      const h = String(now.getUTCHours()).padStart(2, '0');
+      const m = String(now.getUTCMinutes()).padStart(2, '0');
+      const s = String(now.getUTCSeconds()).padStart(2, '0');
+      return `${h}:${m}:${s}`;
+    }
+
+    /* =========================================================================
+     * 9.5 AUTOMATED SIMULATION ENGINE (VIRTUAL OPERATOR & AUTO-PLAY)
+     * ========================================================================= */
+    function virtualClick(targetIdOrEl, label, callback) {
+      const el = (typeof targetIdOrEl === 'string') ? document.getElementById(targetIdOrEl) : targetIdOrEl;
+      const pointer = document.getElementById('auto-operator-pointer');
+      const labelEl = document.getElementById('pointer-action-label');
+
+      if (!el || !pointer) {
+        if (callback) callback();
+        return;
+      }
+
+      try {
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+      } catch (e) {}
+
+      const rect = el.getBoundingClientRect();
+      const targetX = rect.left + rect.width / 2;
+      const targetY = rect.top;
+
+      if (labelEl) labelEl.innerText = label || "OPERATOR ACTION";
+
+      pointer.style.left = `${Math.round(targetX)}px`;
+      pointer.style.top = `${Math.round(targetY)}px`;
+      pointer.style.display = 'flex';
+      pointer.style.opacity = '1';
+
+      el.classList.add('operator-focus-ring', 'btn-3d-active');
+      audioEngine.playMicClick(true);
+
+      setTimeout(() => {
+        el.classList.remove('btn-3d-active');
+        if (callback) callback();
+        setTimeout(() => {
+          el.classList.remove('operator-focus-ring');
+          pointer.style.opacity = '0';
+          setTimeout(() => {
+            if (pointer.style.opacity === '0') pointer.style.display = 'none';
+          }, 200);
+        }, 800);
+      }, 350);
+    }
+
+    function hideVirtualPointer() {
+      const pointer = document.getElementById('auto-operator-pointer');
+      if (pointer) {
+        pointer.style.opacity = '0';
+        pointer.style.display = 'none';
+      }
+      document.querySelectorAll('.operator-focus-ring').forEach(el => {
+        el.classList.remove('operator-focus-ring', 'btn-3d-active');
+      });
+    }
+
+    function logConsoleAction(actionType, message, details = '') {
+      const bannerBadge = document.getElementById('sim-action-badge');
+      const bannerText = document.getElementById('sim-action-text');
+      const hudLive = document.getElementById('hud-live-action-text');
+      const timeNow = getUtcTimeString();
+
+      if (bannerBadge) {
+        bannerBadge.innerText = actionType;
+        if (actionType.includes('PTT') || actionType.includes('TRANSMIT') || actionType.includes('HOLD')) {
+          bannerBadge.className = 'px-2 py-0.5 bg-red-600 text-white font-black text-[10px] rounded tracking-wide uppercase shrink-0 animate-pulse';
+        } else if (actionType.includes('PILOT') || actionType.includes('RX') || actionType.includes('AIRCRAFT')) {
+          bannerBadge.className = 'px-2 py-0.5 bg-blue-600 text-white font-black text-[10px] rounded tracking-wide uppercase shrink-0 animate-pulse';
+        } else if (actionType.includes('CHANNEL') || actionType.includes('ON') || actionType.includes('SELECT')) {
+          bannerBadge.className = 'px-2 py-0.5 bg-emerald-500 text-slate-950 font-black text-[10px] rounded tracking-wide uppercase shrink-0 animate-pulse';
+        } else if (actionType.includes('RPT') || actionType.includes('REPEATER')) {
+          bannerBadge.className = 'px-2 py-0.5 bg-cyan-600 text-white font-black text-[10px] rounded tracking-wide uppercase shrink-0';
+        } else {
+          bannerBadge.className = 'px-2 py-0.5 bg-amber-400 text-slate-950 font-black text-[10px] rounded tracking-wide uppercase shrink-0';
+        }
+      }
+
+      if (bannerText) {
+        bannerText.innerHTML = `<span class="text-amber-400">[${timeNow}]</span> ${message}`;
+      }
+      if (hudLive) {
+        hudLive.innerText = `[${timeNow}] ${message}`;
+      }
+
+      if (details) {
+        addCallHistoryRow(
+          `[ACTION] ${actionType}`,
+          'Console',
+          actionType.includes('RX') ? 'In' : 'Out',
+          timeNow,
+          details,
+          'EXECUTED',
+          actionType.includes('PTT') || actionType.includes('HOLD') ? 'red' : (actionType.includes('RX') ? 'blue' : 'yellow')
+        );
+      }
+    }
+
+    function virtualHoldPTTAndTransmit(actionLabel, speechText, channelId, callback) {
+      const pttBtn = document.getElementById('ptt-btn');
+      const pointer = document.getElementById('auto-operator-pointer');
+      const labelEl = document.getElementById('pointer-action-label');
+
+      if (channelId && channelId !== selectedTileId) {
+        selectTile(channelId);
+      }
+
+      const chan = TILES.find(t => t.id === selectedTileId);
+      const chanName = chan ? `${chan.name} (${chan.freq})` : 'Tone Remote 1';
+
+      if (pttBtn && pointer) {
+        try {
+          pttBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+        } catch (e) {}
+
+        const rect = pttBtn.getBoundingClientRect();
+        const targetX = rect.left + rect.width / 2;
+        const targetY = rect.top;
+
+        if (labelEl) labelEl.innerText = actionLabel || "👉 HOLDING PTT (TRANSMITTING)";
+        pointer.style.left = `${Math.round(targetX)}px`;
+        pointer.style.top = `${Math.round(targetY)}px`;
+        pointer.style.display = 'flex';
+        pointer.style.opacity = '1';
+
+        pttBtn.classList.add('operator-focus-ring');
+      }
+
+      logConsoleAction(
+        'HOLDING PTT',
+        `🔴 PRESSING & HOLDING [⚡ PTT TRANSMIT] ➔ Broadcast on ${chanName}: "${speechText}"`,
+        `PTT depressed & held. Station transmitting: "${speechText}"`
+      );
+
+      // Station operator speaks with PTT visibly depressed and held for the entire transmission
+      stationOperatorSpeech.speak(speechText, selectedTileId, () => {
+        logConsoleAction(
+          'PTT RELEASED',
+          `✅ PTT RELEASED ➔ Broadcast completed on ${chanName}, standing by for pilot...`
+        );
+
+        if (pttBtn) pttBtn.classList.remove('operator-focus-ring');
+        if (pointer) {
+          pointer.style.opacity = '0';
+          setTimeout(() => {
+            if (pointer.style.opacity === '0') pointer.style.display = 'none';
+          }, 200);
+        }
+
+        if (callback) callback();
+      });
+    }
+
+    class AutoPlayEngine {
+      constructor() {
+        this.isRunning = false;
+        this.isPaused = false;
+        this.scenarioId = 'A';
+        this.stepIndex = 0;
+        this.steps = [];
+        this.timer = null;
+      }
+
+      toggle() {
+        if (this.isRunning) {
+          this.stop();
+        } else {
+          this.start(stageEngine.currentScenarioId || 'A');
+        }
+      }
+
+      start(scenarioId = 'A') {
+        this.stop();
+        this.isRunning = true;
+        this.isPaused = false;
+        this.scenarioId = scenarioId;
+        this.stepIndex = 0;
+
+        selectScenario(scenarioId, false);
+
+        const btn = document.getElementById('btn-example-play');
+        if (btn) {
+          btn.className = 'btn-3d px-3 py-1 bg-red-600 hover:bg-red-500 text-white font-black text-xs rounded border border-red-800 flex items-center gap-1.5 shadow-md select-none animate-pulse cursor-pointer';
+          const txt = document.getElementById('example-play-btn-text');
+          if (txt) txt.innerText = 'STOP AUTO-PLAY';
+        }
+
+        const hud = document.getElementById('autoplay-hud');
+        if (hud) hud.classList.remove('hidden');
+
+        this.buildSteps(scenarioId);
+        this.executeCurrentStep();
+      }
+
+      stop() {
+        this.isRunning = false;
+        this.isPaused = false;
+        if (this.timer) {
+          clearTimeout(this.timer);
+          this.timer = null;
+        }
+        pilotSpeech.cancel();
+        stationOperatorSpeech.cancel();
+        hideVirtualPointer();
+
+        const btn = document.getElementById('btn-example-play');
+        if (btn) {
+          btn.className = 'btn-3d px-3 py-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:from-amber-300 hover:to-yellow-200 text-slate-950 font-black text-xs rounded border border-amber-700 flex items-center gap-1.5 shadow-md transition-all hover:scale-105 select-none cursor-pointer';
+          const txt = document.getElementById('example-play-btn-text');
+          if (txt) txt.innerText = 'EXAMPLE PLAY SCENARIO';
+        }
+
+        const hud = document.getElementById('autoplay-hud');
+        if (hud) hud.classList.add('hidden');
+      }
+
+      togglePause() {
+        if (!this.isRunning) return;
+        this.isPaused = !this.isPaused;
+        const pauseIcon = document.getElementById('hud-pause-icon');
+        const pauseText = document.getElementById('hud-pause-text');
+
+        if (this.isPaused) {
+          if (window.speechSynthesis && window.speechSynthesis.speaking) {
+            window.speechSynthesis.pause();
+          }
+          if (pauseIcon) pauseIcon.innerText = '▶';
+          if (pauseText) pauseText.innerText = 'Resume';
+          if (this.timer) {
+            clearTimeout(this.timer);
+            this.timer = null;
+          }
+        } else {
+          if (window.speechSynthesis && window.speechSynthesis.paused) {
+            window.speechSynthesis.resume();
+          }
+          if (pauseIcon) pauseIcon.innerText = '⏸';
+          if (pauseText) pauseText.innerText = 'Pause';
+          this.executeCurrentStep();
+        }
+      }
+
+      nextStep() {
+        if (!this.isRunning) return;
+        if (this.timer) clearTimeout(this.timer);
+        pilotSpeech.cancel();
+        stationOperatorSpeech.cancel();
+        hideVirtualPointer();
+        this.stepIndex++;
+        if (this.stepIndex < this.steps.length) {
+          this.executeCurrentStep();
+        } else {
+          this.complete();
+        }
+      }
+
+      buildSteps(scenarioId) {
+        const sc = SCENARIOS[scenarioId];
+        const etaStr = stageEngine.simulatedEta;
+        const utcNow = () => getUtcTimeString().substring(0, 5);
+
+        if (scenarioId === 'A') {
+          this.steps = [
+            {
+              title: "Select AIR VHF 126.700 MHz",
+              narration: "Mawson Dispatch verifies Tone Remote 1 is selected on AIR VHF 126.700 MHz for air-ground contact.",
+              action: () => {
+                virtualClick('sel-btn-1', "SELECT AIR VHF 126.700 (TURN ON)", () => {
+                  selectTile(1);
+                  logConsoleAction('CHANNEL ON', '👉 PRESSED [SEL AIR VHF 126.700] ➔ Tone Remote 1 is now ACTIVE (ON)', 'Selected Tone Remote 1 (AIR VHF 126.700 MHz AM). Primary air channel is ON.');
+                  this.scheduleNext(1300);
+                });
+              }
+            },
+            {
+              title: "Verify Rumdoodle Mountain Repeater Link",
+              narration: "Station verifies Rumdoodle SLA Mountain Repeater (149.800 MHz) is active on the DCS5020 matrix.",
+              action: () => {
+                virtualClick('rpt-btn-5', "PRESS RUMDOODLE RPT LINK", () => {
+                  toggleRepeater(5);
+                  logConsoleAction('RPT LINK', '👉 PRESSED [RPT RUMDOODLE 149.800] ➔ Mountain Repeater link engaged on DCS5020', 'Engaged Rumdoodle VHF Repeater on 149.800 MHz.');
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Pilot Initial Inbound Broadcast",
+              narration: `Twin Otter VHG-FBO makes initial position broadcast at 40 miles north-east, estimating Rumdoodle at ${etaStr}.`,
+              action: () => {
+                const pilotText = `Mawson Traffic, Twin Otter Foxtrot-Bravo-Oscar, 40 miles north-east, maintaining 7,500 feet, estimating Rumdoodle at ${etaStr.replace(' UTC','')}, inbound for landing.`;
+                logConsoleAction('PILOT RX', `✈️ PILOT TRANSMITTING [126.700 MHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotText, 'Received', 'blue');
+                pilotSpeech.speak(pilotText, `PILOT (${sc.aircraftCall})`, () => {
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Mawson Station AROC Aerodrome Advisory",
+              narration: "Operator transmits AROC Aerodrome Advisory: Runway status, Wind, QNH altimeter & Traffic. (NO 'Cleared to land'!)",
+              action: () => {
+                const replyText = `Foxtrot-Bravo-Oscar, Mawson Base, read you strength 5. Rumdoodle Ski Landing Area currently reported clear. Surface wind ${weatherData.windDir} degrees at ${weatherData.windSpeed} knots, visibility ${weatherData.visKm} kilometres, temperature minus 16, QNH ${weatherData.qnh}. No conflicting traffic.`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT (AROC ADVISORY)", replyText, 1, () => {
+                  stageEngine.currentStageIndex = 1;
+                  this.scheduleNext(1600);
+                });
+              }
+            },
+            {
+              title: "Pilot Descent Report",
+              narration: "Aircraft acknowledges QNH altimeter setting and reports descent over the plateau to 3,000 feet.",
+              action: () => {
+                const pilotText = `QNH ${weatherData.qnh}, Rumdoodle clear, Foxtrot-Bravo-Oscar descending to 3,000 feet.`;
+                logConsoleAction('PILOT RX', `✈️ PILOT DESCENT CALL [126.700 MHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotText, 'Received', 'blue');
+                pilotSpeech.speak(pilotText, `PILOT (${sc.aircraftCall})`, () => {
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Mawson Station Acknowledges Descent",
+              narration: "Operator depresses PTT and formally copies aircraft descent to 3,000 feet.",
+              action: () => {
+                const replyText = `Foxtrot-Bravo-Oscar, Mawson Base copies descent to 3,000 feet.`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT (DESCENT ACK)", replyText, 1, () => {
+                  stageEngine.currentStageIndex = 2;
+                  this.scheduleNext(1600);
+                });
+              }
+            },
+            {
+              title: "Pilot Circuit Downwind Call",
+              narration: "Aircraft reports joining downwind circuit for the Rumdoodle skiway.",
+              action: () => {
+                const pilotText = `Mawson Traffic, Foxtrot-Bravo-Oscar, joining downwind for the Rumdoodle skiway.`;
+                logConsoleAction('PILOT RX', `✈️ PILOT CIRCUIT CALL [126.700 MHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotText, 'Received', 'blue');
+                pilotSpeech.speak(pilotText, `PILOT (${sc.aircraftCall})`, () => {
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Mawson Station Circuit Wind Advisory",
+              narration: "Operator provides current surface wind conditions for landing approach.",
+              action: () => {
+                const replyText = `Foxtrot-Bravo-Oscar, copy downwind, surface wind now ${weatherData.windDir} degrees at ${weatherData.windSpeed} knots.`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT (WIND ADVISORY)", replyText, 1, () => {
+                  stageEngine.currentStageIndex = 3;
+                  this.scheduleNext(1600);
+                });
+              }
+            },
+            {
+              title: "Pilot Touchdown & Skiway Clear",
+              narration: "Aircraft touches down on skiway, reports down and safe, shutting down engines.",
+              action: () => {
+                const pilotText = `Foxtrot-Bravo-Oscar, down and safe at Rumdoodle, skiway clear, shutting down. Waiting for pick up.`;
+                logConsoleAction('PILOT RX', `✈️ PILOT TOUCHDOWN REPORT [126.700 MHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotText, 'Received', 'blue');
+                pilotSpeech.speak(pilotText, `PILOT (${sc.aircraftCall})`, () => {
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Mawson Station Touchdown Acknowledgment",
+              narration: "Operator logs aircraft down and safe and welcomes flight to Mawson Station.",
+              action: () => {
+                const replyText = `Foxtrot-Bravo-Oscar, Mawson Base copies down and safe at ${utcNow()} UTC. Welcome to Mawson.`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT (TOUCHDOWN ACK)", replyText, 1, () => {
+                  this.scheduleNext(1600);
+                });
+              }
+            },
+            {
+              title: "Terminate SARWATCH on Console",
+              narration: "Operator formally terminates SARWATCH flight safety monitoring on DCS5020 console.",
+              action: () => {
+                virtualClick('btn-terminate-sarwatch', "PRESS TERMINATE SARWATCH", () => {
+                  terminateSARWATCH();
+                  logConsoleAction('SARWATCH', '👉 PRESSED [TERMINATE SARWATCH] ➔ Flight safety monitoring safely terminated', 'SARWATCH closed. Aircraft down and safe.');
+                  this.scheduleNext(1800);
+                });
+              }
+            },
+            {
+              title: "Dispatch Hägglunds Ground Pickup Crew",
+              narration: "Operator switches to Channel 4 (Hägglunds 148.250 MHz) to dispatch passenger pickup vehicle.",
+              action: () => {
+                virtualClick('sel-btn-4', "SELECT HÄGGLUNDS 148.250 (TURN ON)", () => {
+                  selectTile(4);
+                  logConsoleAction('CHANNEL ON', '👉 PRESSED [SEL HÄGGLUNDS 148.250] ➔ Channel 4 is now ACTIVE (ON)', 'Selected Channel 4 (Hägglunds 148.250 MHz FM).');
+                  setTimeout(() => {
+                    const msg = `Hägglunds One, Mawson Base, aircraft down and safe at Rumdoodle. Clear to proceed to skiway for crew pickup.`;
+                    virtualHoldPTTAndTransmit("DISPATCH HÄGGLUNDS CREW", msg, 4, () => {
+                      setTimeout(() => {
+                        addCallHistoryRow('HÄGGLUNDS 1', 'Normal', 'In', getUtcTimeString(), 'Mawson Base, copies aircraft safe. En route to Rumdoodle skiway now.', 'ACK', 'white');
+                        audioEngine.playRogerBeep();
+                        this.scheduleNext(1800);
+                      }, 900);
+                    });
+                  }, 700);
+                });
+              }
+            }
+          ];
+        } else if (scenarioId === 'B') {
+          this.steps = [
+            {
+              title: "Select AIR VHF 126.700 MHz",
+              narration: "Mawson Dispatch selects AIR VHF 126.700 MHz for Basler BT-67 incoming from Casey Station.",
+              action: () => {
+                virtualClick('sel-btn-1', "SELECT AIR VHF 126.700 (TURN ON)", () => {
+                  selectTile(1);
+                  logConsoleAction('CHANNEL ON', '👉 PRESSED [SEL AIR VHF 126.700] ➔ Tone Remote 1 is now ACTIVE (ON)', 'Selected Tone Remote 1 (AIR VHF 126.700 MHz AM).');
+                  this.scheduleNext(1300);
+                });
+              }
+            },
+            {
+              title: "Pilot Initial Inbound Broadcast (Sea Ice)",
+              narration: "Basler Bravo-Tango-Golf calls 30 miles east estimating Mawson Sea Ice skiway.",
+              action: () => {
+                const pilotText = `Mawson Traffic, Basler Bravo-Tango-Golf, 30 miles east, 6,000 feet, estimating Mawson Sea Ice skiway at ${etaStr.replace(' UTC','')}, inbound.`;
+                logConsoleAction('PILOT RX', `✈️ PILOT INBOUND CALL [126.700 MHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotText, 'Received', 'blue');
+                pilotSpeech.speak(pilotText, `PILOT (${sc.aircraftCall})`, () => {
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Mawson Station Sea Ice Advisory",
+              narration: "Operator transmits Sea Ice skiway status, surface wind, and altimeter setting.",
+              action: () => {
+                const replyText = `Bravo-Tango-Golf, Mawson Base, read you strength 5. Sea Ice Ski Landing Area reported clear, surface wind ${weatherData.windDir} degrees at ${weatherData.windSpeed} knots, visibility ${weatherData.visKm} kilometres, QNH ${weatherData.qnh}. No conflicting traffic.`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT (SEA ICE ADVISORY)", replyText, 1, () => {
+                  stageEngine.currentStageIndex = 1;
+                  this.scheduleNext(1600);
+                });
+              }
+            },
+            {
+              title: "Pilot Descent over Ice Plateau",
+              narration: "Aircraft reports descending to 2,500 feet over ice plateau heading for harbour.",
+              action: () => {
+                const pilotText = `QNH ${weatherData.qnh}, Bravo-Tango-Golf descending 2,500 feet over ice plateau.`;
+                logConsoleAction('PILOT RX', `✈️ PILOT DESCENT REPORT [126.700 MHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotText, 'Received', 'blue');
+                pilotSpeech.speak(pilotText, `PILOT (${sc.aircraftCall})`, () => {
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Mawson Station Acknowledges Descent",
+              narration: "Operator copies descent to 2,500 feet.",
+              action: () => {
+                const replyText = `Bravo-Tango-Golf, Mawson copies descent to 2,500 feet.`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT (DESCENT ACK)", replyText, 1, () => {
+                  stageEngine.currentStageIndex = 2;
+                  this.scheduleNext(1600);
+                });
+              }
+            },
+            {
+              title: "Pilot Base Leg over Horseshoe Harbour",
+              narration: "Aircraft reports base leg for Sea Ice skiway heading 320 degrees.",
+              action: () => {
+                const pilotText = `Mawson Traffic, Bravo-Tango-Golf, base leg for Sea Ice skiway heading 320.`;
+                logConsoleAction('PILOT RX', `✈️ PILOT BASE LEG CALL [126.700 MHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotText, 'Received', 'blue');
+                pilotSpeech.speak(pilotText, `PILOT (${sc.aircraftCall})`, () => {
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Mawson Station Base Leg Wind Check",
+              narration: "Operator gives final wind and confirms sea ice runway flags visible and clear.",
+              action: () => {
+                const replyText = `Bravo-Tango-Golf, copy base leg, surface wind now ${weatherData.windDir} degrees at ${weatherData.windSpeed} knots, skiway clear.`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT (WIND CHECK)", replyText, 1, () => {
+                  stageEngine.currentStageIndex = 3;
+                  this.scheduleNext(1600);
+                });
+              }
+            },
+            {
+              title: "Pilot Touchdown on Fast Ice",
+              narration: "Basler touches down safely on annual fast ice and taxis toward refuel depot.",
+              action: () => {
+                const pilotText = `Bravo-Tango-Golf, down and safe on Mawson sea ice, taxiing to refuel point. Waiting for pick up.`;
+                logConsoleAction('PILOT RX', `✈️ PILOT TOUCHDOWN REPORT [126.700 MHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotText, 'Received', 'blue');
+                pilotSpeech.speak(pilotText, `PILOT (${sc.aircraftCall})`, () => {
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Mawson Station Touchdown Acknowledgment & SARWATCH Termination",
+              narration: "Operator copies touchdown and terminates SARWATCH.",
+              action: () => {
+                const replyText = `Bravo-Tango-Golf, Mawson copies down and safe at ${utcNow()} UTC.`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT (TOUCHDOWN ACK)", replyText, 1, () => {
+                  virtualClick('btn-terminate-sarwatch', "PRESS TERMINATE SARWATCH", () => {
+                    terminateSARWATCH();
+                    logConsoleAction('SARWATCH', '👉 PRESSED [TERMINATE SARWATCH] ➔ Flight safety monitoring safely terminated', 'SARWATCH closed. Aircraft down and safe.');
+                    this.scheduleNext(1600);
+                  });
+                });
+              }
+            }
+          ];
+        } else if (scenarioId === 'C') {
+          this.steps = [
+            {
+              title: "Select AIR VHF 126.700 MHz",
+              narration: "Mawson Dispatch monitoring AIR VHF 126.700 MHz for scheduled descent call.",
+              action: () => {
+                virtualClick('sel-btn-1', "SELECT AIR VHF 126.700 (TURN ON)", () => {
+                  selectTile(1);
+                  logConsoleAction('CHANNEL ON', '👉 PRESSED [SEL AIR VHF 126.700] ➔ Tone Remote 1 is now ACTIVE (ON)', 'Selected Tone Remote 1 (AIR VHF 126.700 MHz AM).');
+                  this.scheduleNext(1300);
+                });
+              }
+            },
+            {
+              title: "Pilot Initial Check-in (25nm Out)",
+              narration: "Twin Otter reports 25 miles out estimating Rumdoodle.",
+              action: () => {
+                const pilotText = `Mawson Traffic, Twin Otter Foxtrot-Bravo-Oscar, 25 miles out, estimating Rumdoodle at ${etaStr.replace(' UTC','')}.`;
+                logConsoleAction('PILOT RX', `✈️ PILOT INBOUND CALL [126.700 MHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotText, 'Received', 'blue');
+                pilotSpeech.speak(pilotText, `PILOT (${sc.aircraftCall})`, () => {
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Mawson Station Initial Advisory",
+              narration: "Operator provides altimeter and airfield condition.",
+              action: () => {
+                const replyText = `Foxtrot-Bravo-Oscar, Mawson Base, strength 5. Rumdoodle reported clear, wind ${weatherData.windDir} degrees at ${weatherData.windSpeed} knots, QNH ${weatherData.qnh}.`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT (ADVISORY)", replyText, 1, () => {
+                  stageEngine.currentStageIndex = 1;
+                  this.scheduleNext(1600);
+                });
+              }
+            },
+            {
+              title: "SARWATCH Overdue Alert Triggered!",
+              narration: "RADIO SILENCE: Aircraft misses mandatory 10-minute descent check. Emergency breach alarm sounds!",
+              action: () => {
+                const alertText = `[RADIO SILENCE] Aircraft has missed the 10-minute descent call. SARWATCH countdown alert triggered!`;
+                logConsoleAction('SARWATCH ALERT', '⚠️ RADIO SILENCE BREACH ➔ Aircraft missed mandatory 10-minute check! Alarm sounding!', alertText);
+                addCallHistoryRow('SARWATCH ALERT', 'Emergency', 'In', getUtcTimeString(), alertText, 'OVERDUE', 'red');
+                audioEngine.playBreachAlarm();
+                this.scheduleNext(2500);
+              }
+            },
+            {
+              title: "Station Radio Check on 126.700 MHz",
+              narration: "Operator immediately broadcasts radio check on 126.700 MHz to re-establish contact.",
+              action: () => {
+                const radioCheckText = `Foxtrot-Bravo-Oscar, Mawson Base on 126.7, do you read? Foxtrot-Bravo-Oscar, Mawson.`;
+                virtualHoldPTTAndTransmit("EMERGENCY RADIO CHECK", radioCheckText, 1, () => {
+                  this.scheduleNext(1600);
+                });
+              }
+            },
+            {
+              title: "Aircraft Re-establishes Contact",
+              narration: "Pilot breaks radio silence: minor antenna icing resolved, joining Rumdoodle downwind.",
+              action: () => {
+                const pilotText = `Mawson Base, Foxtrot-Bravo-Oscar re-establishing, minor VHF antenna icing now resolved, joining Rumdoodle downwind.`;
+                logConsoleAction('PILOT RX', `✈️ PILOT RE-ESTABLISHED [126.700 MHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotText, 'Received', 'blue');
+                pilotSpeech.speak(pilotText, `PILOT (${sc.aircraftCall})`, () => {
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Station Acknowledges Re-establishment",
+              narration: "Operator confirms receipt with relief and provides updated wind.",
+              action: () => {
+                const replyText = `Foxtrot-Bravo-Oscar, Mawson copies, glad to hear you. Surface wind ${weatherData.windDir} degrees at ${weatherData.windSpeed} knots, skiway clear.`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT (ACK)", replyText, 1, () => {
+                  stageEngine.currentStageIndex = 3;
+                  this.scheduleNext(1600);
+                });
+              }
+            },
+            {
+              title: "Aircraft Down and Safe",
+              narration: "Twin Otter lands safely at Rumdoodle and shuts down.",
+              action: () => {
+                const pilotText = `Foxtrot-Bravo-Oscar, down and safe at Rumdoodle, shutting down. Waiting for pick up.`;
+                logConsoleAction('PILOT RX', `✈️ PILOT TOUCHDOWN REPORT [126.700 MHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotText, 'Received', 'blue');
+                pilotSpeech.speak(pilotText, `PILOT (${sc.aircraftCall})`, () => {
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Station Formal SARWATCH Termination",
+              narration: "Operator copies landing and formally cancels overdue SARWATCH alarm.",
+              action: () => {
+                const replyText = `Foxtrot-Bravo-Oscar, Mawson copies down and safe at ${utcNow()} UTC. Terminating SARWATCH.`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT", replyText, 1, () => {
+                  virtualClick('btn-terminate-sarwatch', "PRESS TERMINATE SARWATCH", () => {
+                    terminateSARWATCH();
+                    logConsoleAction('SARWATCH', '👉 PRESSED [TERMINATE SARWATCH] ➔ Flight safety monitoring safely terminated', 'SARWATCH closed. Aircraft down and safe.');
+                    this.scheduleNext(1600);
+                  });
+                });
+              }
+            }
+          ];
+        }
+      }
+
+      executeCurrentStep() {
+        if (!this.isRunning || this.isPaused) return;
+
+        if (this.stepIndex >= this.steps.length) {
+          this.complete();
+          return;
+        }
+
+        const step = this.steps[this.stepIndex];
+
+        const stepBadge = document.getElementById('hud-step-badge');
+        const actionTitle = document.getElementById('hud-action-title');
+        const narrationText = document.getElementById('hud-narration-text');
+        const hudLive = document.getElementById('hud-live-action-text');
+
+        if (stepBadge) stepBadge.innerText = `STEP ${this.stepIndex + 1}/${this.steps.length}`;
+        if (actionTitle) actionTitle.innerText = step.title;
+        if (narrationText) narrationText.innerText = step.narration;
+        if (hudLive) hudLive.innerText = `[STEP ${this.stepIndex + 1}] ${step.title}: ${step.narration}`;
+
+        step.action();
+      }
+
+      scheduleNext(delayMs) {
+        if (!this.isRunning || this.isPaused) return;
+        this.timer = setTimeout(() => {
+          this.stepIndex++;
+          this.executeCurrentStep();
+        }, delayMs);
+      }
+
+      complete() {
+        hideVirtualPointer();
+        this.isRunning = false;
+
+        audioEngine.playRogerBeep();
+        setTimeout(() => audioEngine.testBeep(), 250);
+
+        const stepBadge = document.getElementById('hud-step-badge');
+        const actionTitle = document.getElementById('hud-action-title');
+        const narrationText = document.getElementById('hud-narration-text');
+
+        if (stepBadge) {
+          stepBadge.innerText = 'DEMO COMPLETE';
+          stepBadge.className = 'px-2 py-0.5 rounded bg-emerald-500 text-black font-extrabold text-[11px]';
+        }
+        if (actionTitle) actionTitle.innerText = '✅ 100% CASA AROC COMPLIANT DEMO FINISHED';
+        if (narrationText) narrationText.innerText = 'All radio transmissions, button clicks, and SARWATCH protocols executed in full compliance with AAD/CASA rules.';
+
+        addCallHistoryRow('SYSTEM (DEMO)', 'Normal', 'In', getUtcTimeString(), `Auto-Play Scenario ${this.scenarioId} completed successfully with 100% AROC compliance.`, 'COMPLETE', 'white');
+
+        const btn = document.getElementById('btn-example-play');
+        if (btn) {
+          btn.className = 'btn-3d px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded border border-emerald-800 flex items-center gap-1.5 shadow-md select-none cursor-pointer';
+          const txt = document.getElementById('example-play-btn-text');
+          if (txt) txt.innerText = 'REPLAY SCENARIO';
+        }
+
+        setTimeout(() => {
+          const sc = SCENARIOS[this.scenarioId] || SCENARIOS.A;
+          triggerMrTCelebration(`${sc.pilotCallPhonetic}, down and safe, skiway clear, shutting down. Waiting for pick up.`);
+        }, 800);
+      }
+    }
+
+    const autoPlayEngine = new AutoPlayEngine();
+
+    /* =========================================================================
+     * 10. CLOCK TICKER & KEYBOARD SPACEBAR PTT BINDINGS
+     * ========================================================================= */
+    function updateClocks() {
+      const now = new Date();
+      const uh = String(now.getUTCHours()).padStart(2, '0');
+      const um = String(now.getUTCMinutes()).padStart(2, '0');
+      const us = String(now.getUTCSeconds()).padStart(2, '0');
+      const utcEl = document.getElementById('utc-clock');
+      if (utcEl) utcEl.innerText = `${uh}:${um}:${us} UTC`;
+
+      const mawsonDate = new Date(now.getTime() + (5 * 3600000));
+      const lh = String(mawsonDate.getUTCHours()).padStart(2, '0');
+      const lm = String(mawsonDate.getUTCMinutes()).padStart(2, '0');
+      const ls = String(mawsonDate.getUTCSeconds()).padStart(2, '0');
+      const localEl = document.getElementById('local-clock');
+      if (localEl) localEl.innerText = `${lh}:${lm}:${ls}`;
+    }
+
+    function setupPTTListeners() {
+      const unlockAudio = () => {
+        audioEngine.initContext();
+      };
+      window.addEventListener('click', unlockAudio, { once: true });
+      window.addEventListener('keydown', unlockAudio, { once: true });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') {
+          const activeTag = document.activeElement ? document.activeElement.tagName.toUpperCase() : '';
+          if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') {
+            return;
+          }
+          e.preventDefault();
+          if (!e.repeat) {
+            speechInput.startPTT();
+          }
+        }
+      });
+
+      window.addEventListener('keyup', (e) => {
+        if (e.code === 'Space') {
+          const activeTag = document.activeElement ? document.activeElement.tagName.toUpperCase() : '';
+          if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') {
+            return;
+          }
+          e.preventDefault();
+          if (speechInput.isPTTActive) {
+            speechInput.stopPTT();
+          }
+        }
+      });
+
+      // Global mouseup and touchend fallback so releasing outside the button also stops PTT
+      window.addEventListener('mouseup', () => {
+        if (speechInput.isPTTActive) {
+          speechInput.stopPTT();
+        }
+      });
+      window.addEventListener('touchend', () => {
+        if (speechInput.isPTTActive) {
+          speechInput.stopPTT();
+        }
+      });
+
+      const manualInput = document.getElementById('manual-tx-input');
+      if (manualInput) {
+        manualInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            submitManualTransmission();
+          }
+        });
+      }
+    }
+
+    /* =========================================================================
+     * 11. APP BOOTSTRAP
+     * ========================================================================= */
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide && typeof lucide.createIcons === 'function') {
+        lucide.createIcons();
+      }
+      updateClocks();
+      setInterval(updateClocks, 1000);
+      setupPTTListeners();
+      selectTile(1);
+      stageEngine.initScenario('A');
+      updateSideScriptCard();
+
+      addCallHistoryRow('ZETRON', 'System', 'In', getUtcTimeString(), 'Zetron DCS5020 Dispatch Console Online. Station Mawson.', 'Online', 'white');
+    });
+  </script>
+
+  <!-- Virtual Operator Pointer Indicator -->
+  <div id="auto-operator-pointer" style="display: none; z-index: 9999;" class="fixed pointer-events-none transition-all duration-200 transform -translate-x-1/2 -translate-y-full flex flex-col items-center drop-shadow-2xl">
+    <div class="bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 text-slate-950 font-black font-mono text-xs px-3 py-1 rounded shadow-2xl border-2 border-black flex items-center gap-1.5 whitespace-nowrap uppercase tracking-wider">
+      <span class="text-base animate-pulse">👉</span>
+      <span id="pointer-action-label">OPERATOR ACTION</span>
+    </div>
+    <div class="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[10px] border-t-amber-400 -mt-[1px]"></div>
+  </div>
+
+</body>
+</html>
