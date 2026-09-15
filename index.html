@@ -2250,7 +2250,7 @@
     const irrEngine = new IRREngine();
 
     /* =========================================================================
-     * 5. SPEECH RECOGNITION (STT) & PTT HANDLER
+     * 5. SPEECH RECOGNITION (STT) & PTT HANDLER (WITH PRE-WARM & DRAIN BUFFER)
      * ========================================================================= */
     class SpeechInputEngine {
       constructor() {
@@ -2258,9 +2258,14 @@
         this.isSupported = !!SpeechRec;
         this.recognition = null;
         this.isPTTActive = false;
+        this.isDraining = false;
+        this.drainTimer = null;
+        this.finalizeTimer = null;
         this.accumulatedTranscript = '';
         this.lastInterim = '';
         this.latestTranscript = '';
+        this.warmMicStream = null;
+        this.micPrewarmed = false;
 
         if (this.isSupported) {
           try {
@@ -2276,37 +2281,73 @@
         }
       }
 
+      // Step 1: Pre-warm hardware microphone channel to eliminate initial 150-300ms clipping
+      async prewarmMicrophone() {
+        if (this.micPrewarmed || this.warmMicStream) return;
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true
+            }
+          });
+          this.warmMicStream = stream;
+          this.micPrewarmed = true;
+          logConsoleAction('MIC PRE-WARMED', '🎙️ Hardware audio channel pre-warmed & primed (zero PTT lag).');
+        } catch (err) {
+          // User may not have granted mic permission yet; will prompt again on PTT press
+          console.log("Pre-warm mic awaiting user interaction/permission:", err.message || err);
+        }
+      }
+
       setupEvents() {
         this.recognition.onresult = (event) => {
-          let interim = '';
-          for (let i = event.resultIndex; i < event.results.length; ++i) {
-            const tr = event.results[i][0].transcript;
-            if (event.results[i].isFinal) {
-              this.accumulatedTranscript += ' ' + tr;
+          let finalStr = '';
+          let interimStr = '';
+
+          for (let i = 0; i < event.results.length; ++i) {
+            const item = event.results[i];
+            const tr = item[0].transcript;
+            if (item.isFinal) {
+              finalStr += (finalStr ? ' ' : '') + tr.trim();
             } else {
-              interim += tr;
+              interimStr += (interimStr ? ' ' : '') + tr.trim();
             }
           }
-          this.lastInterim = interim;
-          const fullInterim = (this.accumulatedTranscript + ' ' + interim).trim();
-          this.latestTranscript = fullInterim;
 
+          this.accumulatedTranscript = finalStr;
+          this.lastInterim = interimStr;
+          const fullTranscript = (finalStr + (interimStr ? ' ' + interimStr : '')).trim();
+          if (fullTranscript.length > 0) {
+            this.latestTranscript = fullTranscript;
+          }
+
+          // Step 3: Aggressive Real-Time Interim Transcript Capture
           // Stream real-time speech directly into the bottom TX text input
           const input = document.getElementById('manual-tx-input');
-          if (input && fullInterim.length > 0) {
-            input.value = fullInterim;
+          if (input && fullTranscript.length > 0) {
+            input.value = fullTranscript;
           }
 
           // Live status message at bottom
           const btm = document.getElementById('bottom-status-message');
           if (btm) {
-            btm.innerText = `TRANSMITTING: "${fullInterim}"`;
+            if (this.isDraining) {
+              btm.innerText = `⏳ PROCESSING FINAL AUDIO: "${fullTranscript}"`;
+            } else if (this.isPTTActive) {
+              btm.innerText = `TRANSMITTING: "${fullTranscript}"`;
+            }
           }
 
           // Live console action banner update
           const bannerText = document.getElementById('sim-action-text');
-          if (bannerText && fullInterim.length > 0) {
-            bannerText.innerText = `🎙️ TRANSMITTING: "${fullInterim}"`;
+          if (bannerText && fullTranscript.length > 0) {
+            bannerText.innerText = this.isDraining
+              ? `⏳ FLUSHING BUFFER: "${fullTranscript}"`
+              : `🎙️ TRANSMITTING: "${fullTranscript}"`;
           }
         };
 
@@ -2318,15 +2359,44 @@
         };
 
         this.recognition.onend = () => {
-          if (this.isPTTActive) {
+          // If PTT is active or still draining, keep recognition alive
+          if (this.isPTTActive || this.isDraining) {
             try { this.recognition.start(); } catch(e) {}
           }
         };
       }
 
       startPTT() {
+        // If currently draining audio buffer from a previous key release, resume immediately
+        if (this.isDraining) {
+          if (this.drainTimer) {
+            clearTimeout(this.drainTimer);
+            this.drainTimer = null;
+          }
+          if (this.finalizeTimer) {
+            clearTimeout(this.finalizeTimer);
+            this.finalizeTimer = null;
+          }
+          this.isDraining = false;
+          this.isPTTActive = true;
+
+          const pttLabel = document.getElementById('ptt-label-text');
+          if (pttLabel) pttLabel.innerText = '🔴 PTT ACTIVE - TRANSMITTING';
+
+          const pttBtn = document.getElementById('ptt-btn');
+          if (pttBtn) {
+            pttBtn.classList.remove('bg-amber-400');
+            pttBtn.classList.add('bg-[#f26666]', 'animate-pulse');
+          }
+
+          const btm = document.getElementById('bottom-status-message');
+          if (btm) btm.innerText = 'PTT RESUMED: Transmitting...';
+          return;
+        }
+
         if (this.isPTTActive) return;
         this.isPTTActive = true;
+        this.isDraining = false;
         this.accumulatedTranscript = '';
         this.lastInterim = '';
         this.latestTranscript = '';
@@ -2335,11 +2405,20 @@
         pilotSpeech.cancel();
         stationOperatorSpeech.cancel();
 
+        // Step 1: Pre-warm mic stream if not already active
+        this.prewarmMicrophone();
+
         audioEngine.playMicClick(true);
         setTileTX(selectedTileId, true);
 
         const pttLabel = document.getElementById('ptt-label-text');
         if (pttLabel) pttLabel.innerText = '🔴 PTT ACTIVE - TRANSMITTING';
+
+        const pttBtn = document.getElementById('ptt-btn');
+        if (pttBtn) {
+          pttBtn.classList.remove('bg-amber-400');
+          pttBtn.classList.add('animate-pulse');
+        }
 
         const chan = TILES.find(t => t.id === selectedTileId);
         const chanName = chan ? `${chan.name} (${chan.freq})` : 'Tone Remote 1';
@@ -2350,53 +2429,86 @@
         if (btm) btm.innerText = `PTT ACTIVE: Transmitting on ${chanName} - Speak into microphone...`;
 
         if (this.isSupported && this.recognition) {
-          try { this.recognition.start(); } catch(e) {}
+          try {
+            this.recognition.start();
+          } catch(e) {
+            // Already started or restarting
+          }
         }
       }
 
+      // Step 2: PTT Release Grace Period (Audio Drain Buffer)
       stopPTT() {
         if (!this.isPTTActive) return;
         this.isPTTActive = false;
-
-        audioEngine.playSquelchTail();
-        setTileTX(selectedTileId, false);
+        this.isDraining = true;
 
         const pttLabel = document.getElementById('ptt-label-text');
-        if (pttLabel) pttLabel.innerText = 'PTT TRANSMIT';
+        if (pttLabel) pttLabel.innerText = '⏳ DRAINING BUFFER...';
 
-        if (this.isSupported && this.recognition) {
-          try { this.recognition.stop(); } catch(e) {}
+        const pttBtn = document.getElementById('ptt-btn');
+        if (pttBtn) {
+          pttBtn.classList.remove('animate-pulse');
+          pttBtn.classList.add('bg-amber-400');
         }
 
-        // Wait 250ms for speech recognition to finalize any trailing results
-        setTimeout(() => {
-          const inputEl = document.getElementById('manual-tx-input');
-          const inputValue = inputEl ? inputEl.value.trim() : '';
-          const finalSpoken = (this.latestTranscript || this.accumulatedTranscript || this.lastInterim || inputValue).trim();
+        const btm = document.getElementById('bottom-status-message');
+        if (btm) btm.innerText = '⏳ PROCESSING FINAL AUDIO (FLUSHING BUFFER 450ms)...';
 
-          const chan = TILES.find(t => t.id === selectedTileId);
-          const chanName = chan ? `${chan.name} (${chan.freq})` : 'Tone Remote 1';
+        // Keep speech recognition recording for 450ms to capture trailing words/QNH
+        this.drainTimer = setTimeout(() => {
+          this.drainTimer = null;
+          if (!this.isDraining) return;
 
-          if (finalSpoken.length > 0) {
-            handleUserTransmission(finalSpoken);
-          } else {
-            // PTT keyed without any voice audio
-            logConsoleAction('PTT IDLE', `⚠️ Keyed PTT on ${chanName} - No voice audio detected.`);
-            addCallHistoryRow('MAWSON COMMS', 'Warning', 'Out', getUtcTimeString(), '[PTT Keyed - Carrier Only]', 'NO MODULATION', 'yellow');
+          // Drain window elapsed - play squelch tail and drop TX tile
+          audioEngine.playSquelchTail();
+          setTileTX(selectedTileId, false);
 
-            setTimeout(() => {
-              const sc = SCENARIOS[stageEngine.currentScenarioId];
-              const pilotQuery = `${sc.pilotCallPhonetic}, unreadable carrier, say again Mawson Base?`;
-              addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Warning', 'In', getUtcTimeString(), pilotQuery, 'SAY AGAIN', 'blue');
-              pilotSpeech.speak(pilotQuery, `PILOT (${sc.aircraftCall})`);
-            }, 800);
+          if (this.isSupported && this.recognition) {
+            try { this.recognition.stop(); } catch(e) {}
           }
 
-          // Clear transcript buffers
-          this.accumulatedTranscript = '';
-          this.lastInterim = '';
-          this.latestTranscript = '';
-        }, 250);
+          // Wait brief 250ms for speech recognition server to return final tokens
+          this.finalizeTimer = setTimeout(() => {
+            this.finalizeTimer = null;
+            if (!this.isDraining) return;
+            this.isDraining = false;
+
+            if (pttLabel) pttLabel.innerText = 'PTT TRANSMIT';
+            if (pttBtn) {
+              pttBtn.classList.remove('bg-amber-400');
+              pttBtn.classList.add('bg-[#f26666]');
+            }
+
+            const inputEl = document.getElementById('manual-tx-input');
+            const inputValue = inputEl ? inputEl.value.trim() : '';
+            // Step 3: Evaluate accumulated interim transcript if server didn't finalize
+            const finalSpoken = (this.latestTranscript || this.accumulatedTranscript || this.lastInterim || inputValue).trim();
+
+            const chan = TILES.find(t => t.id === selectedTileId);
+            const chanName = chan ? `${chan.name} (${chan.freq})` : 'Tone Remote 1';
+
+            if (finalSpoken.length > 0) {
+              handleUserTransmission(finalSpoken);
+            } else {
+              // PTT keyed without any voice audio
+              logConsoleAction('PTT IDLE', `⚠️ Keyed PTT on ${chanName} - No voice audio detected.`);
+              addCallHistoryRow('MAWSON COMMS', 'Warning', 'Out', getUtcTimeString(), '[PTT Keyed - Carrier Only]', 'NO MODULATION', 'yellow');
+
+              setTimeout(() => {
+                const sc = SCENARIOS[stageEngine.currentScenarioId];
+                const pilotQuery = `${sc.pilotCallPhonetic}, unreadable carrier, say again Mawson Base?`;
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Warning', 'In', getUtcTimeString(), pilotQuery, 'SAY AGAIN', 'blue');
+                pilotSpeech.speak(pilotQuery, `PILOT (${sc.aircraftCall})`);
+              }, 800);
+            }
+
+            // Clear transcript buffers
+            this.accumulatedTranscript = '';
+            this.lastInterim = '';
+            this.latestTranscript = '';
+          }, 250);
+        }, 450);
       }
     }
 
@@ -2630,8 +2742,89 @@
     const stageEngine = new MissionStageEngine();
 
     /* =========================================================================
-     * 8. AROC PHRASEOLOGY EVALUATOR & CALL HISTORY RENDERER
+     * 8. AROC PHRASEOLOGY EVALUATOR & CALL HISTORY RENDERER (STEP 4 FUZZY/PHONETIC)
      * ========================================================================= */
+    function normalizeSpokenNumbers(raw) {
+      if (!raw) return '';
+      let s = raw.toLowerCase();
+
+      // Aviation digit words
+      const digitMap = {
+        'zero': '0', 'one': '1', 'two': '2', 'three': '3', 'four': '4',
+        'five': '5', 'six': '6', 'seven': '7', 'eight': '8', 'nine': '9',
+        'niner': '9'
+      };
+
+      // Spoken thousand / altitude phrases
+      s = s.replace(/\bthree\s+thousand(?:\s+feet)?\b/g, '3000 feet');
+      s = s.replace(/\btwo\s+thousand\s+(?:and\s+)?five\s+hundred(?:\s+feet)?\b/g, '2500 feet');
+      s = s.replace(/\btwo\s+thousand(?:\s+feet)?\b/g, '2000 feet');
+      s = s.replace(/\b(\d+)\s+thousand\b/g, '$1000');
+
+      // Convert sequences of digit words like "nine nine two" -> "992"
+      // or "one four zero" -> "140"
+      const tokens = s.split(/\s+/);
+      const out = [];
+      let pendingDigits = '';
+
+      for (let t of tokens) {
+        const clean = t.replace(/[^a-z0-9]/g, '');
+        if (digitMap[clean] !== undefined) {
+          pendingDigits += digitMap[clean];
+        } else {
+          if (pendingDigits.length > 0) {
+            out.push(pendingDigits);
+            pendingDigits = '';
+          }
+          out.push(t);
+        }
+      }
+      if (pendingDigits.length > 0) {
+        out.push(pendingDigits);
+      }
+
+      let res = out.join(' ');
+      // Join separated single digits e.g. "9 9 2" -> "992"
+      res = res.replace(/\b(\d)\s+(\d)\s+(\d)\b/g, '$1$2$3');
+      res = res.replace(/\b(\d)\s+(\d)\b/g, '$1$2');
+      return res;
+    }
+
+    function levenshteinDistance(s1, s2) {
+      if (s1 === s2) return 0;
+      if (!s1 || !s2) return (s1 || s2).length;
+      const m = s1.length, n = s2.length;
+      const d = [];
+      for (let i = 0; i <= m; i++) d[i] = [i];
+      for (let j = 0; j <= n; j++) d[0][j] = j;
+      for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+          const cost = s1[i - 1] === s2[j - 1] ? 0 : 1;
+          d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
+        }
+      }
+      return d[m][n];
+    }
+
+    function hasFuzzyWord(text, target, maxDist = 2) {
+      if (!text || !target) return false;
+      const clean = text.toLowerCase().replace(/[^a-z0-9\s]/g, ' ');
+      const words = clean.split(/\s+/);
+      for (let w of words) {
+        if (w.length >= 3 && Math.abs(w.length - target.length) <= maxDist) {
+          if (levenshteinDistance(w, target) <= maxDist) return true;
+        }
+      }
+      // Also check 2-word combinations e.g. "box trot" vs "foxtrot"
+      for (let i = 0; i < words.length - 1; i++) {
+        const bigram = words[i] + words[i + 1];
+        if (Math.abs(bigram.length - target.length) <= maxDist) {
+          if (levenshteinDistance(bigram, target) <= maxDist) return true;
+        }
+      }
+      return false;
+    }
+
     function handleUserTransmission(text) {
       if (!text || text.trim().length === 0) return;
 
@@ -2649,10 +2842,12 @@
     }
 
     function evaluateTransmission(rawText) {
-      const text = rawText.toLowerCase().trim();
+      const rawLower = rawText.toLowerCase().trim();
+      const normalized = normalizeSpokenNumbers(rawLower);
       const sc = SCENARIOS[stageEngine.currentScenarioId];
       const stage = sc.stages[stageEngine.currentStageIndex];
 
+      // 1. Critical AROC Breach Check (UNICOM cannot issue ATC clearances)
       const atcClearancePatterns = [
         /cleared\s+to\s+land/i,
         /cleared\s+for\s+takeoff/i,
@@ -2663,7 +2858,7 @@
       ];
 
       for (let pat of atcClearancePatterns) {
-        if (pat.test(text)) {
+        if (pat.test(rawLower) || pat.test(normalized)) {
           audioEngine.playBreachAlarm();
           addCallHistoryRow('MAWSON COMMS', 'CRITICAL', 'Out', getUtcTimeString(), rawText, 'ATC BREACH (0%)', 'red');
           logConsoleAction('AROC BREACH', '❌ CRITICAL AROC BREACH: Issued unauthorized ATC clearance! UNICOM cannot clear to land.');
@@ -2677,47 +2872,109 @@
         }
       }
 
+      // 2. Callsign & Phonetic Matching (Fuzzy & Aliases)
+      const callsignAliases = [
+        'foxtrot', 'fox trot', 'boxtrot', 'box trot', 'oxtrot', 'fxtrot', 'fox', 'trot', 'fox-trot',
+        'bravo', 'ravo', 'brav', 'brave',
+        'oscar', 'scar', 'ascar', 'osca', 'osker', 'asker',
+        'tango', 'tengo', 'tan go',
+        'golf', 'gulf', 'golfed',
+        'twin otter', 'basler', 'aircraft', 'inbound', 'fbo', 'btg', 'vhg', 'vkb'
+      ];
+
       const hasCallsign = (
-        text.includes('foxtrot') || text.includes('bravo') || text.includes('oscar') ||
-        text.includes('fbo') || text.includes('btg') || text.includes('tango') ||
-        text.includes('golf') || text.includes('twin otter') || text.includes('basler') ||
-        text.includes('aircraft') || text.includes('inbound')
+        callsignAliases.some(alias => normalized.includes(alias) || rawLower.includes(alias)) ||
+        hasFuzzyWord(normalized, 'foxtrot', 2) ||
+        hasFuzzyWord(normalized, 'bravo', 2) ||
+        hasFuzzyWord(normalized, 'oscar', 2) ||
+        hasFuzzyWord(normalized, 'tango', 2) ||
+        hasFuzzyWord(normalized, 'golf', 2) ||
+        normalized.includes(sc.aircraftCall.toLowerCase().replace(/[^a-z0-9]/g, ''))
       );
+
+      // 3. Mawson Station ID Matching (Fuzzy & Aliases)
+      const mawsonAliases = [
+        'mawson', 'molson', 'morrison', 'maws', 'maulson', 'morson', 'marson', 'moson', 'moleson', 'malcolm', 'mowson',
+        'base', 'traffic', 'station', 'radio', 'ground', 'comms'
+      ];
 
       const hasMawson = (
-        text.includes('mawson') || text.includes('base') || text.includes('traffic') ||
-        text.includes('station') || text.includes('radio') || text.includes('ground') ||
-        text.includes('comms') || text.includes('morrison') || text.includes('molson')
+        mawsonAliases.some(alias => normalized.includes(alias) || rawLower.includes(alias)) ||
+        hasFuzzyWord(normalized, 'mawson', 2)
       );
+
+      // 4. QNH / Altimeter Numeric Extraction (Step 4)
+      const qnhMatch = normalized.match(/\b(9\d{2}|10\d{2})\b/);
+      const detectedQnhNum = qnhMatch ? parseInt(qnhMatch[1], 10) : null;
+      const isReasonableQnh = detectedQnhNum !== null && detectedQnhNum >= 950 && detectedQnhNum <= 1050;
 
       const hasQnh = (
-        text.includes(String(weatherData.qnh)) || text.includes('qnh') ||
-        text.includes('altimeter') || text.includes('hectopascal') || text.includes('hpa') ||
-        text.includes('99') || text.includes('98')
+        isReasonableQnh ||
+        normalized.includes(String(weatherData.qnh)) ||
+        rawLower.includes(String(weatherData.qnh)) ||
+        normalized.includes('qnh') ||
+        normalized.includes('altimeter') ||
+        normalized.includes('hectopascal') ||
+        normalized.includes('hpa') ||
+        normalized.includes('millibar') ||
+        normalized.includes('99') ||
+        normalized.includes('98') ||
+        normalized.includes('100') ||
+        normalized.includes('101') ||
+        hasFuzzyWord(normalized, 'altimeter', 2)
       );
+
+      // 5. Wind Numeric & Term Extraction (Step 4)
+      const windDirStr = String(weatherData.windDir);
+      const windSpeedStr = String(weatherData.windSpeed);
 
       const hasWind = (
-        text.includes(String(weatherData.windDir)) || text.includes('wind') ||
-        text.includes('knot') || text.includes('knots') || text.includes('degrees')
+        normalized.includes(windDirStr) ||
+        normalized.includes(windSpeedStr) ||
+        rawLower.includes(windDirStr) ||
+        rawLower.includes(windSpeedStr) ||
+        /\b\d{2,3}\s*(?:degrees|deg|kt|kts|knots)\b/.test(normalized) ||
+        /\b(?:wind|winds)\s+\d{1,3}\b/.test(normalized) ||
+        normalized.includes('wind') ||
+        normalized.includes('winds') ||
+        normalized.includes('knot') ||
+        normalized.includes('knots') ||
+        normalized.includes('degrees') ||
+        normalized.includes('gust')
       );
+
+      // 6. Runway / Skiway Status Matching
+      const runwayAliases = [
+        'clear', 'reported clear', 'all clear', 'unobstructed',
+        'rumdoodle', 'rum doodle', 'ram doodle', 'ramdoodle', 'round doodle', 'doodle',
+        'sea ice', 'fast ice', 'ice',
+        'skiway', 'skyway', 'runway', 'landing area', 'strip',
+        'sastrugi', 'sastrugis', 'snow',
+        'no conflicting', 'no traffic', 'traffic clear'
+      ];
 
       const hasRunwayStatus = (
-        text.includes('clear') || text.includes('reported clear') ||
-        text.includes('rumdoodle') || text.includes('sea ice') ||
-        text.includes('skiway') || text.includes('runway') ||
-        text.includes('landing area') || text.includes('sastrugi') ||
-        text.includes('no conflicting')
+        runwayAliases.some(alias => normalized.includes(alias) || rawLower.includes(alias)) ||
+        hasFuzzyWord(normalized, 'rumdoodle', 2) ||
+        hasFuzzyWord(normalized, 'skiway', 2) ||
+        hasFuzzyWord(normalized, 'sastrugi', 2)
       );
 
+      // 7. Readability / Signal Report
       const hasReadability = (
-        text.includes('read') || text.includes('strength') ||
-        text.includes('five') || text.includes('5') || text.includes('loud')
+        normalized.includes('read') || normalized.includes('reading') || normalized.includes('readable') ||
+        normalized.includes('strength') || normalized.includes('five') || normalized.includes('5') ||
+        normalized.includes('four') || normalized.includes('4') || normalized.includes('loud') ||
+        normalized.includes('lima charlie')
       );
 
+      // 8. Acknowledgements
       const hasAcks = (
-        text.includes('copy') || text.includes('copies') || text.includes('copied') ||
-        text.includes('roger') || text.includes('wilco') || text.includes('affirm') ||
-        text.includes('down') || text.includes('safe') || text.includes('welcome')
+        normalized.includes('copy') || normalized.includes('copies') || normalized.includes('copied') ||
+        normalized.includes('roger') || normalized.includes('wilco') || normalized.includes('affirm') ||
+        normalized.includes('down') || normalized.includes('safe') || normalized.includes('shut') ||
+        normalized.includes('welcome') || normalized.includes('understood') || normalized.includes('cheers') ||
+        normalized.includes('thanks') || normalized.includes('g\'day')
       );
 
       let score = 0;
@@ -2736,22 +2993,27 @@
         else if (!hasRunwayStatus) missingType = 'runway';
         else if (!hasCallsign && !hasMawson) missingType = 'callsign';
       } else if (stageEngine.currentStageIndex === 1) {
-        // Stage 1: Descent Check (acknowledges descent to 3,000 ft)
+        // Stage 1: Descent Check (acknowledges descent to 3,000 ft or 2,500 ft)
         total = 2;
         if (hasCallsign || hasMawson) score++;
-        if (text.includes('descent') || text.includes('descend') || text.includes('3000') || text.includes('3,000') || text.includes('feet') || hasAcks) score++;
+        if (normalized.includes('descent') || normalized.includes('descend') ||
+            normalized.includes('3000') || normalized.includes('2500') ||
+            normalized.includes('feet') || hasAcks) score++;
         if (score < total) missingType = 'descent';
       } else if (stageEngine.currentStageIndex === 2) {
         // Stage 2: Circuit / Downwind report (copies downwind, gives wind)
         total = 2;
         if (hasCallsign || hasMawson) score++;
-        if (text.includes('downwind') || text.includes('circuit') || text.includes('base') || hasWind || hasAcks) score++;
+        if (normalized.includes('downwind') || normalized.includes('circuit') ||
+            normalized.includes('base') || normalized.includes('leg') || hasWind || hasAcks) score++;
         if (score < total) missingType = 'circuit';
       } else {
         // Stage 3: Touchdown & safe
         total = 2;
         if (hasCallsign || hasMawson) score++;
-        if (text.includes('down') || text.includes('safe') || text.includes('shut') || text.includes('welcome') || hasAcks) score++;
+        if (normalized.includes('down') || normalized.includes('safe') ||
+            normalized.includes('shut') || normalized.includes('welcome') ||
+            normalized.includes('landing') || normalized.includes('landed') || hasAcks) score++;
         if (score < total) missingType = 'touchdown';
       }
 
@@ -3864,6 +4126,9 @@
     function setupPTTListeners() {
       const unlockAudio = () => {
         audioEngine.initContext();
+        if (speechInput && typeof speechInput.prewarmMicrophone === 'function') {
+          speechInput.prewarmMicrophone();
+        }
       };
       window.addEventListener('click', unlockAudio, { once: true });
       window.addEventListener('keydown', unlockAudio, { once: true });
@@ -3929,6 +4194,11 @@
       selectTile(1);
       stageEngine.initScenario('A');
       updateSideScriptCard();
+
+      // Step 1: Pre-warm hardware microphone on boot (if browser permissions are already granted)
+      if (speechInput && typeof speechInput.prewarmMicrophone === 'function') {
+        speechInput.prewarmMicrophone();
+      }
 
       addCallHistoryRow('ZETRON', 'System', 'In', getUtcTimeString(), 'Zetron DCS5020 Dispatch Console Online. Station Mawson.', 'Online', 'white');
     });

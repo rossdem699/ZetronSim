@@ -33,17 +33,33 @@
 
 ---
 
-## Priority Task for Next Session: Speech Recognition Latency & Missed Words Fix
+---
 
-### Why the issue currently occurs:
-1. **Cloud Server Round-Trip**: The standard browser `webkitSpeechRecognition` streams microphone audio to Google's remote speech servers over HTTPS, resulting in a 300-800ms round-trip network latency before returning text.
-2. **Audio Start Latency (Clipped First Words)**: The microphone hardware stream only begins initializing *after* PTT is pressed. The first 150-300ms can be clipped, meaning opening words like *"Foxtrot"* can be cut off before the audio buffer fills.
-3. **PTT Release Premature Cut-Off**: When PTT is released, `recognition.stop()` is called immediately, which can drop trailing words still in transit to the server.
-4. **Strict Regex / Keyword Matching**: Missed leading syllables can cause standard pattern matching to fail.
+## Completed: Speech Recognition Latency & Missed Words Fix (Steps 1 to 4)
 
-### Planned Solutions to Implement:
-1. **Pre-Warmed Microphone Stream**: Keep a low-latency `MediaStream` warm in the background so audio capture starts at millisecond zero when PTT is pressed (no clipped first words).
-2. **Aggressive Interim Results Buffer**: Capture and display words immediately on `onresult` interim events in real-time as you speak, without waiting for the server's delayed finalization event.
-3. **PTT Release Grace Period**: Add a 400ms audio drain buffer when releasing PTT to ensure trailing words finish streaming to the speech recognizer before stopping.
-4. **Phonetic & Fuzzy Matching**: Implement Levenshtein / phonetic distance matching for aviation terms (e.g. recognizing "xtrot", "box trot", "foxtrot" as `Foxtrot`, and numeric extraction for QNH and wind) so minor audio drops don't penalize readbacks.
-5. **Optional Offline / WebAssembly Local Model**: Option to embed a lightweight in-browser offline speech recognizer (e.g. Vosk / Whisper WebAssembly) for zero-latency, 100% offline speech recognition.
+The speech recognition latency and clipped word issues have been resolved in `index.html`:
+
+1. **Pre-Warmed Background Microphone Stream (`getUserMedia`)**:
+   - Hardware audio stream initialized on boot / first user interaction and kept warm in the background.
+   - Eliminates OS/driver audio pipeline spin-up latency (150–300ms) so opening syllables like *"Foxtrot"* or *"Mawson"* are captured instantly at millisecond zero.
+2. **PTT Release Grace Period (Audio Drain Buffer)**:
+   - Added a 450ms trailing audio drain grace period when PTT or Spacebar is released.
+   - Visual button feedback switches to `⏳ DRAINING BUFFER...` and status updates to `⏳ PROCESSING FINAL AUDIO...`.
+   - Trailing syllables, altimeter numbers, and QNH digits in transit are captured and transcribed before `recognition.stop()` is called.
+   - Squelch tail and tile TX release occur automatically when the drain completes.
+   - Re-keying PTT during drain seamlessly resumes without interruption.
+3. **Aggressive Real-Time Interim Transcript Capture**:
+   - Real-time continuous streaming of interim hypotheses into the TX input and status bar.
+   - Automatic fallback evaluates accumulated interim transcripts immediately if cloud speech servers stall or delay `isFinal` delivery.
+4. **Phonetic & Aviation Keyword Fuzzy Matching + Spoken Number Normalizer**:
+   - Built-in Levenshtein distance algorithm and fuzzy word/bigram matcher (`hasFuzzyWord`).
+   - Aviation callsign and phonetic aliases (`foxtrot`, `box trot`, `oxtrot`, `fxtrot`, `bravo`, `ravo`, `oscar`, `scar`, `tango`, `golf`, `basler`, `twin otter`).
+   - Mawson station aliases (`mawson`, `molson`, `morrison`, `maws`, `maulson`, `base`, `traffic`, `ground`, `station`).
+   - Spoken number converter (`normalizeSpokenNumbers`) converting phonetic digits (*"nine nine two"* &rarr; `992`, *"one four zero"* &rarr; `140`, *"three thousand"* &rarr; `3000 feet`).
+   - Flexible numeric extraction for QNH (any barometric 3-4 digit reading 950–1050) and wind direction/speed.
+
+---
+
+## Roadmap / Next Enhancements
+- **Optional Offline / WebAssembly Local Model**: Option to embed a lightweight in-browser offline speech recognizer (e.g., Vosk / Whisper WebAssembly) for 100% air-gapped / zero-network environments.
+

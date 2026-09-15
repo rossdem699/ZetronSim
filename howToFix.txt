@@ -40,38 +40,32 @@ WHY THE DELAY AND MISSED WORDS CURRENTLY HAPPEN
    might fail to detect required aviation readback elements (callsign, QNH, wind).
 
 
-STEP-BY-STEP FIX TO IMPLEMENT NEXT TIME
+STEP-BY-STEP FIX IMPLEMENTATION STATUS
 ---------------------------------------
 
-Step 1: Pre-Warmed Background Microphone Stream
-- Initialize a persistent getUserMedia audio stream when the page loads (or on first click).
-- Keep the hardware audio channel warm in the background.
-- When PTT is keyed, tap into the already-open stream instantly at millisecond zero.
-- Result: Zero audio ramp-up delay; no clipped first words.
+[COMPLETED] Step 1: Pre-Warmed Background Microphone Stream
+- Initialized persistent getUserMedia stream on page load / first user click.
+- Keeps hardware audio channel warm in the background.
+- Zero audio ramp-up delay; no clipped first words like "Foxtrot" or "Mawson".
 
-Step 2: PTT Release Grace Period (Audio Drain Buffer)
-- When PTT is released, do NOT call recognition.stop() immediately.
-- Introduce a 350-500ms trailing grace period allowing the microphone buffer to flush
-  and the remote speech API to finish transcribing trailing words.
-- Visually indicate "PROCESSING FINAL AUDIO..." during the buffer drain.
+[COMPLETED] Step 2: PTT Release Grace Period (Audio Drain Buffer)
+- 450ms trailing audio drain grace period active upon PTT / Spacebar release.
+- Button displays "⏳ DRAINING BUFFER..." and status bar displays "⏳ PROCESSING FINAL AUDIO...".
+- Trailing syllables, altimeter numbers, and QNH digits in transit are transcribed before recognition.stop().
+- Squelch tail and tile TX release occur cleanly when drain finishes.
 
-Step 3: Aggressive Real-Time Interim Transcript Capture
-- Listen to the `onresult` event and capture `event.results[i][0].transcript` in real time,
-  including `result.isFinal === false` (interim hypotheses).
-- Display interim words immediately in the TX box as you speak.
-- If speech recognition stalls on server finalization, evaluate the accumulated interim
-  transcript immediately upon PTT release without waiting for remote server timeout.
+[COMPLETED] Step 3: Aggressive Real-Time Interim Transcript Capture
+- Real-time continuous streaming of interim hypotheses into the TX input and status bar.
+- Automatic fallback evaluates accumulated interim transcripts immediately upon PTT release without waiting for delayed server timeouts.
 
-Step 4: Phonetic & Aviation Keyword Fuzzy Matching
-- Add phonetic tolerance and Levenshtein distance checks:
-  * "oxtrot", "box trot", "fxtrot" -> matches "Foxtrot"
-  * "ravo", "bravo" -> matches "Bravo"
-  * "scar", "oscar" -> matches "Oscar"
-  * "molson", "morrison", "maws" -> matches "Mawson"
-- Add flexible numeric extraction for QNH (any 3-4 digit number around 980-1030)
-  and wind direction/speed so minor phonetic variations never penalize the score.
+[COMPLETED] Step 4: Phonetic & Aviation Keyword Fuzzy Matching + Spoken Number Normalizer
+- Added Levenshtein distance algorithm and fuzzy word/bigram matcher (`hasFuzzyWord`).
+- Aviation callsign and phonetic aliases ("oxtrot", "box trot", "fxtrot", "ravo", "scar", "tengo", etc.).
+- Mawson station aliases ("mawson", "molson", "morrison", "maws", "maulson", etc.).
+- Spoken number converter (`normalizeSpokenNumbers`): "nine nine two" -> 992, "one four zero" -> 140, "three thousand" -> 3000 feet.
+- Flexible numeric extraction for QNH (950-1050 range) and surface wind speed/direction.
 
-Step 5: Optional Local/Offline WebAssembly Engine (Zero Network Lag)
+[FUTURE / OPTIONAL] Step 5: Local/Offline WebAssembly Engine (Zero Network Lag)
 - If network latency continues to fluctuate on Google's cloud speech servers, integrate
   a lightweight in-browser offline speech recognizer (e.g. Vosk WebAssembly or Whisper-tiny.wasm).
 - Runs 100% locally in browser memory with zero network delay and complete offline reliability.
