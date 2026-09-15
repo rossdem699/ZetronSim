@@ -184,9 +184,11 @@
       <div class="flex items-center gap-1.5">
         <label for="scenario-dropdown" class="font-bold text-slate-800 hidden sm:inline text-xs font-sans">SCENARIO:</label>
         <select id="scenario-dropdown" onchange="stageEngine.initScenario(this.value)" class="bg-[#111923] text-amber-300 font-mono text-xs font-bold px-2 py-1 rounded border border-slate-600 shadow-inner cursor-pointer focus:outline-none focus:border-amber-400">
-          <option value="A">A: Rumdoodle Skiway (Twin Otter VHG-FBO)</option>
-          <option value="B">B: Sea Ice Skiway (Basler BT-67 VKB-BTG)</option>
-          <option value="C">C: SAR Emergency (Overdue Aircraft)</option>
+          <option value="A">A: Rumdoodle Skiway Inbound (Twin Otter VHG-FBO)</option>
+          <option value="B">B: Sea Ice Skiway Inbound (Basler BT-67 VKB-BTG)</option>
+          <option value="C">C: SAR Emergency (Inbound Overdue)</option>
+          <option value="D">D: Rumdoodle Takeoff (Normal Departure)</option>
+          <option value="E">E: Takeoff, Comms Dropout & Failed SARSEARCH</option>
         </select>
       </div>
 
@@ -279,6 +281,23 @@
           PTT: IDLE
         </span>
       </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 2.6 ACCELERATED SARWATCH COUNTDOWN BANNER (EXPIRING 5-MIN WINDOW)         -->
+  <!-- ========================================================================= -->
+  <div id="sarsearch-countdown-banner" class="hidden bg-gradient-to-r from-red-950 via-red-900 to-amber-950 border-b-2 border-red-500 px-4 py-1.5 flex items-center justify-between text-xs font-mono shadow-2xl flex-shrink-0 animate-fadeIn z-20">
+    <div class="flex items-center gap-3">
+      <span class="text-base animate-spin">⏱️</span>
+      <div class="flex items-center gap-2">
+        <span class="font-black text-amber-300 uppercase tracking-wider">SARWATCH 5-MINUTE WINDOW (ACCELERATED):</span>
+        <span id="sarsearch-timer-digits" class="bg-black/70 px-2 py-0.5 rounded border border-red-400 text-yellow-300 text-sm font-black font-mono tracking-widest">05:00</span>
+      </div>
+      <span id="sarsearch-countdown-label" class="text-slate-300 text-[11px] italic hidden sm:inline">Simulating 5-minute flight out of skiway...</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="px-2 py-0.5 rounded bg-red-600/80 text-white font-black text-[10px] uppercase tracking-wider animate-pulse">FAST-FORWARD CLOCK</span>
     </div>
   </div>
 
@@ -1352,6 +1371,77 @@
             osc.start(start);
             osc.stop(start + 0.16);
           }
+        } catch (e) {}
+      }
+
+      playCommsDropout() {
+        try {
+          this.initContext();
+          const now = this.ctx.currentTime;
+          const bufferSize = Math.floor(this.ctx.sampleRate * 1.8);
+          const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const output = noiseBuffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            output[i] = (Math.random() * 2 - 1) * 0.45;
+          }
+
+          const whiteNoise = this.ctx.createBufferSource();
+          whiteNoise.buffer = noiseBuffer;
+
+          // Bandpass filter for radio channel
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(1400, now);
+          filter.Q.setValueAtTime(2.8, now);
+
+          // Hard squelch gating & flutter
+          const masterGain = this.ctx.createGain();
+          masterGain.gain.setValueAtTime(0.01, now);
+          masterGain.gain.linearRampToValueAtTime(0.35 * this.masterVolume, now + 0.1);
+          masterGain.gain.setValueAtTime(0.001, now + 0.45);
+          masterGain.gain.setValueAtTime(0.28 * this.masterVolume, now + 0.65);
+          masterGain.gain.setValueAtTime(0.001, now + 1.05);
+          masterGain.gain.setValueAtTime(0.22 * this.masterVolume, now + 1.2);
+          masterGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.75);
+
+          whiteNoise.connect(filter);
+          filter.connect(masterGain);
+          masterGain.connect(this.ctx.destination);
+
+          // Decaying squelch tail whistle
+          const osc = this.ctx.createOscillator();
+          const oscGain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(1650, now);
+          osc.frequency.exponentialRampToValueAtTime(450, now + 1.6);
+          oscGain.gain.setValueAtTime(0.08 * this.masterVolume, now);
+          oscGain.gain.exponentialRampToValueAtTime(0.001, now + 1.6);
+          osc.connect(oscGain);
+          oscGain.connect(this.ctx.destination);
+
+          whiteNoise.start(now);
+          whiteNoise.stop(now + 1.8);
+          osc.start(now);
+          osc.stop(now + 1.8);
+        } catch (e) {
+          console.warn("Comms dropout audio error:", e);
+        }
+      }
+
+      playClockTick() {
+        try {
+          this.initContext();
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(1200, now);
+          gain.gain.setValueAtTime(0.09 * this.masterVolume, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.018);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.02);
         } catch (e) {}
       }
 
@@ -2655,6 +2745,82 @@
             expectedModel: 'Foxtrot-Bravo-Oscar, Mawson copies down and safe at [UTC] UTC. Terminating SARWATCH.'
           }
         ]
+      },
+      D: {
+        id: 'D',
+        name: 'D: Rumdoodle Takeoff (Normal Departure)',
+        type: 'departure',
+        aircraftCall: 'VHG-FBO',
+        pilotCallPhonetic: 'Foxtrot-Bravo-Oscar',
+        aircraftType: 'Twin Otter DHC-6',
+        route: 'RUMDOODLE -> DAVIS',
+        slaName: 'RUMDOODLE (Plateau - Elev 498m)',
+        slaSurface: 'Firm sastrugi 10-15cm, departure lane clear',
+        initialEtaMinutes: 0,
+        stages: [
+          {
+            stageNum: 1,
+            title: 'Departure Line Up Call',
+            pilotCall: 'Mawson Traffic, Twin Otter Foxtrot-Bravo-Oscar, lined up Rumdoodle skiway heading 140, departing to the north for Davis, climbing to 9,000 feet. Request departure advisory.',
+            expectedModel: 'Foxtrot-Bravo-Oscar, Mawson Base, read you strength 5. Rumdoodle Ski Landing Area clear. Surface wind [WIND], QNH [QNH]. Report airborne with SARWATCH time. No conflicting traffic.'
+          },
+          {
+            stageNum: 2,
+            title: 'Airborne Call & SARWATCH Nomination',
+            pilotCall: 'Mawson Traffic, Foxtrot-Bravo-Oscar airborne off Rumdoodle skiway at [DEP_TIME] UTC, climbing 9,000 feet, nominating SARWATCH for [SAR_TIME] UTC.',
+            expectedModel: 'Foxtrot-Bravo-Oscar, Mawson Base copies airborne off Rumdoodle, SARWATCH set for [SAR_TIME] UTC. Have a safe flight to Davis.'
+          },
+          {
+            stageNum: 3,
+            title: 'Top of Climb Ops Normal',
+            pilotCall: 'Mawson Base, Foxtrot-Bravo-Oscar, maintaining 9,000 feet, 25 miles north-east, operations normal, next report Davis Station.',
+            expectedModel: 'Foxtrot-Bravo-Oscar, Mawson copies operations normal. Contact Davis Comms on HF 5400 kHz or VHF 126.7 at 60 miles.'
+          },
+          {
+            stageNum: 4,
+            title: 'Enroute Handover & SARWATCH Transfer',
+            pilotCall: 'Foxtrot-Bravo-Oscar, transferring SARWATCH to Davis Station, thanks Mawson, good day.',
+            expectedModel: 'Foxtrot-Bravo-Oscar, Mawson copies SARWATCH transferred to Davis. Good day.'
+          }
+        ]
+      },
+      E: {
+        id: 'E',
+        name: 'E: Takeoff, Comms Dropout & Failed SARSEARCH',
+        type: 'departure_emergency',
+        aircraftCall: 'VHG-FBO',
+        pilotCallPhonetic: 'Foxtrot-Bravo-Oscar',
+        aircraftType: 'Twin Otter DHC-6',
+        route: 'RUMDOODLE -> DAVIS',
+        slaName: 'RUMDOODLE (Plateau - Elev 498m)',
+        slaSurface: 'Firm sastrugi 10-15cm, departure lane clear',
+        initialEtaMinutes: 0,
+        stages: [
+          {
+            stageNum: 1,
+            title: 'Departure Line Up Call',
+            pilotCall: 'Mawson Traffic, Twin Otter Foxtrot-Bravo-Oscar, lining up Rumdoodle skiway heading 140, departing to the north for Davis, climbing to 9,000 feet. Request departure advisory.',
+            expectedModel: 'Foxtrot-Bravo-Oscar, Mawson Base, read you strength 5. Rumdoodle Ski Landing Area clear. Surface wind [WIND], QNH [QNH]. Report airborne with SARWATCH time. No conflicting traffic.'
+          },
+          {
+            stageNum: 2,
+            title: 'Airborne Call & Comms Dropout (Pilot Requests Repeat)',
+            pilotCall: 'Mawson Traffic, Foxtrot-Bravo-Oscar airborne off Rumdoodle at [DEP_TIME] UTC, climbing 9,000 feet, nominating 5 minutes for first SARWATCH check at [SAR_TIME] UTC.',
+            expectedModel: 'Foxtrot-Bravo-Oscar, Mawson Base repeating: copied airborne off Rumdoodle, SARWATCH set for [SAR_TIME] UTC.'
+          },
+          {
+            stageNum: 3,
+            title: 'Rapid Clock Advance & Failed First SARSEARCH Alert',
+            pilotCall: '[RADIO SILENCE] Aircraft has failed first 5-minute post-departure SARWATCH check! SARWATCH EXPIRED. Radio silence on 126.700 MHz!',
+            expectedModel: 'Foxtrot-Bravo-Oscar, Mawson Base on 126.7 and Guard 121.5, SARWATCH is expired, do you read Mawson?'
+          },
+          {
+            stageNum: 4,
+            title: 'Re-establishment & Operations Normal',
+            pilotCall: 'Mawson Base, Foxtrot-Bravo-Oscar re-establishing on 126.7! Cockpit audio panel switched accidentally during climb-out through 8,000 feet. Flight normal, cancel SARWATCH alert, estimating Davis at 09:30 UTC.',
+            expectedModel: 'Foxtrot-Bravo-Oscar, Mawson copies operations normal, SARWATCH alert cancelled. Good flight to Davis.'
+          }
+        ]
       }
     };
 
@@ -2664,9 +2830,15 @@
         this.currentStageIndex = 0;
         this.sarwatchActive = true;
         this.simulatedEta = '07:45 UTC';
+        this.commsDropoutTriggered = false;
       }
 
       initScenario(id, autoPlayPilot = true) {
+        stopFastForwardClock();
+        simulatedClockOffsetMs = 0;
+        updateClocks();
+        this.commsDropoutTriggered = false;
+
         this.currentScenarioId = id;
         this.currentStageIndex = 0;
         this.sarwatchActive = true;
@@ -2676,7 +2848,7 @@
         const etaDate = new Date(now.getTime() + sc.initialEtaMinutes * 60000);
         const etaHours = String(etaDate.getUTCHours()).padStart(2, '0');
         const etaMins = String(etaDate.getUTCMinutes()).padStart(2, '0');
-        this.simulatedEta = `${etaHours}:${etaMins} UTC`;
+        this.simulatedEta = sc.initialEtaMinutes > 0 ? `${etaHours}:${etaMins} UTC` : 'DEPARTURE';
 
         const pill = document.getElementById('active-scenario-pill');
         if (pill) pill.innerText = sc.name;
@@ -2700,13 +2872,28 @@
 
         updateSideScriptCard();
 
+        const depTime = getUtcTimeString().substring(0, 5);
+        const sarTime = getSarwatchTimeString(5);
+
         let pilotMsg = stage.pilotCall
           .replace('[ETA]', this.simulatedEta.replace(' UTC', ''))
-          .replace('[QNH]', weatherData.qnh);
+          .replace('[QNH]', weatherData.qnh)
+          .replace('[WIND]', `${weatherData.windDir} degrees at ${weatherData.windSpeed} knots`)
+          .replace('[DEP_TIME]', depTime)
+          .replace('[SAR_TIME]', sarTime);
 
         if (this.currentScenarioId === 'C' && stage.stageNum === 2) {
           addCallHistoryRow('SARWATCH ALERT', 'Emergency', 'In', getUtcTimeString(), pilotMsg, 'OVERDUE', 'red');
           audioEngine.playBreachAlarm();
+        } else if (this.currentScenarioId === 'E' && stage.stageNum === 3) {
+          // Scenario E: Rapid Clock Advance (5-Minute Tick-Over) & Failed SARSEARCH
+          startFastForwardClock(5, 9000, () => {
+            if (autoPlayPilot) {
+              setTimeout(() => {
+                pilotSpeech.speak(pilotMsg, `PILOT (${sc.aircraftCall})`);
+              }, 600);
+            }
+          });
         } else {
           addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotMsg, 'Received', 'blue');
           if (autoPlayPilot) {
@@ -2720,9 +2907,14 @@
       replayPilotPrompt() {
         const sc = SCENARIOS[this.currentScenarioId];
         const stage = sc.stages[this.currentStageIndex];
+        const depTime = getUtcTimeString().substring(0, 5);
+        const sarTime = getSarwatchTimeString(5);
         let pilotMsg = stage.pilotCall
           .replace('[ETA]', this.simulatedEta.replace(' UTC', ''))
-          .replace('[QNH]', weatherData.qnh);
+          .replace('[QNH]', weatherData.qnh)
+          .replace('[WIND]', `${weatherData.windDir} degrees at ${weatherData.windSpeed} knots`)
+          .replace('[DEP_TIME]', depTime)
+          .replace('[SAR_TIME]', sarTime);
         pilotSpeech.speak(pilotMsg, `PILOT (${sc.aircraftCall})`);
       }
 
@@ -2872,6 +3064,23 @@
         }
       }
 
+      // Special Handling for Scenario E Stage 1 (Airborne Call & Comms Dropout)
+      if (sc.id === 'E' && stageEngine.currentStageIndex === 1 && !stageEngine.commsDropoutTriggered) {
+        stageEngine.commsDropoutTriggered = true;
+        audioEngine.playCommsDropout();
+        logConsoleAction('COMMS DROPOUT', '⚡ [RADIO FLUTTER DROPOUT] Transmission fluttered / dropped out through mountain squelch!');
+        addCallHistoryRow('MAWSON COMMS', 'Warning', 'Out', getUtcTimeString(), rawText, 'DROPOUT (SQUELCH)', 'yellow');
+
+        setTimeout(() => {
+          const repeatRequest = `${sc.pilotCallPhonetic}, Mawson Base, you dropped out through squelch, transmission broken, say again your last message?`;
+          addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Warning', 'In', getUtcTimeString(), repeatRequest, 'SAY AGAIN', 'blue');
+          pilotSpeech.speak(repeatRequest, `PILOT (${sc.aircraftCall})`);
+          const btm = document.getElementById('bottom-status-message');
+          if (btm) btm.innerText = 'PILOT REPORTED DROPOUT: Please repeat transmission to aircraft.';
+        }, 1200);
+        return;
+      }
+
       // 2. Callsign & Phonetic Matching (Fuzzy & Aliases)
       const callsignAliases = [
         'foxtrot', 'fox trot', 'boxtrot', 'box trot', 'oxtrot', 'fxtrot', 'fox', 'trot', 'fox-trot',
@@ -2977,44 +3186,95 @@
         normalized.includes('thanks') || normalized.includes('g\'day')
       );
 
+      const isDeparture = (sc.type === 'departure' || sc.type === 'departure_emergency');
+
       let score = 0;
       let total = 4;
       let missingType = '';
 
-      if (stageEngine.currentStageIndex === 0) {
-        // Stage 0: Initial Inbound AROC Advisory
-        total = 4;
-        if (hasCallsign || hasMawson) score++;
-        if (hasRunwayStatus) score++;
-        if (hasQnh || hasWind) score++;
-        if (hasReadability || hasAcks) score++;
+      if (isDeparture) {
+        if (stageEngine.currentStageIndex === 0) {
+          // Stage 0: Departure Line Up Call & Advisory
+          total = 4;
+          if (hasCallsign || hasMawson) score++;
+          if (hasRunwayStatus || normalized.includes('lane') || normalized.includes('departure') || normalized.includes('clear')) score++;
+          if (hasQnh || hasWind) score++;
+          if (hasReadability || hasAcks || normalized.includes('airborne') || normalized.includes('sarwatch') || normalized.includes('report') || normalized.includes('traffic')) score++;
 
-        if (!hasQnh && !hasWind) missingType = 'weather';
-        else if (!hasRunwayStatus) missingType = 'runway';
-        else if (!hasCallsign && !hasMawson) missingType = 'callsign';
-      } else if (stageEngine.currentStageIndex === 1) {
-        // Stage 1: Descent Check (acknowledges descent to 3,000 ft or 2,500 ft)
-        total = 2;
-        if (hasCallsign || hasMawson) score++;
-        if (normalized.includes('descent') || normalized.includes('descend') ||
-            normalized.includes('3000') || normalized.includes('2500') ||
-            normalized.includes('feet') || hasAcks) score++;
-        if (score < total) missingType = 'descent';
-      } else if (stageEngine.currentStageIndex === 2) {
-        // Stage 2: Circuit / Downwind report (copies downwind, gives wind)
-        total = 2;
-        if (hasCallsign || hasMawson) score++;
-        if (normalized.includes('downwind') || normalized.includes('circuit') ||
-            normalized.includes('base') || normalized.includes('leg') || hasWind || hasAcks) score++;
-        if (score < total) missingType = 'circuit';
+          if (!hasQnh && !hasWind) missingType = 'weather';
+          else if (!hasRunwayStatus) missingType = 'runway';
+          else if (!hasCallsign && !hasMawson) missingType = 'callsign';
+        } else if (stageEngine.currentStageIndex === 1) {
+          // Stage 1: Airborne Call / Repeated Airborne Copy
+          total = 2;
+          if (hasCallsign || hasMawson) score++;
+          if (normalized.includes('airborne') || normalized.includes('sarwatch') ||
+              normalized.includes('repeat') || normalized.includes('copied') ||
+              normalized.includes('rumdoodle') || normalized.includes('set') || hasAcks) score++;
+          if (score < total) missingType = 'airborne';
+        } else if (stageEngine.currentStageIndex === 2) {
+          // Stage 2:
+          // In E: Emergency radio check after failed first SARSEARCH
+          // In D: Top of climb ops normal (9,000 ft)
+          total = 2;
+          if (hasCallsign || hasMawson) score++;
+          if (sc.id === 'E') {
+            if (normalized.includes('read') || normalized.includes('126') ||
+                normalized.includes('guard') || normalized.includes('121') ||
+                normalized.includes('sarwatch') || normalized.includes('expired') ||
+                normalized.includes('check') || hasAcks) score++;
+            if (score < total) missingType = 'emergency_check';
+          } else {
+            if (normalized.includes('normal') || normalized.includes('9000') ||
+                normalized.includes('climb') || normalized.includes('davis') ||
+                normalized.includes('feet') || hasAcks) score++;
+            if (score < total) missingType = 'climb';
+          }
+        } else {
+          // Stage 3:
+          // In E: Operations normal & SARWATCH alert cancelled
+          // In D: Enroute Handover & SARWATCH Transfer to Davis
+          total = 2;
+          if (hasCallsign || hasMawson) score++;
+          if (normalized.includes('normal') || normalized.includes('cancel') ||
+              normalized.includes('transfer') || normalized.includes('safe') ||
+              normalized.includes('flight') || normalized.includes('davis') ||
+              normalized.includes('terminat') || normalized.includes('good day') || hasAcks) score++;
+          if (score < total) missingType = 'handover';
+        }
       } else {
-        // Stage 3: Touchdown & safe
-        total = 2;
-        if (hasCallsign || hasMawson) score++;
-        if (normalized.includes('down') || normalized.includes('safe') ||
-            normalized.includes('shut') || normalized.includes('welcome') ||
-            normalized.includes('landing') || normalized.includes('landed') || hasAcks) score++;
-        if (score < total) missingType = 'touchdown';
+        // Standard Inbound Scenarios (A, B, C)
+        if (stageEngine.currentStageIndex === 0) {
+          total = 4;
+          if (hasCallsign || hasMawson) score++;
+          if (hasRunwayStatus) score++;
+          if (hasQnh || hasWind) score++;
+          if (hasReadability || hasAcks) score++;
+
+          if (!hasQnh && !hasWind) missingType = 'weather';
+          else if (!hasRunwayStatus) missingType = 'runway';
+          else if (!hasCallsign && !hasMawson) missingType = 'callsign';
+        } else if (stageEngine.currentStageIndex === 1) {
+          total = 2;
+          if (hasCallsign || hasMawson) score++;
+          if (normalized.includes('descent') || normalized.includes('descend') ||
+              normalized.includes('3000') || normalized.includes('2500') ||
+              normalized.includes('feet') || hasAcks) score++;
+          if (score < total) missingType = 'descent';
+        } else if (stageEngine.currentStageIndex === 2) {
+          total = 2;
+          if (hasCallsign || hasMawson) score++;
+          if (normalized.includes('downwind') || normalized.includes('circuit') ||
+              normalized.includes('base') || normalized.includes('leg') || hasWind || hasAcks) score++;
+          if (score < total) missingType = 'circuit';
+        } else {
+          total = 2;
+          if (hasCallsign || hasMawson) score++;
+          if (normalized.includes('down') || normalized.includes('safe') ||
+              normalized.includes('shut') || normalized.includes('welcome') ||
+              normalized.includes('landing') || normalized.includes('landed') || hasAcks) score++;
+          if (score < total) missingType = 'touchdown';
+        }
       }
 
       const pct = Math.min(100, Math.max(30, Math.round((score / total) * 100)));
@@ -3028,12 +3288,17 @@
           if (stageEngine.currentStageIndex < sc.stages.length - 1) {
             stageEngine.advanceStage();
           } else {
-            // Touchdown completed
-            const endReply = `${sc.pilotCallPhonetic}, engine shutdown complete, skiway clear, waiting for pick up. Thanks Mawson!`;
+            // Scenario completed!
+            const endReply = isDeparture
+              ? (sc.id === 'E'
+                  ? `${sc.pilotCallPhonetic}, SARWATCH alert cancelled, climbing on course for Davis, thanks Mawson Base!`
+                  : `${sc.pilotCallPhonetic}, SARWATCH transferred, cruising 9,000 feet, thanks Mawson Base! Have a good day.`)
+              : `${sc.pilotCallPhonetic}, engine shutdown complete, skiway clear, waiting for pick up. Thanks Mawson!`;
+
             addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), endReply, 'COMPLETED', 'blue');
             pilotSpeech.speak(endReply, `PILOT (${sc.aircraftCall})`, () => {
               logConsoleAction('MISSION COMPLETE', '🎉 Flight safely completed! Ready to terminate SARWATCH on console.');
-              addCallHistoryRow('STATION OPS', 'Normal', 'In', getUtcTimeString(), 'Aircraft down and safe. Please terminate SARWATCH on console.', 'Complete', 'white');
+              addCallHistoryRow('STATION OPS', 'Normal', 'In', getUtcTimeString(), 'Flight operation concluded safely. Please terminate SARWATCH on console.', 'Complete', 'white');
               setTimeout(() => {
                 triggerMrTCelebration(endReply);
               }, 600);
@@ -3047,20 +3312,40 @@
 
         setTimeout(() => {
           let pilotQuery = '';
-          if (stageEngine.currentStageIndex === 0) {
-            if (missingType === 'weather') {
-              pilotQuery = `${sc.pilotCallPhonetic}, Mawson Base read you strength 4. Request current Rumdoodle QNH altimeter and surface wind?`;
-            } else if (missingType === 'runway') {
-              pilotQuery = `${sc.pilotCallPhonetic}, Mawson Base, confirm Rumdoodle skiway status and any conflicting traffic?`;
+          if (isDeparture) {
+            if (stageEngine.currentStageIndex === 0) {
+              if (missingType === 'weather') {
+                pilotQuery = `${sc.pilotCallPhonetic}, Mawson Base, request current Rumdoodle QNH and surface wind before rolling?`;
+              } else if (missingType === 'runway') {
+                pilotQuery = `${sc.pilotCallPhonetic}, Mawson Base, confirm Rumdoodle skiway reported clear?`;
+              } else {
+                pilotQuery = `${sc.pilotCallPhonetic}, Mawson Base, transmission broken, say again departure advisory?`;
+              }
+            } else if (stageEngine.currentStageIndex === 1) {
+              pilotQuery = `${sc.pilotCallPhonetic}, Mawson Base, say again airborne copy and confirmed SARWATCH time?`;
+            } else if (stageEngine.currentStageIndex === 2) {
+              pilotQuery = sc.id === 'E'
+                ? `[RADIO SILENCE - NO RESPONSE DETECTED ON 126.700 MHz OR GUARD 121.500 MHz]`
+                : `${sc.pilotCallPhonetic}, Mawson Base, confirm top of climb operations normal copied?`;
             } else {
-              pilotQuery = `${sc.pilotCallPhonetic}, Mawson Base, transmission broken, say again advisory?`;
+              pilotQuery = `${sc.pilotCallPhonetic}, Mawson Base, confirm SARWATCH transfer to Davis copied?`;
             }
-          } else if (stageEngine.currentStageIndex === 1) {
-            pilotQuery = `${sc.pilotCallPhonetic}, Mawson Base, confirm descent to 3,000 feet copied?`;
-          } else if (stageEngine.currentStageIndex === 2) {
-            pilotQuery = `${sc.pilotCallPhonetic}, Mawson Base, downwind, request current surface wind update?`;
           } else {
-            pilotQuery = `${sc.pilotCallPhonetic}, Mawson Base, confirm aircraft down and safe?`;
+            if (stageEngine.currentStageIndex === 0) {
+              if (missingType === 'weather') {
+                pilotQuery = `${sc.pilotCallPhonetic}, Mawson Base read you strength 4. Request current Rumdoodle QNH altimeter and surface wind?`;
+              } else if (missingType === 'runway') {
+                pilotQuery = `${sc.pilotCallPhonetic}, Mawson Base, confirm Rumdoodle skiway status and any conflicting traffic?`;
+              } else {
+                pilotQuery = `${sc.pilotCallPhonetic}, Mawson Base, transmission broken, say again advisory?`;
+              }
+            } else if (stageEngine.currentStageIndex === 1) {
+              pilotQuery = `${sc.pilotCallPhonetic}, Mawson Base, confirm descent to 3,000 feet copied?`;
+            } else if (stageEngine.currentStageIndex === 2) {
+              pilotQuery = `${sc.pilotCallPhonetic}, Mawson Base, downwind, request current surface wind update?`;
+            } else {
+              pilotQuery = `${sc.pilotCallPhonetic}, Mawson Base, confirm aircraft down and safe?`;
+            }
           }
 
           addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Warning', 'In', getUtcTimeString(), pilotQuery, 'SAY AGAIN', 'blue');
@@ -3119,13 +3404,17 @@
       if (!sc || !sc.stages || !sc.stages[stageEngine.currentStageIndex]) return "";
       const stage = sc.stages[stageEngine.currentStageIndex];
       const utcStr = getUtcTimeString().substring(0, 5);
+      const depTime = utcStr;
+      const sarTime = getSarwatchTimeString(5);
 
       return stage.expectedModel
         .replace('[WIND]', `${weatherData.windDir} degrees at ${weatherData.windSpeed} knots`)
         .replace('[VIS]', weatherData.visKm)
         .replace('[TEMP]', `minus ${Math.abs(weatherData.tempC)}`)
         .replace('[QNH]', weatherData.qnh)
-        .replace('[UTC]', utcStr);
+        .replace('[UTC]', utcStr)
+        .replace('[DEP_TIME]', depTime)
+        .replace('[SAR_TIME]', sarTime);
     }
 
     function updateSideScriptCard() {
@@ -3229,36 +3518,64 @@
       const utcStr = getUtcTimeString().substring(0, 5);
       const isSeaIce = sc.slaName.includes('SEA ICE');
       const slaDesc = isSeaIce ? 'Sea Ice Ski Landing Area' : 'Rumdoodle Ski Landing Area';
+      const isDeparture = (sc.type === 'departure' || sc.type === 'departure_emergency');
 
-      if (num === 1) {
-        input.value = `${call}, Mawson Base, read you strength 5. ${slaDesc} currently reported clear. Surface wind ${weatherData.windDir} degrees at ${weatherData.windSpeed} knots, visibility ${weatherData.visKm} kilometres, temperature minus 16, QNH ${weatherData.qnh}. No conflicting traffic.`;
-      } else if (num === 2) {
-        input.value = `${call}, Mawson Base copies descent.`;
-      } else if (num === 3) {
-        input.value = isSeaIce 
-          ? `${call}, copy base leg, surface wind now ${weatherData.windDir} degrees at ${weatherData.windSpeed} knots.`
-          : `${call}, copy downwind, surface wind now ${weatherData.windDir} degrees at ${weatherData.windSpeed} knots.`;
-      } else if (num === 4) {
-        input.value = `${call}, Mawson copies down and safe at ${utcStr} UTC. Welcome to Mawson.`;
+      if (isDeparture) {
+        if (num === 1) {
+          input.value = `${call}, Mawson Base, read you strength 5. Rumdoodle Ski Landing Area clear. Surface wind ${weatherData.windDir} degrees at ${weatherData.windSpeed} knots, QNH ${weatherData.qnh}. Report airborne with SARWATCH time. No conflicting traffic.`;
+        } else if (num === 2) {
+          const sarTime = getSarwatchTimeString(5);
+          input.value = `${call}, Mawson Base copies airborne off Rumdoodle, SARWATCH set for ${sarTime} UTC. Have a safe flight to Davis.`;
+        } else if (num === 3) {
+          input.value = sc.id === 'E'
+            ? `${call}, Mawson Base on 126.7 and Guard 121.5, SARWATCH is expired, do you read Mawson?`
+            : `${call}, Mawson copies operations normal. Contact Davis Comms on HF 5400 kHz or VHF 126.7 at 60 miles.`;
+        } else if (num === 4) {
+          input.value = sc.id === 'E'
+            ? `${call}, Mawson copies operations normal, SARWATCH alert cancelled. Good flight to Davis.`
+            : `${call}, Mawson copies SARWATCH transferred to Davis. Good day.`;
+        }
+      } else {
+        if (num === 1) {
+          input.value = `${call}, Mawson Base, read you strength 5. ${slaDesc} currently reported clear. Surface wind ${weatherData.windDir} degrees at ${weatherData.windSpeed} knots, visibility ${weatherData.visKm} kilometres, temperature minus 16, QNH ${weatherData.qnh}. No conflicting traffic.`;
+        } else if (num === 2) {
+          input.value = `${call}, Mawson Base copies descent.`;
+        } else if (num === 3) {
+          input.value = isSeaIce 
+            ? `${call}, copy base leg, surface wind now ${weatherData.windDir} degrees at ${weatherData.windSpeed} knots.`
+            : `${call}, copy downwind, surface wind now ${weatherData.windDir} degrees at ${weatherData.windSpeed} knots.`;
+        } else if (num === 4) {
+          input.value = `${call}, Mawson copies down and safe at ${utcStr} UTC. Welcome to Mawson.`;
+        }
       }
       input.focus();
     }
 
     function terminateSARWATCH() {
+      stopFastForwardClock();
       const utcStr = getUtcTimeString();
-      addCallHistoryRow('SARWATCH', 'Normal', 'In', utcStr, `SARWATCH for ${SCENARIOS[stageEngine.currentScenarioId].aircraftCall} formally terminated at ${utcStr}.`, 'TERMINATED', 'yellow');
+      const sc = SCENARIOS[stageEngine.currentScenarioId];
+      const isDeparture = (sc.type === 'departure' || sc.type === 'departure_emergency');
+
+      addCallHistoryRow('SARWATCH', 'Normal', 'In', utcStr, `SARWATCH for ${sc.aircraftCall} formally terminated at ${utcStr}.`, 'TERMINATED', 'yellow');
       audioEngine.playRogerBeep();
 
       setTimeout(() => {
-        selectTile(4); // Switch to Hägglunds
-        addCallHistoryRow('HÄGGLUNDS 1', 'Normal', 'In', utcStr, 'Mawson Base, copies aircraft down and safe. Proceeding to skiway for pickup.', 'ACK', 'white');
+        if (!isDeparture) {
+          selectTile(4); // Switch to Hägglunds
+          addCallHistoryRow('HÄGGLUNDS 1', 'Normal', 'In', utcStr, 'Mawson Base, copies aircraft down and safe. Proceeding to skiway for pickup.', 'ACK', 'white');
+        } else {
+          addCallHistoryRow('STATION OPS', 'Normal', 'In', utcStr, `SARWATCH monitoring closed for ${sc.aircraftCall}. Aircraft operations normal enroute to Davis.`, 'ENROUTE', 'white');
+        }
 
         if (stageEngine.currentStageIndex >= 3) {
           setTimeout(() => {
             const modal = document.getElementById('mrt-modal');
             if (modal && modal.classList.contains('hidden')) {
-              const sc = SCENARIOS[stageEngine.currentScenarioId];
-              triggerMrTCelebration(`${sc.pilotCallPhonetic}, down and safe, skiway clear, shutting down. Waiting for pick up.`);
+              const celebrationMsg = isDeparture
+                ? `${sc.pilotCallPhonetic}, enroute to Davis, operations normal. Thanks Mawson!`
+                : `${sc.pilotCallPhonetic}, down and safe, skiway clear, shutting down. Waiting for pick up.`;
+              triggerMrTCelebration(celebrationMsg);
             }
           }, 1100);
         }
@@ -3381,6 +3698,26 @@
                 <button onclick="closeAuxModal(); autoPlayEngine.start('C')" class="btn-3d px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded flex items-center gap-1 shadow">▶ Auto-Play Demo</button>
               </div>
             </div>
+            <div class="p-2.5 bg-slate-100 hover:bg-amber-50/60 rounded border border-slate-300 flex justify-between items-center transition">
+              <div>
+                <strong class="text-blue-950 font-bold">Scenario D:</strong> Plateau Skiway Takeoff & Departure (Twin Otter DHC-6)
+                <div class="text-[11px] text-slate-600 mt-0.5">Line up advisory, airborne report, 9,000 ft climb out, and enroute SARWATCH handover to Davis Station</div>
+              </div>
+              <div class="flex items-center gap-1.5 flex-shrink-0">
+                <button onclick="selectScenario('D'); closeAuxModal()" class="btn-3d px-2.5 py-1 bg-blue-700 text-white font-bold rounded">Manual Mode</button>
+                <button onclick="closeAuxModal(); autoPlayEngine.start('D')" class="btn-3d px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded flex items-center gap-1 shadow">▶ Auto-Play Demo</button>
+              </div>
+            </div>
+            <div class="p-2.5 bg-slate-100 hover:bg-amber-50/60 rounded border border-slate-300 flex justify-between items-center transition">
+              <div>
+                <strong class="text-red-950 font-bold">Scenario E:</strong> Takeoff, Comms Dropout & Failed First SARSEARCH
+                <div class="text-[11px] text-slate-600 mt-0.5">VHF mountain dropout, pilot repeat request, 5-minute fast-forward clock, expired SARWATCH alarm & emergency check</div>
+              </div>
+              <div class="flex items-center gap-1.5 flex-shrink-0">
+                <button onclick="selectScenario('E'); closeAuxModal()" class="btn-3d px-2.5 py-1 bg-blue-700 text-white font-bold rounded">Manual Mode</button>
+                <button onclick="closeAuxModal(); autoPlayEngine.start('E')" class="btn-3d px-3 py-1 bg-gradient-to-r from-red-600 to-amber-500 text-white font-black rounded flex items-center gap-1 shadow">▶ Auto-Play Demo</button>
+              </div>
+            </div>
           </div>
         `;
       }
@@ -3404,12 +3741,84 @@
       addCallHistoryRow('SYSTEM', 'Normal', 'In', getUtcTimeString(), 'Scenario reset to Stage 1.', 'Reset', 'white');
     }
 
+    let simulatedClockOffsetMs = 0;
+    let isClockFastForwarding = false;
+    let fastForwardInterval = null;
+
     function getUtcTimeString() {
-      const now = new Date();
+      const now = new Date(Date.now() + simulatedClockOffsetMs);
       const h = String(now.getUTCHours()).padStart(2, '0');
       const m = String(now.getUTCMinutes()).padStart(2, '0');
       const s = String(now.getUTCSeconds()).padStart(2, '0');
       return `${h}:${m}:${s}`;
+    }
+
+    function getSarwatchTimeString(offsetMinutes = 5) {
+      const now = new Date(Date.now() + simulatedClockOffsetMs + (offsetMinutes * 60000));
+      const uh = String(now.getUTCHours()).padStart(2, '0');
+      const um = String(now.getUTCMinutes()).padStart(2, '0');
+      return `${uh}:${um}`;
+    }
+
+    function startFastForwardClock(targetMinutes = 5, realDurationMs = 9000, onComplete = null) {
+      if (isClockFastForwarding) return;
+      isClockFastForwarding = true;
+
+      const banner = document.getElementById('sarsearch-countdown-banner');
+      const timerDigits = document.getElementById('sarsearch-timer-digits');
+      const labelEl = document.getElementById('sarsearch-countdown-label');
+      if (banner) banner.classList.remove('hidden');
+
+      const totalTargetSec = targetMinutes * 60; // 300 seconds
+      const stepIntervalMs = 120;
+      const totalSteps = Math.floor(realDurationMs / stepIntervalMs);
+      const secPerStep = totalTargetSec / totalSteps;
+      let currentStep = 0;
+
+      if (labelEl) labelEl.innerText = 'Aircraft climbing out: 5-minute SARWATCH window ticking fast...';
+
+      logConsoleAction('CLOCK ACCELERATE', `⏱️ Fast-forwarding 5-minute SARWATCH reporting window (accelerated time)...`);
+
+      fastForwardInterval = setInterval(() => {
+        currentStep++;
+        const remainingSec = Math.max(0, Math.round(totalTargetSec - (currentStep * secPerStep)));
+        simulatedClockOffsetMs += Math.round(secPerStep * 1000);
+
+        const mins = String(Math.floor(remainingSec / 60)).padStart(2, '0');
+        const secs = String(remainingSec % 60).padStart(2, '0');
+        if (timerDigits) timerDigits.innerText = `${mins}:${secs}`;
+
+        audioEngine.playClockTick();
+        updateClocks();
+
+        if (currentStep >= totalSteps || remainingSec <= 0) {
+          clearInterval(fastForwardInterval);
+          fastForwardInterval = null;
+          isClockFastForwarding = false;
+
+          if (timerDigits) timerDigits.innerText = '00:00';
+          if (labelEl) labelEl.innerHTML = '<span class="text-red-400 font-bold animate-pulse">🚨 5-MIN WINDOW EXPIRED: NO CONTACT FROM AIRCRAFT!</span>';
+
+          audioEngine.playBreachAlarm();
+          const alertMsg = '[RADIO SILENCE] Aircraft has failed first 5-minute post-departure SARWATCH check! SARWATCH EXPIRED. Radio silence on 126.700 MHz!';
+          addCallHistoryRow('SARWATCH ALERT', 'Emergency', 'In', getUtcTimeString(), alertMsg, 'SARSEARCH OVERDUE', 'red');
+          logConsoleAction('SARWATCH ALERT', '🚨 FAILED FIRST SARSEARCH ➔ Aircraft failed 5-minute check! Emergency alarm sounding!', alertMsg);
+
+          if (typeof onComplete === 'function') {
+            onComplete();
+          }
+        }
+      }, stepIntervalMs);
+    }
+
+    function stopFastForwardClock() {
+      if (fastForwardInterval) {
+        clearInterval(fastForwardInterval);
+        fastForwardInterval = null;
+      }
+      isClockFastForwarding = false;
+      const banner = document.getElementById('sarsearch-countdown-banner');
+      if (banner) banner.classList.add('hidden');
     }
 
     /* =========================================================================
@@ -3605,6 +4014,7 @@
       }
 
       stop() {
+        stopFastForwardClock();
         this.isRunning = false;
         this.isPaused = false;
         if (this.timer) {
@@ -4034,6 +4444,248 @@
               }
             }
           ];
+        } else if (scenarioId === 'D') {
+          this.steps = [
+            {
+              title: "Select AIR VHF 126.700 MHz",
+              narration: "Mawson Dispatch verifies Tone Remote 1 is active on AIR VHF 126.700 MHz for departure.",
+              action: () => {
+                virtualClick('sel-btn-1', "SELECT AIR VHF 126.700 (TURN ON)", () => {
+                  selectTile(1);
+                  logConsoleAction('CHANNEL ON', '👉 PRESSED [SEL AIR VHF 126.700] ➔ Tone Remote 1 is now ACTIVE (ON)', 'Selected Tone Remote 1 (AIR VHF 126.700 MHz AM).');
+                  this.scheduleNext(1300);
+                });
+              }
+            },
+            {
+              title: "Pilot Departure Line Up Call",
+              narration: "Twin Otter lined up Rumdoodle skiway heading 140, departing north for Davis climbing to 9,000 feet.",
+              action: () => {
+                const pilotText = `Mawson Traffic, Twin Otter Foxtrot-Bravo-Oscar, lined up Rumdoodle skiway heading 140, departing to the north for Davis, climbing to 9,000 feet. Request departure advisory.`;
+                logConsoleAction('PILOT RX', `✈️ PILOT LINE UP CALL [126.700 MHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotText, 'Received', 'blue');
+                pilotSpeech.speak(pilotText, `PILOT (${sc.aircraftCall})`, () => {
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Mawson Station Departure Advisory",
+              narration: "Operator provides skiway condition, surface wind, and altimeter. Requests airborne report with SARWATCH time.",
+              action: () => {
+                const replyText = `Foxtrot-Bravo-Oscar, Mawson Base, read you strength 5. Rumdoodle Ski Landing Area clear. Surface wind ${weatherData.windDir} degrees at ${weatherData.windSpeed} knots, QNH ${weatherData.qnh}. Report airborne with SARWATCH time. No conflicting traffic.`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT (DEPARTURE ADVISORY)", replyText, 1, () => {
+                  stageEngine.currentStageIndex = 1;
+                  this.scheduleNext(1600);
+                });
+              }
+            },
+            {
+              title: "Pilot Airborne Call & SARWATCH Nomination",
+              narration: "Aircraft reports airborne off Rumdoodle skiway and nominates SARWATCH time.",
+              action: () => {
+                const depTime = getUtcTimeString().substring(0, 5);
+                const sarTime = getSarwatchTimeString(5);
+                const pilotText = `Mawson Traffic, Foxtrot-Bravo-Oscar airborne off Rumdoodle skiway at ${depTime} UTC, climbing 9,000 feet, nominating SARWATCH for ${sarTime} UTC.`;
+                logConsoleAction('PILOT RX', `✈️ PILOT AIRBORNE CALL [126.700 MHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotText, 'Received', 'blue');
+                pilotSpeech.speak(pilotText, `PILOT (${sc.aircraftCall})`, () => {
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Mawson Station Airborne & SARWATCH Acknowledgment",
+              narration: "Operator copies airborne time and confirms SARWATCH nomination.",
+              action: () => {
+                const sarTime = getSarwatchTimeString(5);
+                const replyText = `Foxtrot-Bravo-Oscar, Mawson Base copies airborne off Rumdoodle, SARWATCH set for ${sarTime} UTC. Have a safe flight to Davis.`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT (AIRBORNE ACK)", replyText, 1, () => {
+                  stageEngine.currentStageIndex = 2;
+                  this.scheduleNext(1600);
+                });
+              }
+            },
+            {
+              title: "Pilot Top of Climb Operations Normal",
+              narration: "Aircraft levels off at 9,000 feet, 25 miles north-east, operations normal.",
+              action: () => {
+                const pilotText = `Mawson Base, Foxtrot-Bravo-Oscar, maintaining 9,000 feet, 25 miles north-east, operations normal, next report Davis Station.`;
+                logConsoleAction('PILOT RX', `✈️ PILOT TOP OF CLIMB [126.700 MHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotText, 'Received', 'blue');
+                pilotSpeech.speak(pilotText, `PILOT (${sc.aircraftCall})`, () => {
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Mawson Station Top of Climb Acknowledgment",
+              narration: "Operator copies ops normal and advises enroute contact frequency for Davis Comms.",
+              action: () => {
+                const replyText = `Foxtrot-Bravo-Oscar, Mawson copies operations normal. Contact Davis Comms on HF 5400 kHz or VHF 126.7 at 60 miles.`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT (OPS NORMAL ACK)", replyText, 1, () => {
+                  stageEngine.currentStageIndex = 3;
+                  this.scheduleNext(1600);
+                });
+              }
+            },
+            {
+              title: "Pilot Enroute Handover & SARWATCH Transfer",
+              narration: "Aircraft transfers flight safety monitoring and SARWATCH to Davis Station.",
+              action: () => {
+                const pilotText = `Foxtrot-Bravo-Oscar, transferring SARWATCH to Davis Station, thanks Mawson, good day.`;
+                logConsoleAction('PILOT RX', `✈️ PILOT HANDOVER CALL [126.700 MHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotText, 'Received', 'blue');
+                pilotSpeech.speak(pilotText, `PILOT (${sc.aircraftCall})`, () => {
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Mawson Station Handover & SARWATCH Transfer Acknowledgment",
+              narration: "Operator confirms SARWATCH transfer to Davis and closes local monitoring.",
+              action: () => {
+                const replyText = `Foxtrot-Bravo-Oscar, Mawson copies SARWATCH transferred to Davis. Good day.`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT (HANDOVER ACK)", replyText, 1, () => {
+                  virtualClick('btn-terminate-sarwatch', "PRESS TERMINATE SARWATCH", () => {
+                    terminateSARWATCH();
+                    logConsoleAction('SARWATCH', '👉 PRESSED [TERMINATE SARWATCH] ➔ Flight safety monitoring safely transferred to Davis', 'SARWATCH closed. Aircraft enroute to Davis.');
+                    this.scheduleNext(1600);
+                  });
+                });
+              }
+            }
+          ];
+        } else if (scenarioId === 'E') {
+          this.steps = [
+            {
+              title: "Select AIR VHF 126.700 MHz",
+              narration: "Mawson Dispatch verifies Tone Remote 1 is active on AIR VHF 126.700 MHz for departure.",
+              action: () => {
+                virtualClick('sel-btn-1', "SELECT AIR VHF 126.700 (TURN ON)", () => {
+                  selectTile(1);
+                  logConsoleAction('CHANNEL ON', '👉 PRESSED [SEL AIR VHF 126.700] ➔ Tone Remote 1 is now ACTIVE (ON)', 'Selected Tone Remote 1 (AIR VHF 126.700 MHz AM).');
+                  this.scheduleNext(1300);
+                });
+              }
+            },
+            {
+              title: "Pilot Departure Line Up Call",
+              narration: "Twin Otter lining up Rumdoodle skiway heading 140, departing north for Davis climbing to 9,000 feet.",
+              action: () => {
+                const pilotText = `Mawson Traffic, Twin Otter Foxtrot-Bravo-Oscar, lining up Rumdoodle skiway heading 140, departing to the north for Davis, climbing to 9,000 feet. Request departure advisory.`;
+                logConsoleAction('PILOT RX', `✈️ PILOT LINE UP CALL [126.700 MHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotText, 'Received', 'blue');
+                pilotSpeech.speak(pilotText, `PILOT (${sc.aircraftCall})`, () => {
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Mawson Station Departure Advisory",
+              narration: "Operator provides skiway condition, surface wind, and altimeter. Requests airborne report with SARWATCH time.",
+              action: () => {
+                const replyText = `Foxtrot-Bravo-Oscar, Mawson Base, read you strength 5. Rumdoodle Ski Landing Area clear. Surface wind ${weatherData.windDir} degrees at ${weatherData.windSpeed} knots, QNH ${weatherData.qnh}. Report airborne with SARWATCH time. No conflicting traffic.`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT (DEPARTURE ADVISORY)", replyText, 1, () => {
+                  stageEngine.currentStageIndex = 1;
+                  this.scheduleNext(1600);
+                });
+              }
+            },
+            {
+              title: "Pilot Airborne Call (5-Minute SARWATCH Nominated)",
+              narration: "Aircraft calls airborne off Rumdoodle and nominates 5 minutes for first SARWATCH check.",
+              action: () => {
+                const depTime = getUtcTimeString().substring(0, 5);
+                const sarTime = getSarwatchTimeString(5);
+                const pilotText = `Mawson Traffic, Foxtrot-Bravo-Oscar airborne off Rumdoodle at ${depTime} UTC, climbing 9,000 feet, nominating 5 minutes for first SARWATCH check at ${sarTime} UTC.`;
+                logConsoleAction('PILOT RX', `✈️ PILOT AIRBORNE CALL [126.700 MHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotText, 'Received', 'blue');
+                pilotSpeech.speak(pilotText, `PILOT (${sc.aircraftCall})`, () => {
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Comms Dropout & Pilot Repeat Request",
+              narration: "Station attempts transmission, but VHF squelch/flutter drops out! Pilot asks station to say again.",
+              action: () => {
+                const dropoutAttempt = `Foxtrot-Bravo-Oscar, Mawson Base copies airb...`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT (DROPOUT SQUELCH)", dropoutAttempt, 1, () => {
+                  audioEngine.playCommsDropout();
+                  logConsoleAction('COMMS DROPOUT', '⚡ [RADIO FLUTTER DROPOUT] Transmission fluttered / dropped out through mountain squelch!');
+                  addCallHistoryRow('MAWSON COMMS', 'Warning', 'Out', getUtcTimeString(), dropoutAttempt, 'DROPOUT (SQUELCH)', 'yellow');
+
+                  setTimeout(() => {
+                    const repeatRequest = `Foxtrot-Bravo-Oscar, Mawson Base, you dropped out through squelch, transmission broken, say again your last message?`;
+                    logConsoleAction('PILOT RX', `✈️ PILOT REPEAT REQUEST [126.700 MHz] ➔ "${repeatRequest}" (Cockpit Turboprop Audio Active)`);
+                    addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Warning', 'In', getUtcTimeString(), repeatRequest, 'SAY AGAIN', 'blue');
+                    pilotSpeech.speak(repeatRequest, `PILOT (${sc.aircraftCall})`, () => {
+                      this.scheduleNext(1400);
+                    });
+                  }, 1100);
+                });
+              }
+            },
+            {
+              title: "Mawson Station Repeats Transmission",
+              narration: "Operator re-transmits airborne copy and confirms SARWATCH time clearly.",
+              action: () => {
+                const sarTime = getSarwatchTimeString(5);
+                const replyText = `Foxtrot-Bravo-Oscar, Mawson Base repeating: copied airborne off Rumdoodle, SARWATCH set for ${sarTime} UTC.`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT (REPEATED ACK)", replyText, 1, () => {
+                  stageEngine.currentStageIndex = 2;
+                  this.scheduleNext(1600);
+                });
+              }
+            },
+            {
+              title: "Accelerated Clock: 5-Minute SARWATCH Tick-Over",
+              narration: "Aircraft climbs out through mountain terrain. 5-minute SARWATCH reporting window fast-forwards in ~9 seconds...",
+              action: () => {
+                startFastForwardClock(5, 9000, () => {
+                  this.scheduleNext(1800);
+                });
+              }
+            },
+            {
+              title: "Emergency Radio Check on 126.700 & Guard 121.500 MHz",
+              narration: "SARWATCH expired! Operator immediately transmits emergency call on 126.700 MHz and International Distress Guard 121.500 MHz.",
+              action: () => {
+                const radioCheckText = `Foxtrot-Bravo-Oscar, Mawson Base on 126.7 and Guard 121.5, SARWATCH is expired, do you read Mawson?`;
+                virtualHoldPTTAndTransmit("EMERGENCY RADIO CHECK", radioCheckText, 1, () => {
+                  this.scheduleNext(1600);
+                });
+              }
+            },
+            {
+              title: "Aircraft Re-establishes Contact (Operations Normal)",
+              narration: "Pilot breaks radio silence: audio panel switch resolved, flight operations normal, cancel SARWATCH alert.",
+              action: () => {
+                const pilotText = `Mawson Base, Foxtrot-Bravo-Oscar re-establishing on 126.7! Cockpit audio panel switched accidentally during climb-out through 8,000 feet. Flight normal, cancel SARWATCH alert, estimating Davis at 09:30 UTC.`;
+                logConsoleAction('PILOT RX', `✈️ PILOT RE-ESTABLISHED [126.700 MHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotText, 'Received', 'blue');
+                pilotSpeech.speak(pilotText, `PILOT (${sc.aircraftCall})`, () => {
+                  stageEngine.currentStageIndex = 3;
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Mawson Station Cancels SARWATCH Alert",
+              narration: "Operator confirms receipt with relief, formally cancels SARWATCH alarm, and closes alert monitoring.",
+              action: () => {
+                const replyText = `Foxtrot-Bravo-Oscar, Mawson copies operations normal, SARWATCH alert cancelled. Good flight to Davis.`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT (ALERT CANCELLED)", replyText, 1, () => {
+                  virtualClick('btn-terminate-sarwatch', "PRESS TERMINATE SARWATCH", () => {
+                    terminateSARWATCH();
+                    logConsoleAction('SARWATCH', '👉 PRESSED [TERMINATE SARWATCH] ➔ SARWATCH emergency alert safely cancelled', 'SARWATCH alert closed. Aircraft operations normal enroute to Davis.');
+                    this.scheduleNext(1600);
+                  });
+                });
+              }
+            }
+          ];
         }
       }
 
@@ -4069,6 +4721,7 @@
       }
 
       complete() {
+        stopFastForwardClock();
         hideVirtualPointer();
         this.isRunning = false;
 
@@ -4097,7 +4750,11 @@
 
         setTimeout(() => {
           const sc = SCENARIOS[this.scenarioId] || SCENARIOS.A;
-          triggerMrTCelebration(`${sc.pilotCallPhonetic}, down and safe, skiway clear, shutting down. Waiting for pick up.`);
+          const isDeparture = (sc.type === 'departure' || sc.type === 'departure_emergency');
+          const celebrationMsg = isDeparture
+            ? `${sc.pilotCallPhonetic}, enroute to Davis, operations normal. Thanks Mawson!`
+            : `${sc.pilotCallPhonetic}, down and safe, skiway clear, shutting down. Waiting for pick up.`;
+          triggerMrTCelebration(celebrationMsg);
         }, 800);
       }
     }
@@ -4108,7 +4765,7 @@
      * 10. CLOCK TICKER & KEYBOARD SPACEBAR PTT BINDINGS
      * ========================================================================= */
     function updateClocks() {
-      const now = new Date();
+      const now = new Date(Date.now() + simulatedClockOffsetMs);
       const uh = String(now.getUTCHours()).padStart(2, '0');
       const um = String(now.getUTCMinutes()).padStart(2, '0');
       const us = String(now.getUTCSeconds()).padStart(2, '0');

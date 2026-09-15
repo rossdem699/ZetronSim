@@ -60,6 +60,41 @@ The speech recognition latency and clipped word issues have been resolved in `in
 
 ---
 
+## Completed: Takeoff Scenarios with Comms Dropout & Accelerated SARSEARCH Failure
+
+Two new departure scenarios (Scenarios D & E) have been implemented and integrated into the Zetron DCS5020 Simulator:
+
+1. **Scenario D: Rumdoodle Takeoff (Normal Departure)**
+   - **Aircraft**: Twin Otter DHC-6 (`VHG-FBO`, *Foxtrot-Bravo-Oscar*), Route: Rumdoodle Skiway &rarr; Davis Station.
+   - **Stages**:
+     - *Stage 1*: Departure Line Up Call on 126.700 MHz & AROC departure advisory (runway clear, surface wind, QNH).
+     - *Stage 2*: Airborne Call with actual departure time & 5-minute SARWATCH time nomination.
+     - *Stage 3*: Top of Climb (9,000 ft) Operations Normal report with Davis handover advice.
+     - *Stage 4*: Enroute Handover and SARWATCH transfer to Davis Station; console SARWATCH closure.
+   - **Playable**: In both interactive Manual Mode (speech recognition / text input) and 100% automated Auto-Play Demo.
+
+2. **Scenario E: Takeoff, Comms Dropout & Failed First SARSEARCH**
+   - **Aircraft**: Twin Otter DHC-6 (`VHG-FBO`, *Foxtrot-Bravo-Oscar*), Route: Rumdoodle &rarr; Davis.
+   - **Realistic VHF RF Dropout & Squelch Flutter**:
+     - Authentic Web Audio API bandpass filter flutter, amplitude modulation, and falling whistle simulating mountain-terrain VHF RF dropout (`playCommsDropout()`).
+     - Pilot queries over the air: *"Foxtrot-Bravo-Oscar, Mawson Base, you dropped out through squelch, transmission broken, say again your last message?"*.
+     - Operator re-transmits airborne copy and confirms SARWATCH time clearly.
+   - **Accelerated Clock (5-Minute Window in ~9 Seconds)**:
+     - Real 5-minute wait time is avoided in favor of an accelerated fast-forward clock (`startFastForwardClock()`) simulating 300 seconds across ~9 seconds.
+     - Top-bar UTC and Mawson Local clocks actively advance in real-time in sync with the simulated time offset (`simulatedClockOffsetMs`).
+     - Dedicated `#sarsearch-countdown-banner` displays live countdown with rhythmic clock ticking audio (`playClockTick()`).
+   - **Failed SARSEARCH Alert & Breach Protocol**:
+     - Countdown expiry automatically triggers emergency SARSEARCH breach alarm (`playBreachAlarm()`) and red logging.
+     - Operator executes emergency broadcast on primary 126.700 MHz and International Distress Guard 121.500 MHz.
+     - Pilot breaks radio silence, explains cockpit audio panel accidental switch during climb-out through 8,000 ft, reports operations normal.
+     - Station operator confirms, cancels SARWATCH emergency alert, and formally terminates monitoring.
+   - **Full UI & Control Integration**:
+     - Scenario dropdown (`#scenario-dropdown`) and Scenario Modal (`switchMainTab('scenario')`) include 1-click Manual and Auto-Play options.
+     - Quick Phrases (`quickPhrase(1..4)`) adapt dynamically to departure phraseology.
+     - Clean state reset (`stopFastForwardClock()`, offset reset) ensures zero leakage between scenarios.
+
+---
+
 ## Roadmap / Next Enhancements
 - **Optional Offline / WebAssembly Local Model**: Option to embed a lightweight in-browser offline speech recognizer (e.g., Vosk / Whisper WebAssembly) for 100% air-gapped / zero-network environments.
 
