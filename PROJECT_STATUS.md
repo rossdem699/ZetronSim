@@ -95,6 +95,35 @@ Two new departure scenarios (Scenarios D & E) have been implemented and integrat
 
 ---
 
+## Completed: Alternate Comms Channels (HF & Iridium Sat Phone) for Failed SARSEARCH
+
+In response to the requirement that the radio caller needs to use an alternate comms channel when the aircraft fails its first SARSEARCH report (e.g., in mountain shadow / out of VHF line-of-sight), the console tile layout and Scenario E workflow have been upgraded:
+
+1. **Adjacent Alternate Channel Tile Layout (Row 1 & Row 2 Clustered)**:
+   - **Tile 1 (Primary)**: `Tone Remote 1` (`AIR VHF 126.700 MHz AM`).
+   - **Tile 2 (Alternate Air HF)**: `Tone Remote 2` (`AIR HF 5484.0 kHz USB`) - Enroute Air HF Net positioned immediately next to Tile 1.
+   - **Tile 3 (Alternate Satellite Comms)**: `Iridium Sat Phone` (`IRIDIUM SAT 8816.767 MHz`) - Styled in deep navy satellite styling with dedicated `DIAL`, `SEL`, and `PTT` controls.
+   - **Tile 8 (Distress / Backup Guard)**: `Air Guard / UHF` (`GUARD 121.5 / 243.0 MHz VHF/UHF`).
+   - **Tile 11 (Base Operations)**: Repurposed to `Radio 11 (Ops)` (`STN OPS 156.800 MHz FM`) to retain base operations while clustering air channels together.
+
+2. **Realistic Mountain Shadow / VHF Dead-Zone Protocol (Scenario E Stage 2)**:
+   - When the accelerated 5-minute SARWATCH timer expires, attempting to transmit on Tile 1 (`AIR VHF 126.700`) simulates VHF line-of-sight failure due to the Prince Charles Mountains terrain shadow.
+   - Visual and audio prompt guides operator: *"NO RESPONSE ON VHF (MOUNTAIN SHADOW) - SWITCH TO TILE 2 (HF 5484) OR TILE 3 (IRIDIUM SATPHONE)"*.
+   - Selecting Tile 2 (`AIR HF 5484`) or Tile 3 (`IRIDIUM SAT 8816`) or Tile 8 (`GUARD`) successfully establishes contact.
+
+3. **Interactive Iridium Satphone Dialing (`DIAL` Button)**:
+   - Tile 3 includes an active `DIAL` button that dials the aircraft's cockpit satellite terminal.
+   - Web Audio API dual-tone DTMF satellite dialing sequence (`playSatPhoneChirp()`) with authentic high-low chirps and satellite link connection.
+   - Automatically establishes emergency contact with the pilot when in Scenario E Stage 2.
+
+4. **Dynamic Phraseology, Side Script & Auto-Play Integration**:
+   - `MissionStageEngine.loadStage(4)` and `getCurrentExpectedScript()` dynamically adjust prompt and readback phraseology depending on whether Tile 2 (HF) or Tile 3 (Iridium) is selected.
+   - Quick Phrases 3 and 4 adapt to the selected channel (`"Mawson Base on HF 5484..."` or `"Mawson Base on Iridium Satphone..."`).
+   - `AutoPlayEngine.buildSteps('E')` showcases the complete scenario: takeoff &rarr; RF dropout &rarr; repeat request &rarr; accelerated 5-min expiry &rarr; breach alarm &rarr; unanswered VHF call &rarr; operator channel switch to HF &rarr; emergency contact &rarr; SARWATCH cancellation.
+
+---
+
 ## Roadmap / Next Enhancements
 - **Optional Offline / WebAssembly Local Model**: Option to embed a lightweight in-browser offline speech recognizer (e.g., Vosk / Whisper WebAssembly) for 100% air-gapped / zero-network environments.
+
 

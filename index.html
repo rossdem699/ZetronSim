@@ -579,8 +579,8 @@
             </div>
 
             <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-teal-950/60 rounded border border-teal-800 text-cyan-200">
-              <span>HF RELAY</span>
-              <span id="rpt-badge-2" class="px-1 bg-teal-800 text-white rounded font-bold">DAVIS</span>
+              <span>AIR HF NET</span>
+              <span id="rpt-badge-2" class="px-1 bg-teal-800 text-white rounded font-bold">ENROUTE</span>
             </div>
 
             <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
@@ -591,17 +591,19 @@
             </div>
           </div>
 
-          <!-- TILE 3: Radio 3 (STN OPS VHF CH 1) - Sage Green (Square) -->
-          <div id="tile-3" class="radio-card bg-[#8bc38b] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
+          <!-- TILE 3: IRIDIUM SAT PHONE - Deep Indigo/Navy (Square) -->
+          <div id="tile-3" class="radio-card bg-[#1a2d54] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
             <div class="flex items-start justify-between">
               <div class="flex items-center gap-1">
-                <div class="w-5 h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
-                  <div class="w-1 h-1 bg-black"></div>
-                  <div class="w-3 h-2 bg-green-200 border border-black/30"></div>
+                <div class="w-5 h-6 bg-slate-900 rounded border border-cyan-400/50 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                  <div class="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse shadow-sm shadow-cyan-300"></div>
+                  <div class="w-3 h-2 bg-blue-500/30 border border-cyan-300/50 flex items-center justify-center">
+                    <span class="text-[7px] text-cyan-300 font-bold">SAT</span>
+                  </div>
                 </div>
                 <div>
-                  <div class="text-[11px] font-black text-black leading-tight">Radio 3 (Ops)</div>
-                  <div class="text-[10px] font-extrabold text-slate-800">156.800 MHz FM</div>
+                  <div class="text-[11px] font-black text-white leading-tight">Iridium Sat</div>
+                  <div class="text-[10px] font-extrabold text-cyan-300">SAT 8816.767</div>
                 </div>
               </div>
               <div class="flex items-center gap-1">
@@ -610,16 +612,16 @@
               </div>
             </div>
 
-            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-green-900/30 rounded border border-green-800 text-slate-900 font-bold">
-              <span>BASE OPS</span>
-              <span class="px-1 bg-green-900 text-white rounded font-bold">Ws1</span>
+            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-blue-950/80 rounded border border-blue-600/70 text-cyan-200 font-bold">
+              <span>VOICE LINK</span>
+              <span class="px-1 bg-cyan-500 text-slate-950 rounded font-black">SAT-1</span>
             </div>
 
             <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
-              <button onclick="selectTile(3)" id="sel-btn-3" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
+              <button onclick="selectTile(3)" id="sel-btn-3" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center font-bold hover:bg-slate-700">SEL</button>
               <button id="tile-ptt-3" onmousedown="tilePTTStart(3)" onmouseup="tilePTTEnd(3)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
-              <button onclick="toggleRepeater(3)" id="rpt-btn-3" class="btn-3d h-6 bg-green-800 text-white rounded flex items-center justify-center">RPT</button>
-              <button onclick="toggleDirect(3)" id="dir-btn-3" class="btn-3d h-6 bg-green-800 text-white rounded flex items-center justify-center">DIR</button>
+              <button onclick="dialIridiumSat()" id="rpt-btn-3" class="btn-3d h-6 bg-cyan-700 hover:bg-cyan-600 text-white rounded flex items-center justify-center font-bold" title="Dial Aircraft Cockpit Satphone">DIAL</button>
+              <button onclick="toggleDirect(3)" id="dir-btn-3" class="btn-3d h-6 bg-slate-800 text-cyan-200 rounded flex items-center justify-center" title="Direct Sat Line">DIR</button>
             </div>
           </div>
 
@@ -751,7 +753,7 @@
             </div>
           </div>
 
-          <!-- TILE 8: AIR GUARD 121.5 - White Card (Emergency) -->
+          <!-- TILE 8: AIR GUARD 121.5 / 243.0 UHF - White Card (Emergency) -->
           <div id="tile-8" class="radio-card bg-[#ffffff] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
             <div class="flex items-start justify-between">
               <div class="flex items-center gap-1">
@@ -760,8 +762,8 @@
                   <div class="w-3 h-2 bg-red-200 border border-red-500"></div>
                 </div>
                 <div>
-                  <div class="text-[11px] font-black text-red-700 leading-tight">Air Guard 121.5</div>
-                  <div class="text-[10px] font-extrabold text-black">121.500 MHz AM</div>
+                  <div class="text-[11px] font-black text-red-700 leading-tight">Air Guard / UHF</div>
+                  <div class="text-[10px] font-extrabold text-black">121.5 / 243.0 MHz</div>
                 </div>
               </div>
               <div class="flex items-center gap-1">
@@ -772,7 +774,7 @@
 
             <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-red-100 rounded border border-red-300 text-red-900 font-bold">
               <span>DISTRESS</span>
-              <span class="px-1 bg-red-800 text-white rounded font-bold">EMERG</span>
+              <span class="px-1 bg-red-800 text-white rounded font-bold">VHF/UHF</span>
             </div>
 
             <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
@@ -847,7 +849,7 @@
             </div>
           </div>
 
-          <!-- TILE 11: FANG PEAK REPEATER - Sage Green (Square) -->
+          <!-- TILE 11: STATION OPS VHF - Sage Green (Square) -->
           <div id="tile-11" class="radio-card bg-[#8bc38b] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
             <div class="flex items-start justify-between">
               <div class="flex items-center gap-1">
@@ -856,8 +858,8 @@
                   <div class="w-3 h-2 bg-green-200 border border-black/30"></div>
                 </div>
                 <div>
-                  <div class="text-[11px] font-black text-black leading-tight">Fang Peak RPT</div>
-                  <div class="text-[10px] font-extrabold text-slate-900">150.100 MHz FM</div>
+                  <div class="text-[11px] font-black text-black leading-tight">Radio 11 (Ops)</div>
+                  <div class="text-[10px] font-extrabold text-slate-900">156.800 MHz FM</div>
                 </div>
               </div>
               <div class="flex items-center gap-1">
@@ -867,8 +869,8 @@
             </div>
 
             <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-green-900/30 rounded border border-green-800 text-slate-900 font-bold">
-              <span>WEST ROUTE</span>
-              <span class="px-1 bg-green-900 text-white rounded font-bold">RPT-4</span>
+              <span>BASE OPS</span>
+              <span class="px-1 bg-green-900 text-white rounded font-bold">Ws1</span>
             </div>
 
             <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
@@ -1445,6 +1447,41 @@
         } catch (e) {}
       }
 
+      playSatPhoneChirp() {
+        try {
+          this.initContext();
+          const now = this.ctx.currentTime;
+          const tones = [
+            { f1: 941, f2: 1336, t: 0, dur: 0.12 },
+            { f1: 770, f2: 1336, t: 0.15, dur: 0.12 },
+            { f1: 697, f2: 1209, t: 0.30, dur: 0.16 }
+          ];
+          tones.forEach(tone => {
+            const start = now + tone.t;
+            const osc1 = this.ctx.createOscillator();
+            const osc2 = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+
+            osc1.type = 'sine';
+            osc2.type = 'sine';
+            osc1.frequency.setValueAtTime(tone.f1, start);
+            osc2.frequency.setValueAtTime(tone.f2, start);
+
+            gain.gain.setValueAtTime(0.12 * this.masterVolume, start);
+            gain.gain.exponentialRampToValueAtTime(0.001, start + tone.dur);
+
+            osc1.connect(gain);
+            osc2.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            osc1.start(start);
+            osc2.start(start);
+            osc1.stop(start + tone.dur);
+            osc2.stop(start + tone.dur);
+          });
+        } catch (e) {}
+      }
+
       startRFHiss() {
         if (!this.rfFilterEnabled) return;
         try {
@@ -1714,15 +1751,15 @@
     const TILES = [
       { id: 1, name: 'Tone Remote 1', label: 'AIR VHF 126.700', freq: '126.700 MHz', mode: 'AM' },
       { id: 2, name: 'Tone Remote 2', label: 'AIR HF 5484.0', freq: '5484.0 kHz', mode: 'USB' },
-      { id: 3, name: 'Radio 3 (Ops)', label: 'STN OPS 156.800', freq: '156.800 MHz', mode: 'FM' },
+      { id: 3, name: 'Iridium Sat Phone', label: 'IRIDIUM SAT 8816', freq: '8816.767 MHz', mode: 'SAT' },
       { id: 4, name: 'Radio 4 (Hägg)', label: 'HÄGGLUNDS 148.250', freq: '148.250 MHz', mode: 'FM' },
       { id: 5, name: 'Rumdoodle RPT', label: 'RUMDOODLE 149.800', freq: '149.800 MHz', mode: 'FM' },
       { id: 6, name: 'Mt Henderson', label: 'HENDERSON 148.500', freq: '148.500 MHz', mode: 'FM' },
       { id: 7, name: 'Framnes Range', label: 'FRAMNES 149.250', freq: '149.250 MHz', mode: 'FM' },
-      { id: 8, name: 'Air Guard 121.5', label: 'GUARD 121.500', freq: '121.500 MHz', mode: 'AM' },
+      { id: 8, name: 'Air Guard / UHF', label: 'GUARD 121.5/243.0', freq: '121.5/243.0 MHz', mode: 'AM' },
       { id: 9, name: 'SAR HF Net', label: 'SAR HF 3023.0', freq: '3023.0 kHz', mode: 'USB' },
       { id: 10, name: 'Air-to-Air Tac', label: 'TACTICAL 123.450', freq: '123.450 MHz', mode: 'AM' },
-      { id: 11, name: 'Fang Peak RPT', label: 'FANG PEAK 150.100', freq: '150.100 MHz', mode: 'FM' },
+      { id: 11, name: 'Radio 11 (Ops)', label: 'STN OPS 156.800', freq: '156.800 MHz', mode: 'FM' },
       { id: 12, name: 'Casey/Davis HF', label: 'RELAY 8833.0', freq: '8833.0 kHz', mode: 'USB' }
     ];
 
@@ -1733,7 +1770,11 @@
 
     function selectTile(id) {
       selectedTileId = id;
-      audioEngine.playMicClick(false);
+      if (id === 3) {
+        audioEngine.playSatPhoneChirp();
+      } else {
+        audioEngine.playMicClick(false);
+      }
 
       TILES.forEach(t => {
         const el = document.getElementById(`tile-${t.id}`);
@@ -1785,6 +1826,34 @@
 
       const btm = document.getElementById('bottom-status-message');
       if (btm) btm.innerText = `ACTIVE CHANNEL (ON): ${info.name} (${info.freq}) • Mode: ${repeaterMode[id] || 'RPT'}`;
+
+      if (typeof updateSideScriptCard === 'function') {
+        updateSideScriptCard();
+      }
+    }
+
+    function dialIridiumSat() {
+      selectTile(3);
+      audioEngine.playSatPhoneChirp();
+      const timeNow = getUtcTimeString();
+      logConsoleAction('SAT DIAL', '📡 [DIALING IRIDIUM] Placing satellite voice call to aircraft cockpit terminal (+8816 767 1234)...');
+      addCallHistoryRow('IRIDIUM SAT', 'Normal', 'Out', timeNow, 'DIALING: Aircraft VHG-FBO Cockpit Iridium (+8816 767 1234)...', 'DIALING', 'blue');
+
+      if (stageEngine.currentScenarioId === 'E' && stageEngine.currentStageIndex === 2) {
+        setTimeout(() => {
+          audioEngine.playSatPhoneChirp();
+          logConsoleAction('SAT CONNECTED', '✅ IRIDIUM SATELLITE LINK ESTABLISHED ➔ Aircraft cockpit satphone connected!');
+          const pilotReply = 'Mawson Base, Foxtrot-Bravo-Oscar answering on Iridium satphone! Cockpit VHF dropped out in mountain shadow over the plateau. Flight normal, cancel SARWATCH alert, estimating Davis at 09:30 UTC.';
+          addCallHistoryRow(`PILOT (${SCENARIOS.E.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotReply, 'SAT CONNECTED', 'blue');
+          pilotSpeech.speak(pilotReply, `PILOT (${SCENARIOS.E.aircraftCall})`, () => {
+            stageEngine.advanceStage();
+          });
+        }, 1600);
+      } else {
+        setTimeout(() => {
+          logConsoleAction('SAT STANDBY', '📡 Iridium voice line connected on Channel 3. Ready to transmit.');
+        }, 1200);
+      }
     }
 
     function toggleRepeater(id) {
@@ -2810,15 +2879,15 @@
           },
           {
             stageNum: 3,
-            title: 'Rapid Clock Advance & Failed First SARSEARCH Alert',
-            pilotCall: '[RADIO SILENCE] Aircraft has failed first 5-minute post-departure SARWATCH check! SARWATCH EXPIRED. Radio silence on 126.700 MHz!',
-            expectedModel: 'Foxtrot-Bravo-Oscar, Mawson Base on 126.7 and Guard 121.5, SARWATCH is expired, do you read Mawson?'
+            title: 'Rapid Clock Advance & SARSEARCH Alert (Switch Channel)',
+            pilotCall: '[RADIO SILENCE] Aircraft has failed first 5-minute post-departure SARWATCH check! VHF 126.700 MHz is radio silent. Select alternate channel: Tone Remote 2 (AIR HF 5484.0 kHz) or Iridium Sat (CH 3) to locate aircraft!',
+            expectedModel: 'Foxtrot-Bravo-Oscar, Mawson Base on HF 5484, SARWATCH is expired, do you read Mawson?'
           },
           {
             stageNum: 4,
-            title: 'Re-establishment & Operations Normal',
-            pilotCall: 'Mawson Base, Foxtrot-Bravo-Oscar re-establishing on 126.7! Cockpit audio panel switched accidentally during climb-out through 8,000 feet. Flight normal, cancel SARWATCH alert, estimating Davis at 09:30 UTC.',
-            expectedModel: 'Foxtrot-Bravo-Oscar, Mawson copies operations normal, SARWATCH alert cancelled. Good flight to Davis.'
+            title: 'Alternate Channel Re-establishment & Operations Normal',
+            pilotCall: 'Mawson Base, Foxtrot-Bravo-Oscar re-establishing on alternate comms! Mountain shadow blocked VHF. Flight normal, cancel SARWATCH alert, estimating Davis at 09:30 UTC.',
+            expectedModel: 'Foxtrot-Bravo-Oscar, Mawson copies operations normal on alternate comms, SARWATCH alert cancelled. Good flight to Davis.'
           }
         ]
       }
@@ -2894,6 +2963,16 @@
               }, 600);
             }
           });
+        } else if (this.currentScenarioId === 'E' && stage.stageNum === 4) {
+          const chanName = selectedTileId === 3 ? 'Iridium satphone' : (selectedTileId === 8 ? 'Guard' : 'HF 5484');
+          pilotMsg = `Mawson Base, Foxtrot-Bravo-Oscar re-establishing on ${chanName}! Passed into mountain shadow beyond VHF line-of-sight. Flight normal, cancel SARWATCH alert, estimating Davis at 09:30 UTC.`;
+          addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotMsg, 'Received', 'blue');
+          if (autoPlayPilot) {
+            setTimeout(() => {
+              if (selectedTileId === 3) audioEngine.playSatPhoneChirp();
+              pilotSpeech.speak(pilotMsg, `PILOT (${sc.aircraftCall})`);
+            }, 600);
+          }
         } else {
           addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotMsg, 'Received', 'blue');
           if (autoPlayPilot) {
@@ -3081,6 +3160,21 @@
         return;
       }
 
+      // Special Handling for Scenario E Stage 2 (Failed first SARSEARCH & VHF Dead Zone)
+      if (sc.id === 'E' && stageEngine.currentStageIndex === 2 && selectedTileId === 1) {
+        audioEngine.playMicClick(true);
+        setTimeout(() => audioEngine.playSquelchTail(), 140);
+        addCallHistoryRow('MAWSON COMMS', 'Warning', 'Out', getUtcTimeString(), rawText, 'VHF UNANSWERED', 'yellow');
+        logConsoleAction('RADIO SILENCE', '⚠️ [RADIO SILENCE ON 126.700 MHz] Aircraft in mountain shadow beyond VHF line-of-sight! Select alternate channel: Tone Remote 2 (AIR HF 5484.0 kHz) or Iridium Sat (CH 3).');
+        setTimeout(() => {
+          const silenceNotice = '[RADIO SILENCE: No response on 126.700 MHz - aircraft beyond VHF range. Switch to alternate comms: Tone Remote 2 (AIR HF 5484.0 kHz) or Iridium Sat (CH 3)]';
+          addCallHistoryRow('SYSTEM ALERT', 'Emergency', 'In', getUtcTimeString(), silenceNotice, 'NO CONTACT', 'red');
+          const btm = document.getElementById('bottom-status-message');
+          if (btm) btm.innerText = 'NO RESPONSE ON VHF 126.700 MHz: Select Tone Remote 2 (AIR HF 5484) or Iridium Sat (CH 3) to establish contact!';
+        }, 800);
+        return;
+      }
+
       // 2. Callsign & Phonetic Matching (Fuzzy & Aliases)
       const callsignAliases = [
         'foxtrot', 'fox trot', 'boxtrot', 'box trot', 'oxtrot', 'fxtrot', 'fox', 'trot', 'fox-trot',
@@ -3220,7 +3314,10 @@
           if (hasCallsign || hasMawson) score++;
           if (sc.id === 'E') {
             if (normalized.includes('read') || normalized.includes('126') ||
+                normalized.includes('hf') || normalized.includes('5484') ||
+                normalized.includes('iridium') || normalized.includes('sat') ||
                 normalized.includes('guard') || normalized.includes('121') ||
+                normalized.includes('243') ||
                 normalized.includes('sarwatch') || normalized.includes('expired') ||
                 normalized.includes('check') || hasAcks) score++;
             if (score < total) missingType = 'emergency_check';
@@ -3407,6 +3504,18 @@
       const depTime = utcStr;
       const sarTime = getSarwatchTimeString(5);
 
+      if (sc.id === 'E' && stageEngine.currentStageIndex === 2) {
+        if (selectedTileId === 1) {
+          return "⚠️ VHF 126.7 SILENT (MOUNTAIN SHADOW): Select Tone Remote 2 (AIR HF 5484) or Iridium Sat (CH 3) to reach aircraft!";
+        } else if (selectedTileId === 2) {
+          return `${sc.pilotCallPhonetic}, Mawson Base on HF 5484, SARWATCH is expired, do you read Mawson?`;
+        } else if (selectedTileId === 3) {
+          return `${sc.pilotCallPhonetic}, Mawson Base on Iridium Sat, SARWATCH is expired, do you read Mawson?`;
+        } else if (selectedTileId === 8) {
+          return `${sc.pilotCallPhonetic}, Mawson Base on Guard 121.5 / 243.0, SARWATCH is expired, do you read Mawson?`;
+        }
+      }
+
       return stage.expectedModel
         .replace('[WIND]', `${weatherData.windDir} degrees at ${weatherData.windSpeed} knots`)
         .replace('[VIS]', weatherData.visKm)
@@ -3527,12 +3636,22 @@
           const sarTime = getSarwatchTimeString(5);
           input.value = `${call}, Mawson Base copies airborne off Rumdoodle, SARWATCH set for ${sarTime} UTC. Have a safe flight to Davis.`;
         } else if (num === 3) {
-          input.value = sc.id === 'E'
-            ? `${call}, Mawson Base on 126.7 and Guard 121.5, SARWATCH is expired, do you read Mawson?`
-            : `${call}, Mawson copies operations normal. Contact Davis Comms on HF 5400 kHz or VHF 126.7 at 60 miles.`;
+          if (sc.id === 'E') {
+            if (selectedTileId === 2) {
+              input.value = `${call}, Mawson Base on HF 5484, SARWATCH is expired, do you read Mawson?`;
+            } else if (selectedTileId === 3) {
+              input.value = `${call}, Mawson Base on Iridium Sat, SARWATCH is expired, do you read Mawson?`;
+            } else if (selectedTileId === 8) {
+              input.value = `${call}, Mawson Base on Guard 121.5 / 243.0, SARWATCH is expired, do you read Mawson?`;
+            } else {
+              input.value = `${call}, Mawson Base on 126.7, SARWATCH is expired, do you read Mawson?`;
+            }
+          } else {
+            input.value = `${call}, Mawson copies operations normal. Contact Davis Comms on HF 5400 kHz or VHF 126.7 at 60 miles.`;
+          }
         } else if (num === 4) {
           input.value = sc.id === 'E'
-            ? `${call}, Mawson copies operations normal, SARWATCH alert cancelled. Good flight to Davis.`
+            ? `${call}, Mawson copies operations normal on alternate comms, SARWATCH alert cancelled. Good flight to Davis.`
             : `${call}, Mawson copies SARWATCH transferred to Davis. Good day.`;
         }
       } else {
@@ -4649,22 +4768,45 @@
               }
             },
             {
-              title: "Emergency Radio Check on 126.700 & Guard 121.500 MHz",
-              narration: "SARWATCH expired! Operator immediately transmits emergency call on 126.700 MHz and International Distress Guard 121.500 MHz.",
+              title: "Primary VHF Check Unanswered (Mountain Shadow)",
+              narration: "Operator attempts emergency check on primary VHF 126.700 MHz. Aircraft in mountain shadow — radio silence!",
               action: () => {
-                const radioCheckText = `Foxtrot-Bravo-Oscar, Mawson Base on 126.7 and Guard 121.5, SARWATCH is expired, do you read Mawson?`;
-                virtualHoldPTTAndTransmit("EMERGENCY RADIO CHECK", radioCheckText, 1, () => {
+                const vhfCall = `Foxtrot-Bravo-Oscar, Mawson Base on 126.7, SARWATCH is expired, do you read Mawson?`;
+                virtualHoldPTTAndTransmit("PTT VHF 126.700 (NO CONTACT)", vhfCall, 1, () => {
+                  logConsoleAction('RADIO SILENCE', '⚠️ [NO RESPONSE ON 126.700 MHz] Aircraft in mountain shadow beyond VHF line-of-sight!');
+                  addCallHistoryRow('SYSTEM ALERT', 'Emergency', 'In', getUtcTimeString(), '[RADIO SILENCE: No response on 126.700 MHz. Switching to alternate channel: Tone Remote 2 AIR HF 5484.0 kHz]', 'NO CONTACT', 'red');
+                  this.scheduleNext(1800);
+                });
+              }
+            },
+            {
+              title: "Select Alternate Channel: Tone Remote 2 (AIR HF 5484.0 kHz)",
+              narration: "Operator selects Tone Remote 2 (AIR HF 5484.0 kHz) right next to Tone Remote 1 to reach aircraft over HF.",
+              action: () => {
+                virtualClick('sel-btn-2', "SELECT AIR HF 5484.0 (TURN ON)", () => {
+                  selectTile(2);
+                  logConsoleAction('CHANNEL ON', '👉 PRESSED [SEL AIR HF 5484.0] ➔ Tone Remote 2 is now ACTIVE (ON)', 'Selected Tone Remote 2 (AIR HF 5484.0 kHz USB). Switched to alternate channel.');
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Emergency Broadcast on AIR HF 5484.0 kHz",
+              narration: "Operator depresses PTT on Tone Remote 2 and broadcasts emergency check over aeronautical HF.",
+              action: () => {
+                const hfCall = `Foxtrot-Bravo-Oscar, Mawson Base on HF 5484, SARWATCH is expired, do you read Mawson?`;
+                virtualHoldPTTAndTransmit("EMERGENCY HF TRANSMIT", hfCall, 2, () => {
                   this.scheduleNext(1600);
                 });
               }
             },
             {
-              title: "Aircraft Re-establishes Contact (Operations Normal)",
-              narration: "Pilot breaks radio silence: audio panel switch resolved, flight operations normal, cancel SARWATCH alert.",
+              title: "Aircraft Re-establishes Contact on HF 5484.0 kHz",
+              narration: "Pilot answers over HF: VHF lost behind Framnes Range, flight operations normal, cancel SARWATCH alert.",
               action: () => {
-                const pilotText = `Mawson Base, Foxtrot-Bravo-Oscar re-establishing on 126.7! Cockpit audio panel switched accidentally during climb-out through 8,000 feet. Flight normal, cancel SARWATCH alert, estimating Davis at 09:30 UTC.`;
-                logConsoleAction('PILOT RX', `✈️ PILOT RE-ESTABLISHED [126.700 MHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
-                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotText, 'Received', 'blue');
+                const pilotText = `Mawson Base, Foxtrot-Bravo-Oscar re-establishing on HF 5484! We passed behind the Framnes Range out of VHF coverage. Flight normal, cancel SARWATCH alert, estimating Davis at 09:30 UTC.`;
+                logConsoleAction('PILOT RX', `✈️ PILOT RE-ESTABLISHED OVER HF [5484.0 kHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotText, 'HF CONTACT', 'blue');
                 pilotSpeech.speak(pilotText, `PILOT (${sc.aircraftCall})`, () => {
                   stageEngine.currentStageIndex = 3;
                   this.scheduleNext(1400);
@@ -4672,14 +4814,14 @@
               }
             },
             {
-              title: "Mawson Station Cancels SARWATCH Alert",
-              narration: "Operator confirms receipt with relief, formally cancels SARWATCH alarm, and closes alert monitoring.",
+              title: "Mawson Station Cancels SARWATCH Alert on HF",
+              narration: "Operator confirms receipt with relief on HF, formally cancels SARWATCH alarm, and closes alert monitoring.",
               action: () => {
-                const replyText = `Foxtrot-Bravo-Oscar, Mawson copies operations normal, SARWATCH alert cancelled. Good flight to Davis.`;
-                virtualHoldPTTAndTransmit("PTT TRANSMIT (ALERT CANCELLED)", replyText, 1, () => {
+                const replyText = `Foxtrot-Bravo-Oscar, Mawson copies operations normal on HF, SARWATCH alert cancelled. Good flight to Davis.`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT (ALERT CANCELLED)", replyText, 2, () => {
                   virtualClick('btn-terminate-sarwatch', "PRESS TERMINATE SARWATCH", () => {
                     terminateSARWATCH();
-                    logConsoleAction('SARWATCH', '👉 PRESSED [TERMINATE SARWATCH] ➔ SARWATCH emergency alert safely cancelled', 'SARWATCH alert closed. Aircraft operations normal enroute to Davis.');
+                    logConsoleAction('SARWATCH', '👉 PRESSED [TERMINATE SARWATCH] ➔ SARWATCH emergency alert safely cancelled on HF', 'SARWATCH alert closed on HF. Aircraft operations normal enroute to Davis.');
                     this.scheduleNext(1600);
                   });
                 });
