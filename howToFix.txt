@@ -1,0 +1,88 @@
+================================================================================
+ZETRON DCS5020 SIMULATOR - SPEECH RECOGNITION LATENCY & MISSED WORDS FIX
+================================================================================
+
+HOW TO RESUME THIS PROJECT NEXT TIME
+------------------------------------
+1. Open terminal and navigate to the project:
+   cd /home/ross/projects/ZetronSim
+
+2. Start the local web server:
+   ./run.sh
+   (or run: python3 -m http.server 3000)
+
+3. Open in your browser:
+   http://localhost:3000/
+
+4. Instruction prompt to give Antigravity in your next session:
+   "Continue with ZetronSim - please implement the speech recognition fix outlined in howToFix.txt"
+
+
+WHY THE DELAY AND MISSED WORDS CURRENTLY HAPPEN
+-----------------------------------------------
+1. Microphone Hardware Initialization Lag (Clipped First Words):
+   In the current implementation, SpeechRecognition only starts after you press PTT.
+   The browser audio pipeline takes 150-300ms to open the hardware microphone channel.
+   If you begin speaking immediately upon pressing PTT, opening syllables like
+   "Foxtrot" or "Mawson" are clipped before the buffer starts recording.
+
+2. Cloud Network Round-Trip Latency:
+   Chrome's webkitSpeechRecognition streams voice packets over HTTPS to Google speech
+   servers and waits for a finalized hypothesis. This adds a 300-800ms network round-trip delay.
+
+3. Premature PTT Release Cut-Off (Clipped Trailing Words):
+   When you let go of the PTT button or spacebar, recognition.stop() is invoked
+   immediately. Any trailing syllables or numbers still in transit to the speech server
+   are discarded before they can be transcribed.
+
+4. Strict Exact-Match Evaluation:
+   If the microphone drops an opening or trailing syllable, standard regex patterns
+   might fail to detect required aviation readback elements (callsign, QNH, wind).
+
+
+STEP-BY-STEP FIX TO IMPLEMENT NEXT TIME
+---------------------------------------
+
+Step 1: Pre-Warmed Background Microphone Stream
+- Initialize a persistent getUserMedia audio stream when the page loads (or on first click).
+- Keep the hardware audio channel warm in the background.
+- When PTT is keyed, tap into the already-open stream instantly at millisecond zero.
+- Result: Zero audio ramp-up delay; no clipped first words.
+
+Step 2: PTT Release Grace Period (Audio Drain Buffer)
+- When PTT is released, do NOT call recognition.stop() immediately.
+- Introduce a 350-500ms trailing grace period allowing the microphone buffer to flush
+  and the remote speech API to finish transcribing trailing words.
+- Visually indicate "PROCESSING FINAL AUDIO..." during the buffer drain.
+
+Step 3: Aggressive Real-Time Interim Transcript Capture
+- Listen to the `onresult` event and capture `event.results[i][0].transcript` in real time,
+  including `result.isFinal === false` (interim hypotheses).
+- Display interim words immediately in the TX box as you speak.
+- If speech recognition stalls on server finalization, evaluate the accumulated interim
+  transcript immediately upon PTT release without waiting for remote server timeout.
+
+Step 4: Phonetic & Aviation Keyword Fuzzy Matching
+- Add phonetic tolerance and Levenshtein distance checks:
+  * "oxtrot", "box trot", "fxtrot" -> matches "Foxtrot"
+  * "ravo", "bravo" -> matches "Bravo"
+  * "scar", "oscar" -> matches "Oscar"
+  * "molson", "morrison", "maws" -> matches "Mawson"
+- Add flexible numeric extraction for QNH (any 3-4 digit number around 980-1030)
+  and wind direction/speed so minor phonetic variations never penalize the score.
+
+Step 5: Optional Local/Offline WebAssembly Engine (Zero Network Lag)
+- If network latency continues to fluctuate on Google's cloud speech servers, integrate
+  a lightweight in-browser offline speech recognizer (e.g. Vosk WebAssembly or Whisper-tiny.wasm).
+- Runs 100% locally in browser memory with zero network delay and complete offline reliability.
+
+
+GIT REPOSITORY STATUS
+---------------------
+- Branch: main
+- Project Directory: /home/ross/projects/ZetronSim
+- Key files:
+  * index.html (Main simulator console)
+  * PROJECT_STATUS.md (Detailed system documentation)
+  * howToFix.txt (This instruction guide)
+  * run.sh (Server launcher)
