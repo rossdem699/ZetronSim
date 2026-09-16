@@ -1,7 +1,7 @@
 # AGY-CLI Task Specification: Mawson Station Air-Ground Voice Radio Simulator
 
 ## 1. Project Overview & Objective
-Build an interactive, real-time voice-driven aviation radio communications training simulator modeled after an Australian Antarctic Division (AAD) station communications console (Zetron / Axxon style GUI). 
+Build an interactive, real-time voice-driven aviation radio communications training simulator modeled after an authentic polar station communications console (Zetron / Axxon style GUI). 
 
 The application trains station comms operators at **Mawson Station** to manage air-ground communications with incoming and outgoing fixed-wing aircraft (Twin Otter / Basler BT-67) landing at or departing from:
 1. **Rumdoodle Ski Landing Area (SLA)** (Plateau ice strip)
