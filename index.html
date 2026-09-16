@@ -102,15 +102,47 @@
       color: #ffffff !important;
       transform: translateY(2px) scale(0.98) !important;
     }
+
+    /* Responsive viewport height optimizations for laptops (1366x768 / 1080p scaled) */
+    @media (max-height: 850px) {
+      .radio-card {
+        height: 80px !important;
+        padding: 4px !important;
+      }
+      .radio-card .btn-3d {
+        height: 20px !important;
+        font-size: 8.5px !important;
+      }
+      #sim-action-banner {
+        margin-bottom: 4px !important;
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+      }
+    }
+    @media (max-height: 720px) {
+      .radio-card {
+        height: 72px !important;
+        padding: 3px !important;
+      }
+      .radio-card .btn-3d {
+        height: 18px !important;
+        font-size: 8px !important;
+      }
+      #sim-action-banner {
+        margin-bottom: 2px !important;
+        padding-top: 1px !important;
+        padding-bottom: 1px !important;
+      }
+    }
   </style>
 </head>
 
-<body class="h-full bg-[#1c1c1c] text-slate-900 flex flex-col select-none overflow-hidden font-sans">
+<body class="h-full bg-[#1c1c1c] text-slate-900 flex flex-col select-none overflow-x-hidden overflow-y-auto lg:overflow-hidden font-sans">
 
   <!-- ========================================================================= -->
   <!-- 1. TOP WHITE BANNER (ZETRON LOGO & DCS5020 TITLE)                         -->
   <!-- ========================================================================= -->
-  <header class="h-10 bg-white border-b-2 border-[#555555] flex items-center justify-between px-3 flex-shrink-0 shadow-sm relative z-30">
+  <header class="h-9 xl:h-10 bg-white border-b-2 border-[#555555] flex items-center justify-between px-2.5 xl:px-3 flex-shrink-0 shadow-sm relative z-30">
     <div class="flex items-center gap-2.5">
       <!-- Zetron Brand Logo with Blue Wave -->
       <div class="flex flex-col">
@@ -154,7 +186,7 @@
   <!-- ========================================================================= -->
   <!-- 2. CONSOLE CONTROL BAR (DIRECT CONTROLS - NO TABS NEEDED)                  -->
   <!-- ========================================================================= -->
-  <nav class="bg-[#c8c8c8] px-3 py-1.5 border-b-2 border-[#808080] flex items-center justify-between flex-shrink-0 shadow-sm">
+  <nav class="bg-[#c8c8c8] px-2.5 py-1 xl:px-3 xl:py-1.5 border-b-2 border-[#808080] flex items-center justify-between flex-shrink-0 shadow-sm">
     <div class="flex items-center gap-2.5">
       <div class="flex items-center gap-2 bg-[#1b2533] text-white px-2.5 py-1 rounded border border-cyan-500/60 shadow-inner">
         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -212,6 +244,12 @@
       <button onclick="openAudioSettingsModal()" title="Configure Natural Pilot Voice, Audio Quality & Test Microphone" class="btn-3d px-2.5 py-1 bg-[#1e293b] hover:bg-[#334155] text-cyan-300 font-sans font-bold text-xs rounded flex items-center gap-1 border border-cyan-500/80 shadow cursor-pointer">
         <span>🎙️</span>
         <span>Voice & Mic</span>
+      </button>
+
+      <!-- Fullscreen Kiosk Mode Toggle Button -->
+      <button id="btn-fullscreen-toggle" onclick="toggleConsoleFullscreen()" title="Toggle Fullscreen Kiosk Mode (F11) - Maximizes screen height on laptops" class="btn-3d px-2.5 py-1 bg-[#1e293b] hover:bg-[#334155] text-amber-300 font-sans font-bold text-xs rounded flex items-center gap-1 border border-amber-500/80 shadow cursor-pointer">
+        <span id="fullscreen-btn-icon">⛶</span>
+        <span id="fullscreen-btn-text" class="hidden sm:inline">Fullscreen</span>
       </button>
 
       <!-- Prominent Example Play Scenario Button -->
@@ -310,7 +348,7 @@
   <!-- ========================================================================= -->
   <!-- 3. MAIN WORKBENCH (EXACT DCS5020 DISPATCH CONSOLE LAYOUT)                 -->
   <!-- ========================================================================= -->
-  <main class="flex-1 flex gap-2 p-2 bg-[#262626] overflow-hidden min-h-0">
+  <main class="flex-1 flex gap-1.5 xl:gap-2 p-1.5 xl:p-2 bg-[#262626] overflow-hidden min-h-0">
 
     <!-- ======================================================================= -->
     <!-- LEFT PANEL: TETRA / SELECTED AIR CHANNEL DISPLAY & REPORT SCRIPT CARD   -->
@@ -393,27 +431,27 @@
         </div>
 
         <!-- NEW: LIVE REPORT SCRIPT & TELEMETRY CHECKLIST CARD (OCCUPIES PREVIOUSLY EMPTY SPACE) -->
-        <div id="side-script-card" class="bg-[#101721] border-2 border-cyan-500/90 rounded p-2 flex flex-col justify-between shadow-xl flex-1 overflow-hidden min-h-0">
+        <div id="side-script-card" class="bg-[#101721] border-2 border-cyan-500/90 rounded p-1.5 xl:p-2 flex flex-col justify-between shadow-xl flex-1 overflow-hidden min-h-0">
           <div class="flex flex-col flex-1 overflow-hidden">
             <!-- Header: Title & Phase Badge -->
-            <div class="flex items-center justify-between border-b border-cyan-700/60 pb-1 mb-1 flex-shrink-0">
+            <div class="flex items-center justify-between border-b border-cyan-700/60 pb-0.5 xl:pb-1 mb-0.5 xl:mb-1 flex-shrink-0">
               <div class="flex items-center gap-1.5">
                 <span class="text-amber-400 text-xs">📋</span>
-                <span class="text-[11px] font-black text-cyan-200 uppercase tracking-wide font-sans">REPORT SCRIPT</span>
+                <span class="text-[10px] xl:text-[11px] font-black text-cyan-200 uppercase tracking-wide font-sans">REPORT SCRIPT</span>
               </div>
-              <span id="side-script-phase-badge" class="px-1.5 py-0.2 bg-amber-400 text-slate-950 font-black text-[9px] rounded font-mono uppercase">
+              <span id="side-script-phase-badge" class="px-1.5 py-0.2 bg-amber-400 text-slate-950 font-black text-[8.5px] xl:text-[9px] rounded font-mono uppercase">
                 STAGE 1/4
               </span>
             </div>
 
             <!-- Stage Subtitle -->
-            <div id="side-stage-title" class="text-[10px] font-bold text-amber-300 font-sans truncate mb-1 flex-shrink-0">
+            <div id="side-stage-title" class="text-[9.5px] xl:text-[10px] font-bold text-amber-300 font-sans truncate mb-0.5 xl:mb-1 flex-shrink-0">
               Initial Inbound Contact (~35-40 min out)
             </div>
 
             <!-- Telemetry Checklist (List format) -->
-            <div class="bg-black/70 border border-slate-700/80 rounded p-1.5 mb-1.5 font-mono text-[10px] space-y-0.5 flex-shrink-0">
-              <div class="text-[9px] font-bold text-cyan-400 border-b border-slate-800 pb-0.5 mb-0.5 flex items-center justify-between">
+            <div class="bg-black/70 border border-slate-700/80 rounded p-1 xl:p-1.5 mb-1 xl:mb-1.5 font-mono text-[9px] xl:text-[10px] space-y-0.5 flex-shrink-0">
+              <div class="text-[8.5px] xl:text-[9px] font-bold text-cyan-400 border-b border-slate-800 pb-0.5 mb-0.5 flex items-center justify-between">
                 <span>DATA TO REPORT:</span>
                 <span id="side-checklist-aircraft" class="text-white font-bold">VHG-FBO</span>
               </div>
@@ -445,11 +483,11 @@
 
             <!-- Current Script Box (What to say) -->
             <div class="flex flex-col flex-1 min-h-0 overflow-hidden">
-              <div class="text-[9px] font-bold text-amber-300 font-mono flex items-center justify-between mb-0.5 flex-shrink-0">
+              <div class="text-[8.5px] xl:text-[9px] font-bold text-amber-300 font-mono flex items-center justify-between mb-0.5 flex-shrink-0">
                 <span>WHAT TO SAY (AROC SCRIPT):</span>
-                <span class="text-[8px] text-slate-400 italic">Click box to copy</span>
+                <span class="text-[7.5px] xl:text-[8px] text-slate-400 italic">Click box to copy</span>
               </div>
-              <div id="side-script-box" onclick="copyModelToInput()" title="Click to copy into TX Text box" class="p-1.5 bg-black/90 border border-amber-400/70 rounded text-[10.5px] font-mono text-amber-100 leading-relaxed overflow-y-auto shadow-inner cursor-pointer hover:border-amber-300 hover:bg-black transition flex-1 select-text">
+              <div id="side-script-box" onclick="copyModelToInput()" title="Click to copy into TX Text box" class="p-1 xl:p-1.5 bg-black/90 border border-amber-400/70 rounded text-[9.5px] xl:text-[10.5px] font-mono text-amber-100 leading-tight xl:leading-relaxed overflow-y-auto shadow-inner cursor-pointer hover:border-amber-300 hover:bg-black transition flex-1 select-text">
                 "Foxtrot-Bravo-Oscar, Mawson Base, read you strength 5. Rumdoodle Ski Landing Area currently reported clear. Surface wind 140 degrees at 25 knots, visibility 10 kilometres, temperature minus 16, QNH 992. No conflicting traffic."
               </div>
             </div>
@@ -490,432 +528,432 @@
     <!-- ======================================================================= -->
     <!-- CENTER PANEL: RADIO LINES (SQUARE TILES & REPEATERS) & CALL HISTORY     -->
     <!-- ======================================================================= -->
-    <section class="flex-1 flex flex-col gap-2 min-w-0">
+    <section class="flex-1 flex flex-col gap-1 xl:gap-1.5 min-w-0 min-h-0 overflow-hidden">
 
       <!-- ===================================================================== -->
       <!-- RADIO LINES BOX (SQUARE TILES MATRIX WITH REPEATER CONTROLS)          -->
       <!-- ===================================================================== -->
-      <div class="bg-[#202020] beveled-in p-2 rounded shadow-inner flex flex-col">
-        <div class="text-[11px] font-bold font-sans text-slate-300 border-b border-[#444444] pb-1 mb-1.5 flex items-center justify-between">
+      <div class="bg-[#202020] beveled-in p-1 xl:p-1.5 rounded shadow-inner flex flex-col flex-shrink-0">
+        <div class="text-[10px] xl:text-[11px] font-bold font-sans text-slate-300 border-b border-[#444444] pb-0.5 mb-1 flex items-center justify-between">
           <div class="flex items-center gap-1.5">
-            <i data-lucide="radio" class="w-3.5 h-3.5 text-yellow-400"></i>
+            <i data-lucide="radio" class="w-3 h-3 xl:w-3.5 xl:h-3.5 text-yellow-400"></i>
             <span class="text-white font-sans font-bold">Radio Lines</span>
           </div>
-          <div class="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
-            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-cyan-400 inline-block"></span> RPT (Repeater)</span>
-            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-amber-400 inline-block"></span> DIR (Direct)</span>
+          <div class="flex items-center gap-2 text-[9px] xl:text-[10px] text-slate-400 font-mono">
+            <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded bg-cyan-400 inline-block"></span> RPT (Repeater)</span>
+            <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded bg-amber-400 inline-block"></span> DIR (Direct)</span>
             <span>ZETRON DCS5020 MATRIX</span>
           </div>
         </div>
 
         <!-- LIVE SIMULATION ACTION INDICATOR BANNER (WHAT WE PRESSED & WHEN) -->
-        <div id="sim-action-banner" class="mb-2 px-2.5 py-1 bg-[#141414] border-2 border-amber-400/80 rounded flex items-center justify-between text-xs font-mono shadow-md">
+        <div id="sim-action-banner" class="mb-1 xl:mb-1.5 px-2 py-0.5 xl:py-1 bg-[#141414] border-2 border-amber-400/80 rounded flex items-center justify-between text-xs font-mono shadow-md flex-shrink-0">
           <div class="flex items-center gap-2 overflow-hidden">
-            <span id="sim-action-badge" class="px-2 py-0.5 bg-amber-400 text-slate-950 font-black text-[10px] rounded tracking-wide uppercase shrink-0 animate-pulse">
+            <span id="sim-action-badge" class="px-2 py-0.2 bg-amber-400 text-slate-950 font-black text-[9px] xl:text-[10px] rounded tracking-wide uppercase shrink-0 animate-pulse">
               👉 CONSOLE ACTION
             </span>
-            <span id="sim-action-text" class="font-mono text-cyan-200 text-[11px] font-bold truncate">
+            <span id="sim-action-text" class="font-mono text-cyan-200 text-[10px] xl:text-[11px] font-bold truncate">
               [READY] Primary Channel Tone Remote 1 (126.700 MHz) is active &amp; ready
             </span>
           </div>
-          <div class="flex items-center gap-2 shrink-0 ml-2">
-            <span id="sim-action-channel-indicator" class="px-1.5 py-0.5 bg-emerald-600 text-slate-950 font-black text-[10px] rounded shadow animate-pulse">
+          <div class="flex items-center gap-1.5 xl:gap-2 shrink-0 ml-2">
+            <span id="sim-action-channel-indicator" class="px-1.5 py-0.2 bg-emerald-600 text-slate-950 font-black text-[9px] xl:text-[10px] rounded shadow animate-pulse">
               CH 1: ON (126.700 MHz)
             </span>
-            <span id="sim-action-ptt-indicator" class="px-1.5 py-0.5 bg-slate-800 text-slate-300 font-bold text-[10px] rounded">
+            <span id="sim-action-ptt-indicator" class="px-1.5 py-0.2 bg-slate-800 text-slate-300 font-bold text-[9px] xl:text-[10px] rounded">
               PTT: IDLE
             </span>
           </div>
         </div>
 
         <!-- 12 SQUARE TILES GRID (4 COLUMNS x 3 ROWS) -->
-        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2">
+        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-1 xl:gap-1.5">
 
           <!-- TILE 1: Tone Remote 1 (AIR VHF 126.7) - White Card (Square) -->
-          <div id="tile-1" class="radio-card bg-[#ffffff] beveled-out p-1.5 rounded flex flex-col justify-between transition-all active-channel-glow h-28">
+          <div id="tile-1" class="radio-card bg-[#ffffff] beveled-out p-1 xl:p-1.5 rounded flex flex-col justify-between transition-all active-channel-glow h-[80px] xl:h-[90px] 2xl:h-28">
             <div class="flex items-start justify-between">
               <div class="flex items-center gap-1">
-                <div class="w-5 h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                <div class="w-4 h-5 xl:w-5 xl:h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
                   <div class="w-1 h-1 bg-black"></div>
-                  <div class="w-3 h-2 bg-cyan-200 border border-black/30"></div>
+                  <div class="w-2.5 h-1.5 xl:w-3 xl:h-2 bg-cyan-200 border border-black/30"></div>
                 </div>
                 <div>
-                  <div class="text-[11px] font-black text-black leading-tight">Tone Remote 1</div>
-                  <div class="text-[10px] font-extrabold text-blue-700">126.700 MHz AM</div>
+                  <div class="text-[10px] xl:text-[11px] font-black text-black leading-tight">Tone Remote 1</div>
+                  <div class="text-[9px] xl:text-[10px] font-extrabold text-blue-700">126.700 MHz AM</div>
                 </div>
               </div>
               <div class="flex items-center gap-1">
-                <span id="channel-state-badge-1" class="px-1.5 py-0.5 bg-emerald-600 text-white font-black text-[9px] rounded shadow animate-pulse">● ON</span>
-                <div id="rx-led-1" class="w-2.5 h-2.5 rounded-full bg-slate-400 border border-black"></div>
+                <span id="channel-state-badge-1" class="px-1 xl:px-1.5 py-0.2 xl:py-0.5 bg-emerald-600 text-white font-black text-[8px] xl:text-[9px] rounded shadow animate-pulse">● ON</span>
+                <div id="rx-led-1" class="w-2 h-2 xl:w-2.5 xl:h-2.5 rounded-full bg-slate-400 border border-black"></div>
               </div>
             </div>
 
             <!-- Repeater Status / Channel Badge -->
-            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-slate-100 rounded border border-slate-300">
+            <div class="flex items-center justify-between text-[8px] xl:text-[9px] font-mono px-1 py-0.2 xl:py-0.5 bg-slate-100 rounded border border-slate-300">
               <span class="font-bold text-slate-700">AIR TRAFFIC</span>
               <span id="rpt-badge-1" class="px-1 bg-cyan-700 text-white rounded font-bold">RPT: RUMD</span>
             </div>
 
             <!-- Square Tactical Pushbuttons -->
-            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
-              <button onclick="selectTile(1)" id="sel-btn-1" class="btn-3d h-6 bg-emerald-500 text-slate-950 font-black rounded flex items-center justify-center shadow-md ring-2 ring-emerald-300 animate-pulse">● ON</button>
-              <button id="tile-ptt-1" onmousedown="tilePTTStart(1)" onmouseup="tilePTTEnd(1)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
-              <button onclick="toggleRepeater(1)" id="rpt-btn-1" class="btn-3d h-6 bg-cyan-700 text-white rounded flex items-center justify-center font-bold" title="Toggle Repeater">RPT</button>
-              <button onclick="toggleDirect(1)" id="dir-btn-1" class="btn-3d h-6 bg-slate-200 text-slate-800 rounded flex items-center justify-center" title="Direct Simplex">DIR</button>
+            <div class="grid grid-cols-4 gap-0.5 xl:gap-1 text-[8px] xl:text-[9px] font-mono font-bold">
+              <button onclick="selectTile(1)" id="sel-btn-1" class="btn-3d h-5 xl:h-6 bg-emerald-500 text-slate-950 font-black rounded flex items-center justify-center shadow-md ring-2 ring-emerald-300 animate-pulse">● ON</button>
+              <button id="tile-ptt-1" onmousedown="tilePTTStart(1)" onmouseup="tilePTTEnd(1)" class="btn-3d h-5 xl:h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="toggleRepeater(1)" id="rpt-btn-1" class="btn-3d h-5 xl:h-6 bg-cyan-700 text-white rounded flex items-center justify-center font-bold" title="Toggle Repeater">RPT</button>
+              <button onclick="toggleDirect(1)" id="dir-btn-1" class="btn-3d h-5 xl:h-6 bg-slate-200 text-slate-800 rounded flex items-center justify-center" title="Direct Simplex">DIR</button>
             </div>
           </div>
 
           <!-- TILE 2: Tone Remote 2 (AIR HF SEC 5484) - Teal Card (Square) -->
-          <div id="tile-2" class="radio-card bg-[#009999] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
+          <div id="tile-2" class="radio-card bg-[#009999] beveled-out p-1 xl:p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-[80px] xl:h-[90px] 2xl:h-28">
             <div class="flex items-start justify-between">
               <div class="flex items-center gap-1">
-                <div class="w-5 h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                <div class="w-4 h-5 xl:w-5 xl:h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
                   <div class="w-1 h-1 bg-black"></div>
-                  <div class="w-3 h-2 bg-yellow-200 border border-black/30"></div>
+                  <div class="w-2.5 h-1.5 xl:w-3 xl:h-2 bg-yellow-200 border border-black/30"></div>
                 </div>
                 <div>
-                  <div class="text-[11px] font-black text-white leading-tight">Tone Remote 2</div>
-                  <div class="text-[10px] font-extrabold text-cyan-200">5484.0 kHz USB</div>
+                  <div class="text-[10px] xl:text-[11px] font-black text-white leading-tight">Tone Remote 2</div>
+                  <div class="text-[9px] xl:text-[10px] font-extrabold text-cyan-200">5484.0 kHz USB</div>
                 </div>
               </div>
               <div class="flex items-center gap-1">
-                <span id="channel-state-badge-2" class="px-1.5 py-0.5 bg-slate-700 text-slate-300 font-bold text-[9px] rounded">STBY</span>
-                <div id="rx-led-2" class="w-2.5 h-2.5 rounded-full bg-slate-700 border border-black"></div>
+                <span id="channel-state-badge-2" class="px-1 xl:px-1.5 py-0.2 xl:py-0.5 bg-slate-700 text-slate-300 font-bold text-[8px] xl:text-[9px] rounded">STBY</span>
+                <div id="rx-led-2" class="w-2 h-2 xl:w-2.5 xl:h-2.5 rounded-full bg-slate-700 border border-black"></div>
               </div>
             </div>
 
-            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-teal-950/60 rounded border border-teal-800 text-cyan-200">
+            <div class="flex items-center justify-between text-[8px] xl:text-[9px] font-mono px-1 py-0.2 xl:py-0.5 bg-teal-950/60 rounded border border-teal-800 text-cyan-200">
               <span>AIR HF NET</span>
               <span id="rpt-badge-2" class="px-1 bg-teal-800 text-white rounded font-bold">ENROUTE</span>
             </div>
 
-            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
-              <button onclick="selectTile(2)" id="sel-btn-2" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
-              <button id="tile-ptt-2" onmousedown="tilePTTStart(2)" onmouseup="tilePTTEnd(2)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
-              <button onclick="toggleRepeater(2)" id="rpt-btn-2" class="btn-3d h-6 bg-teal-800 text-white rounded flex items-center justify-center">RPT</button>
-              <button onclick="toggleDirect(2)" id="dir-btn-2" class="btn-3d h-6 bg-teal-800 text-white rounded flex items-center justify-center">DIR</button>
+            <div class="grid grid-cols-4 gap-0.5 xl:gap-1 text-[8px] xl:text-[9px] font-mono font-bold">
+              <button onclick="selectTile(2)" id="sel-btn-2" class="btn-3d h-5 xl:h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
+              <button id="tile-ptt-2" onmousedown="tilePTTStart(2)" onmouseup="tilePTTEnd(2)" class="btn-3d h-5 xl:h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="toggleRepeater(2)" id="rpt-btn-2" class="btn-3d h-5 xl:h-6 bg-teal-800 text-white rounded flex items-center justify-center">RPT</button>
+              <button onclick="toggleDirect(2)" id="dir-btn-2" class="btn-3d h-5 xl:h-6 bg-teal-800 text-white rounded flex items-center justify-center">DIR</button>
             </div>
           </div>
 
           <!-- TILE 3: IRIDIUM SAT PHONE - Deep Indigo/Navy (Square) -->
-          <div id="tile-3" class="radio-card bg-[#1a2d54] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
+          <div id="tile-3" class="radio-card bg-[#1a2d54] beveled-out p-1 xl:p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-[80px] xl:h-[90px] 2xl:h-28">
             <div class="flex items-start justify-between">
               <div class="flex items-center gap-1">
-                <div class="w-5 h-6 bg-slate-900 rounded border border-cyan-400/50 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                <div class="w-4 h-5 xl:w-5 xl:h-6 bg-slate-900 rounded border border-cyan-400/50 flex flex-col items-center justify-between p-0.5 shadow-xs">
                   <div class="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse shadow-sm shadow-cyan-300"></div>
-                  <div class="w-3 h-2 bg-blue-500/30 border border-cyan-300/50 flex items-center justify-center">
-                    <span class="text-[7px] text-cyan-300 font-bold">SAT</span>
+                  <div class="w-2.5 h-1.5 xl:w-3 xl:h-2 bg-blue-500/30 border border-cyan-300/50 flex items-center justify-center">
+                    <span class="text-[6.5px] xl:text-[7px] text-cyan-300 font-bold">SAT</span>
                   </div>
                 </div>
                 <div>
-                  <div class="text-[11px] font-black text-white leading-tight">Iridium Sat</div>
-                  <div class="text-[10px] font-extrabold text-cyan-300">SAT 8816.767</div>
+                  <div class="text-[10px] xl:text-[11px] font-black text-white leading-tight">Iridium Sat</div>
+                  <div class="text-[9px] xl:text-[10px] font-extrabold text-cyan-300">SAT 8816.767</div>
                 </div>
               </div>
               <div class="flex items-center gap-1">
-                <span id="channel-state-badge-3" class="px-1.5 py-0.5 bg-slate-700 text-slate-300 font-bold text-[9px] rounded">STBY</span>
-                <div id="rx-led-3" class="w-2.5 h-2.5 rounded-full bg-slate-700 border border-black"></div>
+                <span id="channel-state-badge-3" class="px-1 xl:px-1.5 py-0.2 xl:py-0.5 bg-slate-700 text-slate-300 font-bold text-[8px] xl:text-[9px] rounded">STBY</span>
+                <div id="rx-led-3" class="w-2 h-2 xl:w-2.5 xl:h-2.5 rounded-full bg-slate-700 border border-black"></div>
               </div>
             </div>
 
-            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-blue-950/80 rounded border border-blue-600/70 text-cyan-200 font-bold">
+            <div class="flex items-center justify-between text-[8px] xl:text-[9px] font-mono px-1 py-0.2 xl:py-0.5 bg-blue-950/80 rounded border border-blue-600/70 text-cyan-200 font-bold">
               <span>VOICE LINK</span>
               <span class="px-1 bg-cyan-500 text-slate-950 rounded font-black">SAT-1</span>
             </div>
 
-            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
-              <button onclick="selectTile(3)" id="sel-btn-3" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center font-bold hover:bg-slate-700">SEL</button>
-              <button id="tile-ptt-3" onmousedown="tilePTTStart(3)" onmouseup="tilePTTEnd(3)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
-              <button onclick="dialIridiumSat()" id="rpt-btn-3" class="btn-3d h-6 bg-cyan-700 hover:bg-cyan-600 text-white rounded flex items-center justify-center font-bold" title="Dial Aircraft Cockpit Satphone">DIAL</button>
-              <button onclick="toggleDirect(3)" id="dir-btn-3" class="btn-3d h-6 bg-slate-800 text-cyan-200 rounded flex items-center justify-center" title="Direct Sat Line">DIR</button>
+            <div class="grid grid-cols-4 gap-0.5 xl:gap-1 text-[8px] xl:text-[9px] font-mono font-bold">
+              <button onclick="selectTile(3)" id="sel-btn-3" class="btn-3d h-5 xl:h-6 bg-slate-800 text-white rounded flex items-center justify-center font-bold hover:bg-slate-700">SEL</button>
+              <button id="tile-ptt-3" onmousedown="tilePTTStart(3)" onmouseup="tilePTTEnd(3)" class="btn-3d h-5 xl:h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="dialIridiumSat()" id="rpt-btn-3" class="btn-3d h-5 xl:h-6 bg-cyan-700 hover:bg-cyan-600 text-white rounded flex items-center justify-center font-bold" title="Dial Aircraft Cockpit Satphone">DIAL</button>
+              <button onclick="toggleDirect(3)" id="dir-btn-3" class="btn-3d h-5 xl:h-6 bg-slate-800 text-cyan-200 rounded flex items-center justify-center" title="Direct Sat Line">DIR</button>
             </div>
           </div>
 
           <!-- TILE 4: Radio 4 (HÄGGLUNDS CH 2) - Amber/Orange (Square) -->
-          <div id="tile-4" class="radio-card bg-[#e89938] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
+          <div id="tile-4" class="radio-card bg-[#e89938] beveled-out p-1 xl:p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-[80px] xl:h-[90px] 2xl:h-28">
             <div class="flex items-start justify-between">
               <div class="flex items-center gap-1">
-                <div class="w-5 h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                <div class="w-4 h-5 xl:w-5 xl:h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
                   <div class="w-1 h-1 bg-black"></div>
-                  <div class="w-3 h-2 bg-amber-200 border border-black/30"></div>
+                  <div class="w-2.5 h-1.5 xl:w-3 xl:h-2 bg-amber-200 border border-black/30"></div>
                 </div>
                 <div>
-                  <div class="text-[11px] font-black text-black leading-tight">Radio 4 (Hägg)</div>
-                  <div class="text-[10px] font-extrabold text-amber-950">148.250 MHz FM</div>
+                  <div class="text-[10px] xl:text-[11px] font-black text-black leading-tight">Radio 4 (Hägg)</div>
+                  <div class="text-[9px] xl:text-[10px] font-extrabold text-amber-950">148.250 MHz FM</div>
                 </div>
               </div>
               <div class="flex items-center gap-1">
-                <span id="channel-state-badge-4" class="px-1.5 py-0.5 bg-slate-700 text-slate-300 font-bold text-[9px] rounded">STBY</span>
-                <div id="rx-led-4" class="w-2.5 h-2.5 rounded-full bg-slate-700 border border-black"></div>
+                <span id="channel-state-badge-4" class="px-1 xl:px-1.5 py-0.2 xl:py-0.5 bg-slate-700 text-slate-300 font-bold text-[8px] xl:text-[9px] rounded">STBY</span>
+                <div id="rx-led-4" class="w-2 h-2 xl:w-2.5 xl:h-2.5 rounded-full bg-slate-700 border border-black"></div>
               </div>
             </div>
 
-            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-amber-950/30 rounded border border-amber-800 text-amber-950 font-bold">
+            <div class="flex items-center justify-between text-[8px] xl:text-[9px] font-mono px-1 py-0.2 xl:py-0.5 bg-amber-950/30 rounded border border-amber-800 text-amber-950 font-bold">
               <span>FIELD CREW</span>
               <span class="px-1 bg-amber-950 text-amber-200 rounded font-bold">MST</span>
             </div>
 
-            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
-              <button onclick="selectTile(4)" id="sel-btn-4" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
-              <button id="tile-ptt-4" onmousedown="tilePTTStart(4)" onmouseup="tilePTTEnd(4)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
-              <button onclick="toggleRepeater(4)" id="rpt-btn-4" class="btn-3d h-6 bg-amber-900 text-amber-100 rounded flex items-center justify-center">RPT</button>
-              <button onclick="toggleDirect(4)" id="dir-btn-4" class="btn-3d h-6 bg-amber-900 text-amber-100 rounded flex items-center justify-center">DIR</button>
+            <div class="grid grid-cols-4 gap-0.5 xl:gap-1 text-[8px] xl:text-[9px] font-mono font-bold">
+              <button onclick="selectTile(4)" id="sel-btn-4" class="btn-3d h-5 xl:h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
+              <button id="tile-ptt-4" onmousedown="tilePTTStart(4)" onmouseup="tilePTTEnd(4)" class="btn-3d h-5 xl:h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="toggleRepeater(4)" id="rpt-btn-4" class="btn-3d h-5 xl:h-6 bg-amber-900 text-amber-100 rounded flex items-center justify-center">RPT</button>
+              <button onclick="toggleDirect(4)" id="dir-btn-4" class="btn-3d h-5 xl:h-6 bg-amber-900 text-amber-100 rounded flex items-center justify-center">DIR</button>
             </div>
           </div>
 
           <!-- TILE 5: RUMDOODLE SLA REPEATER - Cyan/Teal (Square) -->
-          <div id="tile-5" class="radio-card bg-[#008b8b] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
+          <div id="tile-5" class="radio-card bg-[#008b8b] beveled-out p-1 xl:p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-[80px] xl:h-[90px] 2xl:h-28">
             <div class="flex items-start justify-between">
               <div class="flex items-center gap-1">
-                <div class="w-5 h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                <div class="w-4 h-5 xl:w-5 xl:h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
                   <div class="w-1 h-1 bg-black"></div>
-                  <div class="w-3 h-2 bg-cyan-200 border border-black/30"></div>
+                  <div class="w-2.5 h-1.5 xl:w-3 xl:h-2 bg-cyan-200 border border-black/30"></div>
                 </div>
                 <div>
-                  <div class="text-[11px] font-black text-white leading-tight">Rumdoodle RPT</div>
-                  <div class="text-[10px] font-extrabold text-cyan-200">149.800 MHz FM</div>
+                  <div class="text-[10px] xl:text-[11px] font-black text-white leading-tight">Rumdoodle RPT</div>
+                  <div class="text-[9px] xl:text-[10px] font-extrabold text-cyan-200">149.800 MHz FM</div>
                 </div>
               </div>
               <div class="flex items-center gap-1">
-                <span id="channel-state-badge-5" class="px-1.5 py-0.5 bg-slate-700 text-slate-300 font-bold text-[9px] rounded">STBY</span>
-                <div id="rx-led-5" class="w-2.5 h-2.5 rounded-full bg-slate-700 border border-black"></div>
+                <span id="channel-state-badge-5" class="px-1 xl:px-1.5 py-0.2 xl:py-0.5 bg-slate-700 text-slate-300 font-bold text-[8px] xl:text-[9px] rounded">STBY</span>
+                <div id="rx-led-5" class="w-2 h-2 xl:w-2.5 xl:h-2.5 rounded-full bg-slate-700 border border-black"></div>
               </div>
             </div>
 
-            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-teal-950/60 rounded border border-teal-800 text-cyan-200">
+            <div class="flex items-center justify-between text-[8px] xl:text-[9px] font-mono px-1 py-0.2 xl:py-0.5 bg-teal-950/60 rounded border border-teal-800 text-cyan-200">
               <span>PLATEAU SLA</span>
               <span class="px-1 bg-cyan-400 text-slate-900 rounded font-bold">RPT-1</span>
             </div>
 
-            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
-              <button onclick="selectTile(5)" id="sel-btn-5" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
-              <button id="tile-ptt-5" onmousedown="tilePTTStart(5)" onmouseup="tilePTTEnd(5)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
-              <button onclick="toggleRepeater(5)" id="rpt-btn-5" class="btn-3d h-6 bg-teal-700 text-white rounded flex items-center justify-center font-bold">RPT</button>
-              <button onclick="toggleDirect(5)" id="dir-btn-5" class="btn-3d h-6 bg-teal-700 text-white rounded flex items-center justify-center">DIR</button>
+            <div class="grid grid-cols-4 gap-0.5 xl:gap-1 text-[8px] xl:text-[9px] font-mono font-bold">
+              <button onclick="selectTile(5)" id="sel-btn-5" class="btn-3d h-5 xl:h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
+              <button id="tile-ptt-5" onmousedown="tilePTTStart(5)" onmouseup="tilePTTEnd(5)" class="btn-3d h-5 xl:h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="toggleRepeater(5)" id="rpt-btn-5" class="btn-3d h-5 xl:h-6 bg-teal-700 text-white rounded flex items-center justify-center font-bold">RPT</button>
+              <button onclick="toggleDirect(5)" id="dir-btn-5" class="btn-3d h-5 xl:h-6 bg-teal-700 text-white rounded flex items-center justify-center">DIR</button>
             </div>
           </div>
 
           <!-- TILE 6: MT HENDERSON REPEATER - Sage Green (Square) -->
-          <div id="tile-6" class="radio-card bg-[#8bc38b] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
+          <div id="tile-6" class="radio-card bg-[#8bc38b] beveled-out p-1 xl:p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-[80px] xl:h-[90px] 2xl:h-28">
             <div class="flex items-start justify-between">
               <div class="flex items-center gap-1">
-                <div class="w-5 h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                <div class="w-4 h-5 xl:w-5 xl:h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
                   <div class="w-1 h-1 bg-black"></div>
-                  <div class="w-3 h-2 bg-green-200 border border-black/30"></div>
+                  <div class="w-2.5 h-1.5 xl:w-3 xl:h-2 bg-green-200 border border-black/30"></div>
                 </div>
                 <div>
-                  <div class="text-[11px] font-black text-black leading-tight">Mt Henderson</div>
-                  <div class="text-[10px] font-extrabold text-slate-900">148.500 MHz FM</div>
+                  <div class="text-[10px] xl:text-[11px] font-black text-black leading-tight">Mt Henderson</div>
+                  <div class="text-[9px] xl:text-[10px] font-extrabold text-slate-900">148.500 MHz FM</div>
                 </div>
               </div>
               <div class="flex items-center gap-1">
-                <span id="channel-state-badge-6" class="px-1.5 py-0.5 bg-slate-700 text-slate-300 font-bold text-[9px] rounded">STBY</span>
-                <div id="rx-led-6" class="w-2.5 h-2.5 rounded-full bg-slate-700 border border-black"></div>
+                <span id="channel-state-badge-6" class="px-1 xl:px-1.5 py-0.2 xl:py-0.5 bg-slate-700 text-slate-300 font-bold text-[8px] xl:text-[9px] rounded">STBY</span>
+                <div id="rx-led-6" class="w-2 h-2 xl:w-2.5 xl:h-2.5 rounded-full bg-slate-700 border border-black"></div>
               </div>
             </div>
 
-            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-green-900/30 rounded border border-green-800 text-slate-900 font-bold">
+            <div class="flex items-center justify-between text-[8px] xl:text-[9px] font-mono px-1 py-0.2 xl:py-0.5 bg-green-900/30 rounded border border-green-800 text-slate-900 font-bold">
               <span>ELEV 1020m</span>
               <span class="px-1 bg-green-900 text-white rounded font-bold">RPT-2</span>
             </div>
 
-            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
-              <button onclick="selectTile(6)" id="sel-btn-6" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
-              <button id="tile-ptt-6" onmousedown="tilePTTStart(6)" onmouseup="tilePTTEnd(6)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
-              <button onclick="toggleRepeater(6)" id="rpt-btn-6" class="btn-3d h-6 bg-green-800 text-white rounded flex items-center justify-center">RPT</button>
-              <button onclick="toggleDirect(6)" id="dir-btn-6" class="btn-3d h-6 bg-green-800 text-white rounded flex items-center justify-center">DIR</button>
+            <div class="grid grid-cols-4 gap-0.5 xl:gap-1 text-[8px] xl:text-[9px] font-mono font-bold">
+              <button onclick="selectTile(6)" id="sel-btn-6" class="btn-3d h-5 xl:h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
+              <button id="tile-ptt-6" onmousedown="tilePTTStart(6)" onmouseup="tilePTTEnd(6)" class="btn-3d h-5 xl:h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="toggleRepeater(6)" id="rpt-btn-6" class="btn-3d h-5 xl:h-6 bg-green-800 text-white rounded flex items-center justify-center">RPT</button>
+              <button onclick="toggleDirect(6)" id="dir-btn-6" class="btn-3d h-5 xl:h-6 bg-green-800 text-white rounded flex items-center justify-center">DIR</button>
             </div>
           </div>
 
           <!-- TILE 7: FRAMNES RANGE REPEATER - Sage Green (Square) -->
-          <div id="tile-7" class="radio-card bg-[#8bc38b] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
+          <div id="tile-7" class="radio-card bg-[#8bc38b] beveled-out p-1 xl:p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-[80px] xl:h-[90px] 2xl:h-28">
             <div class="flex items-start justify-between">
               <div class="flex items-center gap-1">
-                <div class="w-5 h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                <div class="w-4 h-5 xl:w-5 xl:h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
                   <div class="w-1 h-1 bg-black"></div>
-                  <div class="w-3 h-2 bg-green-200 border border-black/30"></div>
+                  <div class="w-2.5 h-1.5 xl:w-3 xl:h-2 bg-green-200 border border-black/30"></div>
                 </div>
                 <div>
-                  <div class="text-[11px] font-black text-black leading-tight">Framnes Range</div>
-                  <div class="text-[10px] font-extrabold text-slate-900">149.250 MHz FM</div>
+                  <div class="text-[10px] xl:text-[11px] font-black text-black leading-tight">Framnes Range</div>
+                  <div class="text-[9px] xl:text-[10px] font-extrabold text-slate-900">149.250 MHz FM</div>
                 </div>
               </div>
               <div class="flex items-center gap-1">
-                <span id="channel-state-badge-7" class="px-1.5 py-0.5 bg-slate-700 text-slate-300 font-bold text-[9px] rounded">STBY</span>
-                <div id="rx-led-7" class="w-2.5 h-2.5 rounded-full bg-slate-700 border border-black"></div>
+                <span id="channel-state-badge-7" class="px-1 xl:px-1.5 py-0.2 xl:py-0.5 bg-slate-700 text-slate-300 font-bold text-[8px] xl:text-[9px] rounded">STBY</span>
+                <div id="rx-led-7" class="w-2 h-2 xl:w-2.5 xl:h-2.5 rounded-full bg-slate-700 border border-black"></div>
               </div>
             </div>
 
-            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-green-900/30 rounded border border-green-800 text-slate-900 font-bold">
+            <div class="flex items-center justify-between text-[8px] xl:text-[9px] font-mono px-1 py-0.2 xl:py-0.5 bg-green-900/30 rounded border border-green-800 text-slate-900 font-bold">
               <span>INLAND RPT</span>
               <span class="px-1 bg-green-900 text-white rounded font-bold">RPT-3</span>
             </div>
 
-            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
-              <button onclick="selectTile(7)" id="sel-btn-7" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
-              <button id="tile-ptt-7" onmousedown="tilePTTStart(7)" onmouseup="tilePTTEnd(7)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
-              <button onclick="toggleRepeater(7)" id="rpt-btn-7" class="btn-3d h-6 bg-green-800 text-white rounded flex items-center justify-center">RPT</button>
-              <button onclick="toggleDirect(7)" id="dir-btn-7" class="btn-3d h-6 bg-green-800 text-white rounded flex items-center justify-center">DIR</button>
+            <div class="grid grid-cols-4 gap-0.5 xl:gap-1 text-[8px] xl:text-[9px] font-mono font-bold">
+              <button onclick="selectTile(7)" id="sel-btn-7" class="btn-3d h-5 xl:h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
+              <button id="tile-ptt-7" onmousedown="tilePTTStart(7)" onmouseup="tilePTTEnd(7)" class="btn-3d h-5 xl:h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="toggleRepeater(7)" id="rpt-btn-7" class="btn-3d h-5 xl:h-6 bg-green-800 text-white rounded flex items-center justify-center">RPT</button>
+              <button onclick="toggleDirect(7)" id="dir-btn-7" class="btn-3d h-5 xl:h-6 bg-green-800 text-white rounded flex items-center justify-center">DIR</button>
             </div>
           </div>
 
           <!-- TILE 8: AIR GUARD 121.5 / 243.0 UHF - White Card (Emergency) -->
-          <div id="tile-8" class="radio-card bg-[#ffffff] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
+          <div id="tile-8" class="radio-card bg-[#ffffff] beveled-out p-1 xl:p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-[80px] xl:h-[90px] 2xl:h-28">
             <div class="flex items-start justify-between">
               <div class="flex items-center gap-1">
-                <div class="w-5 h-6 bg-red-100 rounded border border-red-600 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                <div class="w-4 h-5 xl:w-5 xl:h-6 bg-red-100 rounded border border-red-600 flex flex-col items-center justify-between p-0.5 shadow-xs">
                   <div class="w-1 h-1 bg-red-700"></div>
-                  <div class="w-3 h-2 bg-red-200 border border-red-500"></div>
+                  <div class="w-2.5 h-1.5 xl:w-3 xl:h-2 bg-red-200 border border-red-500"></div>
                 </div>
                 <div>
-                  <div class="text-[11px] font-black text-red-700 leading-tight">Air Guard / UHF</div>
-                  <div class="text-[10px] font-extrabold text-black">121.5 / 243.0 MHz</div>
+                  <div class="text-[10px] xl:text-[11px] font-black text-red-700 leading-tight">Air Guard / UHF</div>
+                  <div class="text-[9px] xl:text-[10px] font-extrabold text-black">121.5 / 243.0 MHz</div>
                 </div>
               </div>
               <div class="flex items-center gap-1">
-                <span id="channel-state-badge-8" class="px-1.5 py-0.5 bg-slate-700 text-slate-300 font-bold text-[9px] rounded">STBY</span>
-                <div id="rx-led-8" class="w-2.5 h-2.5 rounded-full bg-slate-700 border border-black"></div>
+                <span id="channel-state-badge-8" class="px-1 xl:px-1.5 py-0.2 xl:py-0.5 bg-slate-700 text-slate-300 font-bold text-[8px] xl:text-[9px] rounded">STBY</span>
+                <div id="rx-led-8" class="w-2 h-2 xl:w-2.5 xl:h-2.5 rounded-full bg-slate-700 border border-black"></div>
               </div>
             </div>
 
-            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-red-100 rounded border border-red-300 text-red-900 font-bold">
+            <div class="flex items-center justify-between text-[8px] xl:text-[9px] font-mono px-1 py-0.2 xl:py-0.5 bg-red-100 rounded border border-red-300 text-red-900 font-bold">
               <span>DISTRESS</span>
               <span class="px-1 bg-red-800 text-white rounded font-bold">VHF/UHF</span>
             </div>
 
-            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
-              <button onclick="selectTile(8)" id="sel-btn-8" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
-              <button id="tile-ptt-8" onmousedown="tilePTTStart(8)" onmouseup="tilePTTEnd(8)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
-              <button onclick="audioEngine.playBreachAlarm()" id="rpt-btn-8" class="btn-3d h-6 bg-red-800 text-white rounded flex items-center justify-center">ALM</button>
-              <button onclick="toggleDirect(8)" id="dir-btn-8" class="btn-3d h-6 bg-slate-300 text-slate-800 rounded flex items-center justify-center">DIR</button>
+            <div class="grid grid-cols-4 gap-0.5 xl:gap-1 text-[8px] xl:text-[9px] font-mono font-bold">
+              <button onclick="selectTile(8)" id="sel-btn-8" class="btn-3d h-5 xl:h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
+              <button id="tile-ptt-8" onmousedown="tilePTTStart(8)" onmouseup="tilePTTEnd(8)" class="btn-3d h-5 xl:h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="audioEngine.playBreachAlarm()" id="rpt-btn-8" class="btn-3d h-5 xl:h-6 bg-red-800 text-white rounded flex items-center justify-center">ALM</button>
+              <button onclick="toggleDirect(8)" id="dir-btn-8" class="btn-3d h-5 xl:h-6 bg-slate-300 text-slate-800 rounded flex items-center justify-center">DIR</button>
             </div>
           </div>
 
           <!-- TILE 9: ANTARCTIC SAR HF 3023 - Sage Green (Square) -->
-          <div id="tile-9" class="radio-card bg-[#8bc38b] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
+          <div id="tile-9" class="radio-card bg-[#8bc38b] beveled-out p-1 xl:p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-[80px] xl:h-[90px] 2xl:h-28">
             <div class="flex items-start justify-between">
               <div class="flex items-center gap-1">
-                <div class="w-5 h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                <div class="w-4 h-5 xl:w-5 xl:h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
                   <div class="w-1 h-1 bg-black"></div>
-                  <div class="w-3 h-2 bg-green-200 border border-black/30"></div>
+                  <div class="w-2.5 h-1.5 xl:w-3 xl:h-2 bg-green-200 border border-black/30"></div>
                 </div>
                 <div>
-                  <div class="text-[11px] font-black text-black leading-tight">SAR HF Net</div>
-                  <div class="text-[10px] font-extrabold text-slate-900">3023.0 kHz USB</div>
+                  <div class="text-[10px] xl:text-[11px] font-black text-black leading-tight">SAR HF Net</div>
+                  <div class="text-[9px] xl:text-[10px] font-extrabold text-slate-900">3023.0 kHz USB</div>
                 </div>
               </div>
               <div class="flex items-center gap-1">
-                <span id="channel-state-badge-9" class="px-1.5 py-0.5 bg-slate-700 text-slate-300 font-bold text-[9px] rounded">STBY</span>
-                <div id="rx-led-9" class="w-2.5 h-2.5 rounded-full bg-slate-700 border border-black"></div>
+                <span id="channel-state-badge-9" class="px-1 xl:px-1.5 py-0.2 xl:py-0.5 bg-slate-700 text-slate-300 font-bold text-[8px] xl:text-[9px] rounded">STBY</span>
+                <div id="rx-led-9" class="w-2 h-2 xl:w-2.5 xl:h-2.5 rounded-full bg-slate-700 border border-black"></div>
               </div>
             </div>
 
-            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-green-900/30 rounded border border-green-800 text-slate-900 font-bold">
+            <div class="flex items-center justify-between text-[8px] xl:text-[9px] font-mono px-1 py-0.2 xl:py-0.5 bg-green-900/30 rounded border border-green-800 text-slate-900 font-bold">
               <span>SEARCH & RESCUE</span>
               <span class="px-1 bg-green-900 text-white rounded font-bold">SAR</span>
             </div>
 
-            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
-              <button onclick="selectTile(9)" id="sel-btn-9" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
-              <button id="tile-ptt-9" onmousedown="tilePTTStart(9)" onmouseup="tilePTTEnd(9)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
-              <button onclick="toggleRepeater(9)" id="rpt-btn-9" class="btn-3d h-6 bg-green-800 text-white rounded flex items-center justify-center">RPT</button>
-              <button onclick="toggleDirect(9)" id="dir-btn-9" class="btn-3d h-6 bg-green-800 text-white rounded flex items-center justify-center">DIR</button>
+            <div class="grid grid-cols-4 gap-0.5 xl:gap-1 text-[8px] xl:text-[9px] font-mono font-bold">
+              <button onclick="selectTile(9)" id="sel-btn-9" class="btn-3d h-5 xl:h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
+              <button id="tile-ptt-9" onmousedown="tilePTTStart(9)" onmouseup="tilePTTEnd(9)" class="btn-3d h-5 xl:h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="toggleRepeater(9)" id="rpt-btn-9" class="btn-3d h-5 xl:h-6 bg-green-800 text-white rounded flex items-center justify-center">RPT</button>
+              <button onclick="toggleDirect(9)" id="dir-btn-9" class="btn-3d h-5 xl:h-6 bg-green-800 text-white rounded flex items-center justify-center">DIR</button>
             </div>
           </div>
 
           <!-- TILE 10: AIR-TO-AIR TAC 123.45 - White Card (Square) -->
-          <div id="tile-10" class="radio-card bg-[#ffffff] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
+          <div id="tile-10" class="radio-card bg-[#ffffff] beveled-out p-1 xl:p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-[80px] xl:h-[90px] 2xl:h-28">
             <div class="flex items-start justify-between">
               <div class="flex items-center gap-1">
-                <div class="w-5 h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                <div class="w-4 h-5 xl:w-5 xl:h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
                   <div class="w-1 h-1 bg-black"></div>
-                  <div class="w-3 h-2 bg-blue-200 border border-black/30"></div>
+                  <div class="w-2.5 h-1.5 xl:w-3 xl:h-2 bg-blue-200 border border-black/30"></div>
                 </div>
                 <div>
-                  <div class="text-[11px] font-black text-black leading-tight">Air-to-Air Tac</div>
-                  <div class="text-[10px] font-extrabold text-blue-700">123.450 MHz AM</div>
+                  <div class="text-[10px] xl:text-[11px] font-black text-black leading-tight">Air-to-Air Tac</div>
+                  <div class="text-[9px] xl:text-[10px] font-extrabold text-blue-700">123.450 MHz AM</div>
                 </div>
               </div>
               <div class="flex items-center gap-1">
-                <span id="channel-state-badge-10" class="px-1.5 py-0.5 bg-slate-700 text-slate-300 font-bold text-[9px] rounded">STBY</span>
-                <div id="rx-led-10" class="w-2.5 h-2.5 rounded-full bg-slate-700 border border-black"></div>
+                <span id="channel-state-badge-10" class="px-1 xl:px-1.5 py-0.2 xl:py-0.5 bg-slate-700 text-slate-300 font-bold text-[8px] xl:text-[9px] rounded">STBY</span>
+                <div id="rx-led-10" class="w-2 h-2 xl:w-2.5 xl:h-2.5 rounded-full bg-slate-700 border border-black"></div>
               </div>
             </div>
 
-            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-slate-100 rounded border border-slate-300 text-slate-800 font-bold">
+            <div class="flex items-center justify-between text-[8px] xl:text-[9px] font-mono px-1 py-0.2 xl:py-0.5 bg-slate-100 rounded border border-slate-300 text-slate-800 font-bold">
               <span>PILOT CHAT</span>
               <span class="px-1 bg-blue-900 text-white rounded font-bold">TAC</span>
             </div>
 
-            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
-              <button onclick="selectTile(10)" id="sel-btn-10" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
-              <button id="tile-ptt-10" onmousedown="tilePTTStart(10)" onmouseup="tilePTTEnd(10)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
-              <button onclick="toggleRepeater(10)" id="rpt-btn-10" class="btn-3d h-6 bg-slate-200 text-slate-800 rounded flex items-center justify-center">RPT</button>
-              <button onclick="toggleDirect(10)" id="dir-btn-10" class="btn-3d h-6 bg-slate-200 text-slate-800 rounded flex items-center justify-center">DIR</button>
+            <div class="grid grid-cols-4 gap-0.5 xl:gap-1 text-[8px] xl:text-[9px] font-mono font-bold">
+              <button onclick="selectTile(10)" id="sel-btn-10" class="btn-3d h-5 xl:h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
+              <button id="tile-ptt-10" onmousedown="tilePTTStart(10)" onmouseup="tilePTTEnd(10)" class="btn-3d h-5 xl:h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="toggleRepeater(10)" id="rpt-btn-10" class="btn-3d h-5 xl:h-6 bg-slate-200 text-slate-800 rounded flex items-center justify-center">RPT</button>
+              <button onclick="toggleDirect(10)" id="dir-btn-10" class="btn-3d h-5 xl:h-6 bg-slate-200 text-slate-800 rounded flex items-center justify-center">DIR</button>
             </div>
           </div>
 
           <!-- TILE 11: STATION OPS VHF - Sage Green (Square) -->
-          <div id="tile-11" class="radio-card bg-[#8bc38b] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
+          <div id="tile-11" class="radio-card bg-[#8bc38b] beveled-out p-1 xl:p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-[80px] xl:h-[90px] 2xl:h-28">
             <div class="flex items-start justify-between">
               <div class="flex items-center gap-1">
-                <div class="w-5 h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                <div class="w-4 h-5 xl:w-5 xl:h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
                   <div class="w-1 h-1 bg-black"></div>
-                  <div class="w-3 h-2 bg-green-200 border border-black/30"></div>
+                  <div class="w-2.5 h-1.5 xl:w-3 xl:h-2 bg-green-200 border border-black/30"></div>
                 </div>
                 <div>
-                  <div class="text-[11px] font-black text-black leading-tight">Radio 11 (Ops)</div>
-                  <div class="text-[10px] font-extrabold text-slate-900">156.800 MHz FM</div>
+                  <div class="text-[10px] xl:text-[11px] font-black text-black leading-tight">Radio 11 (Ops)</div>
+                  <div class="text-[9px] xl:text-[10px] font-extrabold text-slate-900">156.800 MHz FM</div>
                 </div>
               </div>
               <div class="flex items-center gap-1">
-                <span id="channel-state-badge-11" class="px-1.5 py-0.5 bg-slate-700 text-slate-300 font-bold text-[9px] rounded">STBY</span>
-                <div id="rx-led-11" class="w-2.5 h-2.5 rounded-full bg-slate-700 border border-black"></div>
+                <span id="channel-state-badge-11" class="px-1 xl:px-1.5 py-0.2 xl:py-0.5 bg-slate-700 text-slate-300 font-bold text-[8px] xl:text-[9px] rounded">STBY</span>
+                <div id="rx-led-11" class="w-2 h-2 xl:w-2.5 xl:h-2.5 rounded-full bg-slate-700 border border-black"></div>
               </div>
             </div>
 
-            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-green-900/30 rounded border border-green-800 text-slate-900 font-bold">
+            <div class="flex items-center justify-between text-[8px] xl:text-[9px] font-mono px-1 py-0.2 xl:py-0.5 bg-green-900/30 rounded border border-green-800 text-slate-900 font-bold">
               <span>BASE OPS</span>
               <span class="px-1 bg-green-900 text-white rounded font-bold">Ws1</span>
             </div>
 
-            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
-              <button onclick="selectTile(11)" id="sel-btn-11" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
-              <button id="tile-ptt-11" onmousedown="tilePTTStart(11)" onmouseup="tilePTTEnd(11)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
-              <button onclick="toggleRepeater(11)" id="rpt-btn-11" class="btn-3d h-6 bg-green-800 text-white rounded flex items-center justify-center">RPT</button>
-              <button onclick="toggleDirect(11)" id="dir-btn-11" class="btn-3d h-6 bg-green-800 text-white rounded flex items-center justify-center">DIR</button>
+            <div class="grid grid-cols-4 gap-0.5 xl:gap-1 text-[8px] xl:text-[9px] font-mono font-bold">
+              <button onclick="selectTile(11)" id="sel-btn-11" class="btn-3d h-5 xl:h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
+              <button id="tile-ptt-11" onmousedown="tilePTTStart(11)" onmouseup="tilePTTEnd(11)" class="btn-3d h-5 xl:h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="toggleRepeater(11)" id="rpt-btn-11" class="btn-3d h-5 xl:h-6 bg-green-800 text-white rounded flex items-center justify-center">RPT</button>
+              <button onclick="toggleDirect(11)" id="dir-btn-11" class="btn-3d h-5 xl:h-6 bg-green-800 text-white rounded flex items-center justify-center">DIR</button>
             </div>
           </div>
 
           <!-- TILE 12: DAVIS / CASEY HF RELAY - Teal Card (Square) -->
-          <div id="tile-12" class="radio-card bg-[#009999] beveled-out p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-28">
+          <div id="tile-12" class="radio-card bg-[#009999] beveled-out p-1 xl:p-1.5 rounded flex flex-col justify-between transition-all shadow-md h-[80px] xl:h-[90px] 2xl:h-28">
             <div class="flex items-start justify-between">
               <div class="flex items-center gap-1">
-                <div class="w-5 h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
+                <div class="w-4 h-5 xl:w-5 xl:h-6 bg-slate-200 rounded border border-black/40 flex flex-col items-center justify-between p-0.5 shadow-xs">
                   <div class="w-1 h-1 bg-black"></div>
-                  <div class="w-3 h-2 bg-yellow-200 border border-black/30"></div>
+                  <div class="w-2.5 h-1.5 xl:w-3 xl:h-2 bg-yellow-200 border border-black/30"></div>
                 </div>
                 <div>
-                  <div class="text-[11px] font-black text-white leading-tight">Casey/Davis HF</div>
-                  <div class="text-[10px] font-extrabold text-cyan-200">8833.0 kHz USB</div>
+                  <div class="text-[10px] xl:text-[11px] font-black text-white leading-tight">Casey/Davis HF</div>
+                  <div class="text-[9px] xl:text-[10px] font-extrabold text-cyan-200">8833.0 kHz USB</div>
                 </div>
               </div>
               <div class="flex items-center gap-1">
-                <span id="channel-state-badge-12" class="px-1.5 py-0.5 bg-slate-700 text-slate-300 font-bold text-[9px] rounded">STBY</span>
-                <div id="rx-led-12" class="w-2.5 h-2.5 rounded-full bg-slate-700 border border-black"></div>
+                <span id="channel-state-badge-12" class="px-1 xl:px-1.5 py-0.2 xl:py-0.5 bg-slate-700 text-slate-300 font-bold text-[8px] xl:text-[9px] rounded">STBY</span>
+                <div id="rx-led-12" class="w-2 h-2 xl:w-2.5 xl:h-2.5 rounded-full bg-slate-700 border border-black"></div>
               </div>
             </div>
 
-            <div class="flex items-center justify-between text-[9px] font-mono px-1 py-0.5 bg-teal-950/60 rounded border border-teal-800 text-cyan-200">
+            <div class="flex items-center justify-between text-[8px] xl:text-[9px] font-mono px-1 py-0.2 xl:py-0.5 bg-teal-950/60 rounded border border-teal-800 text-cyan-200">
               <span>TRUNK LINK</span>
               <span class="px-1 bg-teal-950 text-cyan-200 rounded font-bold">CASEY</span>
             </div>
 
-            <div class="grid grid-cols-4 gap-1 text-[9px] font-mono font-bold">
-              <button onclick="selectTile(12)" id="sel-btn-12" class="btn-3d h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
-              <button id="tile-ptt-12" onmousedown="tilePTTStart(12)" onmouseup="tilePTTEnd(12)" class="btn-3d h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
-              <button onclick="toggleRepeater(12)" id="rpt-btn-12" class="btn-3d h-6 bg-teal-800 text-white rounded flex items-center justify-center">RPT</button>
-              <button onclick="toggleDirect(12)" id="dir-btn-12" class="btn-3d h-6 bg-teal-800 text-white rounded flex items-center justify-center">DIR</button>
+            <div class="grid grid-cols-4 gap-0.5 xl:gap-1 text-[8px] xl:text-[9px] font-mono font-bold">
+              <button onclick="selectTile(12)" id="sel-btn-12" class="btn-3d h-5 xl:h-6 bg-slate-800 text-white rounded flex items-center justify-center">SEL</button>
+              <button id="tile-ptt-12" onmousedown="tilePTTStart(12)" onmouseup="tilePTTEnd(12)" class="btn-3d h-5 xl:h-6 bg-gradient-to-b from-yellow-300 to-amber-500 text-black rounded flex items-center justify-center font-bold">⚡PTT</button>
+              <button onclick="toggleRepeater(12)" id="rpt-btn-12" class="btn-3d h-5 xl:h-6 bg-teal-800 text-white rounded flex items-center justify-center">RPT</button>
+              <button onclick="toggleDirect(12)" id="dir-btn-12" class="btn-3d h-5 xl:h-6 bg-teal-800 text-white rounded flex items-center justify-center">DIR</button>
             </div>
           </div>
 
@@ -925,24 +963,24 @@
       <!-- ===================================================================== -->
       <!-- CALL HISTORY & LIVE TRANSCRIPT TABLE (AUTHENTIC DCS5020 LOOK)         -->
       <!-- ===================================================================== -->
-      <div class="flex-1 bg-[#1a1a1a] beveled-in p-2 rounded flex flex-col min-h-0">
-        <div class="flex items-center justify-between pb-1 mb-1 border-b border-[#333333]">
+      <div class="flex-1 bg-[#1a1a1a] beveled-in p-1.5 xl:p-2 rounded flex flex-col min-h-[110px] overflow-hidden">
+        <div class="flex items-center justify-between pb-0.5 mb-0.5 xl:pb-1 xl:mb-1 border-b border-[#333333] flex-shrink-0">
           <div class="flex items-center gap-2">
             <span class="text-xs font-bold text-white uppercase font-sans">Call History</span>
-            <span id="call-history-status" class="text-[10px] font-mono text-cyan-400 bg-cyan-950 px-1.5 py-0.2 rounded border border-cyan-800">
+            <span id="call-history-status" class="text-[9px] xl:text-[10px] font-mono text-cyan-400 bg-cyan-950 px-1.5 py-0.2 rounded border border-cyan-800">
               AUDIO BUFFER ACTIVE
             </span>
           </div>
 
           <div class="flex items-center gap-1.5 text-xs font-sans">
-            <button onclick="irrEngine.replay(0)" class="btn-3d px-2 py-0.5 bg-[#4472c4] text-white text-[10px] font-bold rounded">CALL BACK</button>
-            <button onclick="clearTranscript()" class="btn-3d px-2 py-0.5 bg-[#ed7d31] text-white text-[10px] font-bold rounded">CLEAR LOG</button>
+            <button onclick="irrEngine.replay(0)" class="btn-3d px-2 py-0.5 bg-[#4472c4] text-white text-[9px] xl:text-[10px] font-bold rounded">CALL BACK</button>
+            <button onclick="clearTranscript()" class="btn-3d px-2 py-0.5 bg-[#ed7d31] text-white text-[9px] xl:text-[10px] font-bold rounded">CLEAR LOG</button>
           </div>
         </div>
 
-        <div class="flex-1 overflow-y-auto bg-black border border-[#444444] rounded">
-          <table class="w-full text-left font-mono text-[11px] border-collapse">
-            <thead class="bg-[#333333] text-slate-200 uppercase text-[10px] sticky top-0 border-b border-slate-600">
+        <div class="flex-1 overflow-y-auto bg-black border border-[#444444] rounded min-h-[60px]">
+          <table class="w-full text-left font-mono text-[10px] xl:text-[11px] border-collapse">
+            <thead class="bg-[#333333] text-slate-200 uppercase text-[9px] xl:text-[10px] sticky top-0 border-b border-slate-600">
               <tr>
                 <th class="p-1 border-r border-[#444444] w-28">Caller</th>
                 <th class="p-1 border-r border-[#444444] w-16">Priority</th>
@@ -959,13 +997,13 @@
         </div>
 
         <!-- Quick Fallback Input Bar -->
-        <div class="mt-1.5 pt-1.5 border-t border-[#333333] flex items-center gap-2">
-          <span class="text-[11px] font-bold text-slate-300 font-mono">TX Text:</span>
-          <input type="text" id="manual-tx-input" placeholder="Type transmission here or hold Spacebar / click PTT button..." class="flex-1 bg-black border border-[#555555] rounded px-2 py-1 text-xs font-mono text-cyan-300 focus:outline-none focus:border-yellow-400">
-          <button onclick="submitManualTransmission()" class="btn-3d px-3 py-1 bg-cyan-700 text-white text-xs font-bold font-sans rounded">
+        <div class="mt-1 xl:mt-1.5 pt-1 xl:pt-1.5 border-t border-[#333333] flex items-center gap-1.5 xl:gap-2 flex-shrink-0">
+          <span class="text-[10px] xl:text-[11px] font-bold text-slate-300 font-mono">TX Text:</span>
+          <input type="text" id="manual-tx-input" placeholder="Type transmission here or hold Spacebar / click PTT button..." class="flex-1 bg-black border border-[#555555] rounded px-2 py-0.5 xl:py-1 text-xs font-mono text-cyan-300 focus:outline-none focus:border-yellow-400">
+          <button onclick="submitManualTransmission()" class="btn-3d px-2.5 py-0.5 xl:px-3 xl:py-1 bg-cyan-700 hover:bg-cyan-600 text-white text-[11px] xl:text-xs font-bold font-sans rounded whitespace-nowrap cursor-pointer">
             Send TX
           </button>
-          <button onclick="copyModelToInput()" class="btn-3d px-2 py-1 bg-slate-700 text-slate-200 text-[11px] font-sans rounded">
+          <button onclick="copyModelToInput()" class="btn-3d px-2 py-0.5 xl:px-2.5 xl:py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 text-[10px] xl:text-[11px] font-sans rounded whitespace-nowrap cursor-pointer">
             Copy Model Readback
           </button>
         </div>
@@ -976,52 +1014,52 @@
     <!-- ======================================================================= -->
     <!-- RIGHT PANEL: RADIO FUNCTIONS & GENERAL FUNCTIONS                        -->
     <!-- ======================================================================= -->
-    <section class="w-60 bg-[#d4d4d4] beveled-out p-1.5 flex flex-col justify-between flex-shrink-0 shadow-md">
+    <section class="w-56 xl:w-60 bg-[#d4d4d4] beveled-out p-1 xl:p-1.5 flex flex-col justify-between flex-shrink-0 shadow-md">
       
       <!-- TOP BOX: RADIO FUNCTIONS -->
-      <div class="bg-[#dcdcdc] beveled-in p-1.5 rounded mb-2">
-        <div class="text-[11px] font-bold font-sans text-slate-800 border-b border-[#aaaaaa] pb-0.5 mb-1.5">
+      <div class="bg-[#dcdcdc] beveled-in p-1 xl:p-1.5 rounded mb-1 xl:mb-2">
+        <div class="text-[10px] xl:text-[11px] font-bold font-sans text-slate-800 border-b border-[#aaaaaa] pb-0.5 mb-1 xl:mb-1.5">
           Radio Functions
         </div>
 
-        <div class="grid grid-cols-2 gap-1 mb-2 font-sans text-[10px] font-bold">
-          <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1.5 rounded flex items-center justify-center gap-1">
+        <div class="grid grid-cols-2 gap-1 mb-1.5 xl:mb-2 font-sans text-[9.5px] xl:text-[10px] font-bold">
+          <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1 xl:p-1.5 rounded flex items-center justify-center gap-1">
             <i data-lucide="link" class="w-3.5 h-3.5 text-slate-900"></i>
             <span>Patch</span>
           </button>
 
-          <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1.5 rounded flex items-center justify-center">
+          <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1 xl:p-1.5 rounded flex items-center justify-center">
             <span>Simul Select</span>
           </button>
 
-          <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1.5 rounded flex items-center justify-center">
+          <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1 xl:p-1.5 rounded flex items-center justify-center">
             <span>SELCAL</span>
           </button>
 
-          <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1.5 rounded flex items-center justify-center">
+          <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1 xl:p-1.5 rounded flex items-center justify-center">
             <span>Working Group</span>
           </button>
 
-          <button onclick="audioEngine.toggleRF()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1.5 rounded flex items-center justify-center">
+          <button onclick="audioEngine.toggleRF()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1 xl:p-1.5 rounded flex items-center justify-center">
             <span id="btn-vox-label">VOX Filter: ON</span>
           </button>
 
-          <button onclick="audioEngine.playMicClick(true)" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1.5 rounded flex items-center justify-center gap-1">
+          <button onclick="audioEngine.playMicClick(true)" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1 xl:p-1.5 rounded flex items-center justify-center gap-1">
             <i data-lucide="headphones" class="w-3.5 h-3.5 text-slate-900"></i>
             <span>Monitor</span>
           </button>
         </div>
 
         <!-- Giant Coral PTT Pushbutton -->
-        <button id="ptt-btn" onclick="speechInput.handlePTTClick(event)" onmousedown="speechInput.handlePTTMousedown(event)" onmouseup="speechInput.handlePTTMouseup(event)" onmouseleave="speechInput.handlePTTMouseleave(event)" ontouchstart="speechInput.handlePTTTouchstart(event)" ontouchend="speechInput.handlePTTTouchend(event)" class="btn-3d w-full bg-[#f26666] hover:bg-[#e45555] active:bg-[#c93d3d] text-slate-950 font-black text-sm py-3 rounded flex items-center justify-center gap-2 shadow-md uppercase tracking-wider select-none cursor-pointer">
-          <span class="text-xl text-yellow-300 filter drop-shadow">⚡</span>
+        <button id="ptt-btn" onclick="speechInput.handlePTTClick(event)" onmousedown="speechInput.handlePTTMousedown(event)" onmouseup="speechInput.handlePTTMouseup(event)" onmouseleave="speechInput.handlePTTMouseleave(event)" ontouchstart="speechInput.handlePTTTouchstart(event)" ontouchend="speechInput.handlePTTTouchend(event)" class="btn-3d w-full bg-[#f26666] hover:bg-[#e45555] active:bg-[#c93d3d] text-slate-950 font-black text-xs xl:text-sm py-2 xl:py-3 rounded flex items-center justify-center gap-2 shadow-md uppercase tracking-wider select-none cursor-pointer">
+          <span class="text-lg xl:text-xl text-yellow-300 filter drop-shadow">⚡</span>
           <span id="ptt-label-text">PTT TRANSMIT</span>
         </button>
-        <div class="text-[9px] text-center font-mono text-slate-600 mt-1">HOLD SPACEBAR OR CLICK PTT</div>
+        <div class="text-[8.5px] xl:text-[9px] text-center font-mono text-slate-600 mt-0.5 xl:mt-1">HOLD SPACEBAR OR CLICK PTT</div>
       </div>
 
       <!-- BOTTOM BOX: GENERAL FUNCTIONS -->
-      <div class="bg-[#dcdcdc] beveled-in p-1.5 rounded flex flex-col justify-between flex-1">
+      <div class="bg-[#dcdcdc] beveled-in p-1 xl:p-1.5 rounded flex flex-col justify-between flex-1">
         <div>
           <div class="text-[11px] font-bold font-sans text-slate-800 border-b border-[#aaaaaa] pb-0.5 mb-1.5">
             General Functions
@@ -1266,9 +1304,16 @@
             <span>Test Voice</span>
           </button>
         </div>
-        <p class="text-[11px] text-slate-400 italic">
-          Tip: In Chrome/Edge, voices marked "Natural", "Online", or "Google" sound human. Avoid system "espeak" voices.
-        </p>
+        <div class="p-2 rounded bg-slate-900/90 border border-slate-700 text-[11px] text-slate-300 space-y-1">
+          <div class="flex items-center gap-1 text-cyan-300 font-bold">
+            <span>💡</span>
+            <span>Why Edge &amp; Chrome Sound Different:</span>
+          </div>
+          <p class="text-slate-300 leading-snug">
+            <strong>Microsoft Edge</strong> provides built-in access to <em>Microsoft Azure Neural Natural Online</em> voices (e.g. <em>William</em>, <em>Natasha</em>, <em>Guy</em>) with human-like breathing and natural pilot cadence. 
+            <strong>Google Chrome</strong> uses Google's standard voice or falls back to desktop voices. We recommend Microsoft Edge for the most realistic pilot experience!
+          </p>
+        </div>
 
         <!-- Voice Profile Controls: Pitch & Rate -->
         <div class="grid grid-cols-2 gap-3 pt-1">
@@ -3071,6 +3116,50 @@
           : 'btn-3d px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold text-xs rounded shadow cursor-pointer whitespace-nowrap';
       }
     }
+
+    function toggleConsoleFullscreen() {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        const el = document.documentElement;
+        if (el.requestFullscreen) {
+          el.requestFullscreen().catch(err => console.warn('Fullscreen error:', err));
+        } else if (el.webkitRequestFullscreen) {
+          el.webkitRequestFullscreen();
+        } else if (el.msRequestFullscreen) {
+          el.msRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(err => console.warn('Exit fullscreen error:', err));
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+          document.msExitFullscreen();
+        }
+      }
+    }
+
+    function updateFullscreenUI() {
+      const btn = document.getElementById('btn-fullscreen-toggle');
+      const txt = document.getElementById('fullscreen-btn-text');
+      const icon = document.getElementById('fullscreen-btn-icon');
+      const isFull = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      if (txt) txt.innerText = isFull ? 'Exit Full' : 'Fullscreen';
+      if (icon) icon.innerText = isFull ? '🗗' : '⛶';
+      if (btn) {
+        if (isFull) {
+          btn.classList.add('bg-amber-500', 'text-slate-950', 'border-amber-400');
+          btn.classList.remove('bg-[#1e293b]', 'text-amber-300', 'border-amber-500/80');
+          btn.title = "Exit Fullscreen Kiosk Mode (F11 or Esc)";
+        } else {
+          btn.classList.remove('bg-amber-500', 'text-slate-950', 'border-amber-400');
+          btn.classList.add('bg-[#1e293b]', 'text-amber-300', 'border-amber-500/80');
+          btn.title = "Toggle Fullscreen Kiosk Mode (F11) - Maximizes screen height on laptops";
+        }
+      }
+    }
+
+    document.addEventListener('fullscreenchange', updateFullscreenUI);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
 
     function openAudioSettingsModal() {
       const modal = document.getElementById('audio-settings-modal');
