@@ -208,6 +208,12 @@
         <span class="hidden md:inline">Mr. T Voice</span>
       </button>
 
+      <!-- Audio, Voice & Mic Settings Button -->
+      <button onclick="openAudioSettingsModal()" title="Configure Natural Pilot Voice, Audio Quality & Test Microphone" class="btn-3d px-2.5 py-1 bg-[#1e293b] hover:bg-[#334155] text-cyan-300 font-sans font-bold text-xs rounded flex items-center gap-1 border border-cyan-500/80 shadow cursor-pointer">
+        <span>🎙️</span>
+        <span>Voice & Mic</span>
+      </button>
+
       <!-- Prominent Example Play Scenario Button -->
       <button id="btn-example-play" onclick="autoPlayEngine.toggle()" title="Auto-Play Scenario with Voice & Button Actions" class="btn-3d px-3 py-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:from-amber-300 hover:to-yellow-200 text-slate-950 font-black text-xs rounded border border-amber-700 flex items-center gap-1.5 shadow-md transition-all hover:scale-105 select-none cursor-pointer">
         <span class="text-sm">▶</span>
@@ -1007,7 +1013,7 @@
         </div>
 
         <!-- Giant Coral PTT Pushbutton -->
-        <button id="ptt-btn" onmousedown="speechInput.startPTT()" onmouseup="speechInput.stopPTT()" onmouseleave="speechInput.stopPTT()" ontouchstart="speechInput.startPTT(); event.preventDefault();" ontouchend="speechInput.stopPTT(); event.preventDefault();" class="btn-3d w-full bg-[#f26666] hover:bg-[#e45555] active:bg-[#c93d3d] text-slate-950 font-black text-sm py-3 rounded flex items-center justify-center gap-2 shadow-md uppercase tracking-wider select-none">
+        <button id="ptt-btn" onclick="speechInput.handlePTTClick(event)" onmousedown="speechInput.handlePTTMousedown(event)" onmouseup="speechInput.handlePTTMouseup(event)" onmouseleave="speechInput.handlePTTMouseleave(event)" ontouchstart="speechInput.handlePTTTouchstart(event)" ontouchend="speechInput.handlePTTTouchend(event)" class="btn-3d w-full bg-[#f26666] hover:bg-[#e45555] active:bg-[#c93d3d] text-slate-950 font-black text-sm py-3 rounded flex items-center justify-center gap-2 shadow-md uppercase tracking-wider select-none cursor-pointer">
           <span class="text-xl text-yellow-300 filter drop-shadow">⚡</span>
           <span id="ptt-label-text">PTT TRANSMIT</span>
         </button>
@@ -1220,6 +1226,139 @@
         <button onclick="closeMrTModal()" class="btn-3d px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs md:text-sm rounded-lg flex items-center gap-1 cursor-pointer">
           <span>✕</span>
           <span>DISMISS</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 5.6 AUDIO, VOICE & MICROPHONE DIAGNOSTICS MODAL                           -->
+  <!-- ========================================================================= -->
+  <div id="audio-settings-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 transition-all">
+    <div class="relative bg-slate-900 border-2 border-cyan-500 rounded-xl p-5 shadow-2xl max-w-xl w-full text-slate-100 font-sans space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-2.5">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🎙️</span>
+          <h2 class="font-extrabold text-base text-cyan-300 tracking-wide uppercase">
+            Audio, Voice & Microphone Diagnostics
+          </h2>
+        </div>
+        <button onclick="closeAudioSettingsModal()" class="btn-3d w-7 h-7 bg-red-600 hover:bg-red-500 text-white font-bold rounded flex items-center justify-center text-sm cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      <!-- Section 1: Pilot Voice Selection -->
+      <div class="bg-slate-800/80 rounded-lg p-3 border border-slate-700 space-y-2">
+        <div class="flex items-center justify-between">
+          <label class="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+            <span>✈️</span>
+            <span>Pilot Voice Selection</span>
+          </label>
+          <span id="pilot-voice-badge" class="text-[10px] bg-cyan-900/60 text-cyan-300 px-2 py-0.5 rounded border border-cyan-700/50">Auto-Detecting...</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <select id="pilot-voice-select" onchange="pilotSpeech.selectVoiceByURI(this.value)" class="flex-1 bg-slate-950 text-slate-100 font-mono text-xs p-2 rounded border border-slate-600 focus:outline-none focus:border-cyan-400">
+            <option value="">Detecting available browser voices...</option>
+          </select>
+          <button onclick="pilotSpeech.testVoice()" class="btn-3d px-3 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded flex items-center gap-1 shadow cursor-pointer whitespace-nowrap">
+            <span>🔊</span>
+            <span>Test Voice</span>
+          </button>
+        </div>
+        <p class="text-[11px] text-slate-400 italic">
+          Tip: In Chrome/Edge, voices marked "Natural", "Online", or "Google" sound human. Avoid system "espeak" voices.
+        </p>
+
+        <!-- Voice Profile Controls: Pitch & Rate -->
+        <div class="grid grid-cols-2 gap-3 pt-1">
+          <div>
+            <div class="flex justify-between text-[11px] text-slate-300 font-mono">
+              <span>Pitch:</span>
+              <span id="pilot-pitch-val">1.0 (Natural)</span>
+            </div>
+            <input type="range" id="pilot-pitch-slider" min="0.8" max="1.3" step="0.05" value="1.0" oninput="pilotSpeech.setPitch(parseFloat(this.value))" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-400">
+          </div>
+          <div>
+            <div class="flex justify-between text-[11px] text-slate-300 font-mono">
+              <span>Speed:</span>
+              <span id="pilot-rate-val">1.0 (Normal)</span>
+            </div>
+            <input type="range" id="pilot-rate-slider" min="0.8" max="1.3" step="0.05" value="1.0" oninput="pilotSpeech.setRate(parseFloat(this.value))" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-400">
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Cockpit Background Acoustic Atmosphere -->
+      <div class="bg-slate-800/80 rounded-lg p-3 border border-slate-700 space-y-2">
+        <label class="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+          <span>🎧</span>
+          <span>Cockpit Background Noise & Engine Sound</span>
+        </label>
+        <div class="grid grid-cols-3 gap-2 text-xs font-mono">
+          <button type="button" onclick="setAudioProfile('clear')" id="profile-btn-clear" class="audio-profile-btn p-2 rounded border border-slate-600 bg-slate-950 text-slate-300 text-center hover:border-cyan-400 cursor-pointer transition-all">
+            <div class="font-bold text-white">Crystal Clear</div>
+            <div class="text-[10px] text-slate-400">100% clean human voice</div>
+          </button>
+          <button type="button" onclick="setAudioProfile('subtle')" id="profile-btn-subtle" class="audio-profile-btn p-2 rounded border-2 border-cyan-400 bg-cyan-950/60 text-cyan-200 text-center cursor-pointer transition-all">
+            <div class="font-bold text-cyan-300">Subtle (Default)</div>
+            <div class="text-[10px] text-slate-300">Warm low hum</div>
+          </button>
+          <button type="button" onclick="setAudioProfile('authentic')" id="profile-btn-authentic" class="audio-profile-btn p-2 rounded border border-slate-600 bg-slate-950 text-slate-300 text-center hover:border-cyan-400 cursor-pointer transition-all">
+            <div class="font-bold text-white">Full RF Radio</div>
+            <div class="text-[10px] text-slate-400">Turboprop & hiss</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Section 3: Microphone & Speech Recognition Diagnostic -->
+      <div class="bg-slate-800/80 rounded-lg p-3 border border-slate-700 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <label class="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+            <span>🎙️</span>
+            <span>Microphone & Speech Recognition Diagnostic</span>
+          </label>
+          <span id="mic-status-badge" class="text-[10px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded">Ready</span>
+        </div>
+
+        <!-- Diagnostic Warning Box (VPN / Permissions) -->
+        <div id="mic-diagnostic-alert" class="hidden p-2.5 rounded bg-amber-950/80 border border-amber-500 text-amber-200 text-xs font-mono space-y-1">
+          <!-- Injected dynamically if network or permission error happens -->
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="btn-test-mic" type="button" onclick="testMicrophoneDiagnostic()" class="btn-3d flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded flex items-center justify-center gap-1.5 shadow cursor-pointer">
+            <span id="test-mic-icon">🎙️</span>
+            <span id="test-mic-text">Click to Test Microphone (4 Sec)</span>
+          </button>
+          <button type="button" onclick="togglePTTLatchMode()" id="ptt-mode-toggle-btn" class="btn-3d px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold text-xs rounded shadow cursor-pointer whitespace-nowrap">
+            Mode: Hold PTT
+          </button>
+        </div>
+
+        <div id="mic-live-output" class="p-2 rounded bg-slate-950 border border-slate-800 text-xs font-mono min-h-[38px] text-slate-400 flex items-center">
+          <span id="mic-output-text">Click "Test Microphone" and say: "Foxtrot-Bravo-Oscar, Mawson Base"...</span>
+        </div>
+
+        <div class="text-[11px] text-slate-400 bg-slate-950/80 p-2.5 rounded border border-slate-800 space-y-1.5">
+          <div class="text-amber-300 font-bold flex items-center gap-1">
+            <span>⚠️</span>
+            <span>Why isn't speech detected? (Browser VPN / Extensions):</span>
+          </div>
+          <div class="text-slate-300">
+            Chrome's Speech Recognition streams microphone audio to Google's speech recognition servers.
+            <strong>Browser VPN extensions (like the one in your browser toolbar) or proxies intercept and block this stream</strong>, causing speech recognition to silently return nothing.
+          </div>
+          <div class="text-cyan-300">
+            👉 <strong>Fix:</strong> Pause or disable your browser VPN extension for this tab, OR use the <strong>1-Click Quick Phrases</strong> below the console.
+          </div>
+        </div>
+      </div>
+
+      <!-- Dismiss Button -->
+      <div class="flex justify-end pt-1">
+        <button onclick="closeAudioSettingsModal()" class="btn-3d px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-black text-xs rounded shadow cursor-pointer">
+          DONE / CLOSE
         </button>
       </div>
     </div>
@@ -1484,6 +1623,8 @@
 
       startRFHiss() {
         if (!this.rfFilterEnabled) return;
+        const profile = window.currentAudioProfile || 'subtle';
+        if (profile === 'clear') return;
         try {
           this.initContext();
           if (this.rfNoiseNode) return;
@@ -1492,7 +1633,7 @@
           const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
           const data = buffer.getChannelData(0);
           for (let i = 0; i < bufferSize; i++) {
-            data[i] = (Math.random() * 2 - 1) * 0.08;
+            data[i] = (Math.random() * 2 - 1) * 0.05;
           }
 
           this.rfNoiseNode = this.ctx.createBufferSource();
@@ -1501,11 +1642,12 @@
 
           const filter = this.ctx.createBiquadFilter();
           filter.type = 'bandpass';
-          filter.frequency.value = 1800;
-          filter.Q.value = 1.2;
+          filter.frequency.value = 1600;
+          filter.Q.value = 1.0;
 
+          const hissGain = (profile === 'authentic') ? 0.03 : 0.012;
           this.rfNoiseGain = this.ctx.createGain();
-          this.rfNoiseGain.gain.setValueAtTime(0.04 * this.masterVolume, this.ctx.currentTime);
+          this.rfNoiseGain.gain.setValueAtTime(hissGain * this.masterVolume, this.ctx.currentTime);
 
           this.rfNoiseNode.connect(filter);
           filter.connect(this.rfNoiseGain);
@@ -1527,6 +1669,8 @@
       }
 
       startCockpitEngine() {
+        const profile = window.currentAudioProfile || 'subtle';
+        if (profile === 'clear') return;
         try {
           this.initContext();
           if (this.cockpitNodes) {
@@ -1535,10 +1679,11 @@
 
           const now = this.ctx.currentTime;
 
-          // Master cockpit engine gain with smooth ramp-in
+          // Master cockpit engine gain - gentle ambient background hum
           const masterEngineGain = this.ctx.createGain();
+          const targetGain = (profile === 'authentic') ? 0.05 : 0.02;
           masterEngineGain.gain.setValueAtTime(0.0001, now);
-          masterEngineGain.gain.exponentialRampToValueAtTime(0.14 * this.masterVolume, now + 0.12);
+          masterEngineGain.gain.exponentialRampToValueAtTime(targetGain * this.masterVolume, now + 0.12);
 
           // 1. Dual turboprop fundamental propeller blade frequency ~95 Hz
           const oscProp1 = this.ctx.createOscillator();
@@ -1561,10 +1706,10 @@
           tremoloLFO.frequency.setValueAtTime(13.5, now);
 
           const tremoloGain = this.ctx.createGain();
-          tremoloGain.gain.setValueAtTime(0.22, now);
+          tremoloGain.gain.setValueAtTime(0.18, now);
 
           const engineBusGain = this.ctx.createGain();
-          engineBusGain.gain.setValueAtTime(0.65, now);
+          engineBusGain.gain.setValueAtTime(0.55, now);
 
           tremoloLFO.connect(tremoloGain);
           tremoloGain.connect(engineBusGain.gain);
@@ -1574,7 +1719,7 @@
           const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
           const noiseData = noiseBuffer.getChannelData(0);
           for (let i = 0; i < bufferSize; i++) {
-            noiseData[i] = (Math.random() * 2 - 1) * 0.06;
+            noiseData[i] = (Math.random() * 2 - 1) * 0.04;
           }
           const airNoise = this.ctx.createBufferSource();
           airNoise.buffer = noiseBuffer;
@@ -1582,25 +1727,25 @@
 
           const airFilter = this.ctx.createBiquadFilter();
           airFilter.type = 'bandpass';
-          airFilter.frequency.setValueAtTime(500, now);
-          airFilter.Q.setValueAtTime(1.6, now);
+          airFilter.frequency.setValueAtTime(450, now);
+          airFilter.Q.setValueAtTime(1.4, now);
 
           const airGain = this.ctx.createGain();
-          airGain.gain.setValueAtTime(0.04, now);
+          airGain.gain.setValueAtTime(0.02, now);
 
           airNoise.connect(airFilter);
           airFilter.connect(airGain);
           airGain.connect(masterEngineGain);
 
-          // Headset cockpit lowpass filter (simulates aviation noise-canceling headset)
+          // Steep lowpass filter (< 230 Hz) to eliminate harsh buzzing harmonics over vocal range
           const engineFilter = this.ctx.createBiquadFilter();
           engineFilter.type = 'lowpass';
-          engineFilter.frequency.setValueAtTime(450, now);
-          engineFilter.Q.setValueAtTime(1.8, now);
+          engineFilter.frequency.setValueAtTime((profile === 'authentic') ? 340 : 220, now);
+          engineFilter.Q.setValueAtTime(1.0, now);
 
-          const g1 = this.ctx.createGain(); g1.gain.value = 0.55;
-          const g2 = this.ctx.createGain(); g2.gain.value = 0.35;
-          const g3 = this.ctx.createGain(); g3.gain.value = 0.18;
+          const g1 = this.ctx.createGain(); g1.gain.value = 0.45;
+          const g2 = this.ctx.createGain(); g2.gain.value = 0.25;
+          const g3 = this.ctx.createGain(); g3.gain.value = 0.12;
 
           oscProp1.connect(g1);
           oscProp2.connect(g2);
@@ -1622,15 +1767,11 @@
           airNoise.start(now);
 
           this.cockpitNodes = {
-            masterEngineGain,
-            oscProp1,
-            oscProp2,
-            oscProp3,
-            tremoloLFO,
-            airNoise
+            master: masterEngineGain,
+            sources: [oscProp1, oscProp2, oscProp3, tremoloLFO, airNoise]
           };
         } catch (e) {
-          console.warn("Cockpit sound error:", e);
+          console.warn("Cockpit engine audio error:", e);
         }
       }
 
@@ -2011,13 +2152,16 @@
     }
 
     /* =========================================================================
-     * 3. PILOT SPEECH SYNTHESIS ENGINE (TTS WITH RF SIMULATION)
+     * 3. PILOT SPEECH SYNTHESIS ENGINE (TTS WITH NATURAL HUMAN VOICE PROFILES)
      * ========================================================================= */
     class PilotSpeechEngine {
       constructor() {
         this.synth = window.speechSynthesis;
         this.voices = [];
         this.selectedVoice = null;
+        this.selectedVoiceURI = localStorage.getItem('pilot_voice_uri') || null;
+        this.voicePitch = parseFloat(localStorage.getItem('pilot_voice_pitch') || '1.0');
+        this.voiceRate = parseFloat(localStorage.getItem('pilot_voice_rate') || '1.0');
         this.isSpeaking = false;
         this.loadVoices();
       }
@@ -2026,6 +2170,7 @@
         if (!this.synth) return;
         const update = () => {
           this.voices = this.synth.getVoices();
+          this.populateVoiceDropdown();
         };
         update();
         if (speechSynthesis.onvoiceschanged !== undefined) {
@@ -2033,11 +2178,127 @@
         }
       }
 
+      populateVoiceDropdown() {
+        const select = document.getElementById('pilot-voice-select');
+        const badge = document.getElementById('pilot-voice-badge');
+        if (!this.synth) return;
+        const voices = this.synth.getVoices();
+        if (!voices || voices.length === 0) return;
+
+        if (select) {
+          select.innerHTML = '';
+          const currentBest = this.getBestPilotVoice();
+
+          const badTerms = ['espeak', 'whisper', 'klatt', 'festival'];
+          const isRobotic = (v) => {
+            const s = ((v.name || '') + ' ' + (v.voiceURI || '')).toLowerCase();
+            return badTerms.some(t => s.includes(t));
+          };
+
+          const enVoices = voices.filter(v => v.lang.startsWith('en') && !isRobotic(v));
+          const otherVoices = voices.filter(v => !v.lang.startsWith('en') && !isRobotic(v));
+          const roboticVoices = voices.filter(v => isRobotic(v));
+
+          const grpEn = document.createElement('optgroup');
+          grpEn.label = 'English Natural Voices (Recommended)';
+          enVoices.forEach(v => {
+            const opt = document.createElement('option');
+            opt.value = v.voiceURI;
+            const isNatural = v.name.includes('Natural') || v.name.includes('Online') || v.name.includes('Google') || v.name.includes('Neural');
+            opt.text = `${v.name} (${v.lang})${isNatural ? ' ★ High Quality' : ''}`;
+            if (currentBest && (v.voiceURI === currentBest.voiceURI || v.name === currentBest.name)) {
+              opt.selected = true;
+            }
+            grpEn.appendChild(opt);
+          });
+          select.appendChild(grpEn);
+
+          if (otherVoices.length > 0) {
+            const grpOther = document.createElement('optgroup');
+            grpOther.label = 'Other System Voices';
+            otherVoices.forEach(v => {
+              const opt = document.createElement('option');
+              opt.value = v.voiceURI;
+              opt.text = `${v.name} (${v.lang})`;
+              grpOther.appendChild(opt);
+            });
+            select.appendChild(grpOther);
+          }
+
+          if (roboticVoices.length > 0) {
+            const grpRobo = document.createElement('optgroup');
+            grpRobo.label = 'Low-Fidelity Synthesizers (Robotic)';
+            roboticVoices.forEach(v => {
+              const opt = document.createElement('option');
+              opt.value = v.voiceURI;
+              opt.text = `${v.name} (Robotic)`;
+              grpRobo.appendChild(opt);
+            });
+            select.appendChild(grpRobo);
+          }
+        }
+
+        if (badge) {
+          const currentBest = this.getBestPilotVoice();
+          if (currentBest) {
+            badge.innerText = currentBest.name.replace(/Microsoft |Google |English |\(.*?\)/g, '').trim() || 'Natural Voice';
+          }
+        }
+
+        const pitchSlider = document.getElementById('pilot-pitch-slider');
+        const pitchVal = document.getElementById('pilot-pitch-val');
+        if (pitchSlider) pitchSlider.value = this.voicePitch;
+        if (pitchVal) pitchVal.innerText = `${this.voicePitch.toFixed(2)}${this.voicePitch === 1.0 ? ' (Natural)' : ''}`;
+
+        const rateSlider = document.getElementById('pilot-rate-slider');
+        const rateVal = document.getElementById('pilot-rate-val');
+        if (rateSlider) rateSlider.value = this.voiceRate;
+        if (rateVal) rateVal.innerText = `${this.voiceRate.toFixed(2)}${this.voiceRate === 1.0 ? ' (Normal)' : ''}`;
+      }
+
+      selectVoiceByURI(uri) {
+        this.selectedVoiceURI = uri;
+        localStorage.setItem('pilot_voice_uri', uri);
+        const voices = this.synth ? this.synth.getVoices() : [];
+        this.selectedVoice = voices.find(v => v.voiceURI === uri) || null;
+
+        const badge = document.getElementById('pilot-voice-badge');
+        if (badge && this.selectedVoice) {
+          badge.innerText = this.selectedVoice.name.replace(/Microsoft |Google |English |\(.*?\)/g, '').trim() || 'Selected';
+        }
+        logConsoleAction('PILOT VOICE', `✈️ Pilot voice set to: ${this.selectedVoice ? this.selectedVoice.name : uri}`);
+      }
+
+      setPitch(val) {
+        this.voicePitch = val;
+        localStorage.setItem('pilot_voice_pitch', String(val));
+        const el = document.getElementById('pilot-pitch-val');
+        if (el) el.innerText = `${val.toFixed(2)}${val === 1.0 ? ' (Natural)' : ''}`;
+      }
+
+      setRate(val) {
+        this.voiceRate = val;
+        localStorage.setItem('pilot_voice_rate', String(val));
+        const el = document.getElementById('pilot-rate-val');
+        if (el) el.innerText = `${val.toFixed(2)}${val === 1.0 ? ' (Normal)' : ''}`;
+      }
+
       getBestPilotVoice() {
-        if (this.selectedVoice) return this.selectedVoice;
         if (!this.synth) return null;
         const voices = this.synth.getVoices();
         if (!voices || voices.length === 0) return null;
+
+        // 1. User manual selection
+        if (this.selectedVoiceURI) {
+          const userChoice = voices.find(v => v.voiceURI === this.selectedVoiceURI);
+          if (userChoice) return userChoice;
+        }
+
+        const badTerms = ['espeak', 'whisper', 'klatt', 'festival'];
+        const isRobotic = (v) => {
+          const s = ((v.name || '') + ' ' + (v.voiceURI || '')).toLowerCase();
+          return badTerms.some(t => s.includes(t));
+        };
 
         const femaleTerms = [
           'female', 'woman', 'girl', 'karen', 'catherine', 'samantha', 'victoria',
@@ -2047,9 +2308,9 @@
         ];
 
         const maleTerms = [
-          'male', 'david', 'guy', 'daniel', 'george', 'alex', 'fred', 'james',
+          'male', 'david', 'guy', 'william', 'daniel', 'george', 'alex', 'fred', 'james',
           'richard', 'mark', 'lee', 'tom', 'russell', 'oliver', 'brian', 'arthur',
-          'michael', 'robert', 'john', 'paul', 'peter', 'andrew', 'matthew'
+          'michael', 'robert', 'john', 'paul', 'peter', 'andrew', 'matthew', 'ryan'
         ];
 
         const matches = (v, terms) => {
@@ -2057,17 +2318,43 @@
           return terms.some(t => str.includes(t));
         };
 
-        // 1. Explicit male English voice
-        const maleEn = voices.find(v => v.lang.startsWith('en') && matches(v, maleTerms) && !matches(v, femaleTerms));
+        // 1. Top Tier: High-Quality Natural/Online/Neural English Male Voices
+        const naturalEnMale = voices.find(v => 
+          v.lang.startsWith('en') && 
+          !isRobotic(v) &&
+          (v.name.includes('Natural') || v.name.includes('Online') || v.name.includes('Google') || v.name.includes('Neural')) &&
+          matches(v, maleTerms) &&
+          !matches(v, femaleTerms)
+        );
+        if (naturalEnMale) return naturalEnMale;
+
+        // 2. Any Natural English voice not identified as female
+        const naturalEn = voices.find(v => 
+          v.lang.startsWith('en') && 
+          !isRobotic(v) &&
+          (v.name.includes('Natural') || v.name.includes('Online') || v.name.includes('Google') || v.name.includes('Neural')) &&
+          !matches(v, femaleTerms)
+        );
+        if (naturalEn) return naturalEn;
+
+        // 3. Any standard English male voice (non-robotic)
+        const maleEn = voices.find(v => v.lang.startsWith('en') && !isRobotic(v) && matches(v, maleTerms) && !matches(v, femaleTerms));
         if (maleEn) return maleEn;
 
-        // 2. Any English voice that is not identified as female
-        const notFemaleEn = voices.find(v => v.lang.startsWith('en') && !matches(v, femaleTerms));
+        // 4. Any English voice not female (non-robotic)
+        const notFemaleEn = voices.find(v => v.lang.startsWith('en') && !isRobotic(v) && !matches(v, femaleTerms));
         if (notFemaleEn) return notFemaleEn;
 
-        // 3. Fallback
-        const anyEn = voices.find(v => v.lang.startsWith('en'));
-        return anyEn || voices[0] || null;
+        // 5. Any non-robotic English voice
+        const anyCleanEn = voices.find(v => v.lang.startsWith('en') && !isRobotic(v));
+        if (anyCleanEn) return anyCleanEn;
+
+        // Fallback
+        return voices.find(v => v.lang.startsWith('en')) || voices[0] || null;
+      }
+
+      testVoice() {
+        this.speak("Mawson Base, this is Foxtrot-Bravo-Oscar reading you 5 by 5, inbound Rumdoodle, operations normal.");
       }
 
       speak(text, sender = 'PILOT', callback = null) {
@@ -2080,10 +2367,14 @@
         this.synth.cancel();
         this.isSpeaking = true;
 
+        const profile = window.currentAudioProfile || 'subtle';
+
         setTileRX(selectedTileId, true);
         audioEngine.playMicClick(true);
-        audioEngine.startCockpitEngine();
-        audioEngine.startRFHiss();
+        if (profile !== 'clear') {
+          audioEngine.startCockpitEngine();
+          audioEngine.startRFHiss();
+        }
 
         const chan = TILES.find(t => t.id === selectedTileId);
         const chanName = chan ? `${chan.name} (${chan.freq})` : 'Tone Remote 1';
@@ -2095,9 +2386,9 @@
         const voice = this.getBestPilotVoice();
         if (voice) utterance.voice = voice;
         
-        // Rugged male cockpit pilot profile: lower pitch, natural aviation cadence
-        utterance.rate = 1.0;
-        utterance.pitch = 0.78;
+        // NATURAL HUMAN PITCH: 1.0 (avoids metallic robotic artifacts!)
+        utterance.rate = this.voiceRate || 1.0;
+        utterance.pitch = this.voicePitch || 1.0;
         utterance.volume = audioEngine.masterVolume;
 
         let finished = false;
@@ -2203,9 +2494,9 @@
         const voice = this.getBestOperatorVoice();
         if (voice) utterance.voice = voice;
 
-        // Ground station dispatcher profile: crisp, authoritative
+        // Ground station dispatcher profile: crisp, authoritative natural pitch
         utterance.rate = 1.0;
-        utterance.pitch = (voice && voice === pilotSpeech.getBestPilotVoice()) ? 1.25 : 1.08;
+        utterance.pitch = (voice && voice === pilotSpeech.getBestPilotVoice()) ? 1.05 : 1.0;
         utterance.volume = audioEngine.masterVolume;
 
         let finished = false;
@@ -2409,7 +2700,7 @@
     const irrEngine = new IRREngine();
 
     /* =========================================================================
-     * 5. SPEECH RECOGNITION (STT) & PTT HANDLER (WITH PRE-WARM & DRAIN BUFFER)
+     * 5. SPEECH RECOGNITION (STT) & PTT HANDLER (WITH VPN DIAGNOSTIC & LATCHING)
      * ========================================================================= */
     class SpeechInputEngine {
       constructor() {
@@ -2418,51 +2709,41 @@
         this.recognition = null;
         this.isPTTActive = false;
         this.isDraining = false;
+        this.isRecognizing = false;
+        this.isLatchingMode = (localStorage.getItem('ptt_latching') === 'true');
         this.drainTimer = null;
         this.finalizeTimer = null;
         this.accumulatedTranscript = '';
         this.lastInterim = '';
         this.latestTranscript = '';
-        this.warmMicStream = null;
-        this.micPrewarmed = false;
 
         if (this.isSupported) {
           try {
-            this.recognition = new SpeechRec();
-            this.recognition.continuous = true;
-            this.recognition.interimResults = true;
-            this.recognition.lang = 'en-AU';
-
-            this.setupEvents();
+            this.initRecognition();
           } catch (e) {
             console.warn("SpeechRec init error:", e);
           }
         }
       }
 
-      // Step 1: Pre-warm hardware microphone channel to eliminate initial 150-300ms clipping
-      async prewarmMicrophone() {
-        if (this.micPrewarmed || this.warmMicStream) return;
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+      initRecognition() {
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRec) return;
+        this.recognition = new SpeechRec();
+        this.recognition.continuous = true;
+        this.recognition.interimResults = true;
+        this.recognition.lang = navigator.language || 'en-AU';
 
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({
-            audio: {
-              echoCancellation: true,
-              noiseSuppression: true,
-              autoGainControl: true
-            }
-          });
-          this.warmMicStream = stream;
-          this.micPrewarmed = true;
-          logConsoleAction('MIC PRE-WARMED', '🎙️ Hardware audio channel pre-warmed & primed (zero PTT lag).');
-        } catch (err) {
-          // User may not have granted mic permission yet; will prompt again on PTT press
-          console.log("Pre-warm mic awaiting user interaction/permission:", err.message || err);
-        }
+        this.setupEvents();
       }
 
       setupEvents() {
+        if (!this.recognition) return;
+
+        this.recognition.onstart = () => {
+          this.isRecognizing = true;
+        };
+
         this.recognition.onresult = (event) => {
           let finalStr = '';
           let interimStr = '';
@@ -2484,7 +2765,6 @@
             this.latestTranscript = fullTranscript;
           }
 
-          // Step 3: Aggressive Real-Time Interim Transcript Capture
           // Stream real-time speech directly into the bottom TX text input
           const input = document.getElementById('manual-tx-input');
           if (input && fullTranscript.length > 0) {
@@ -2512,17 +2792,94 @@
 
         this.recognition.onerror = (event) => {
           console.warn("Speech recognition error:", event.error);
-          if (event.error === 'not-allowed') {
-            logConsoleAction('MIC PERMISSION', '⚠️ Microphone access blocked by browser. Please enable microphone permissions in browser address bar.');
+          this.isRecognizing = false;
+
+          const btm = document.getElementById('bottom-status-message');
+          const alertBox = document.getElementById('mic-diagnostic-alert');
+
+          if (event.error === 'network') {
+            const warningMsg = '⚠️ NETWORK / VPN BLOCK: Google Speech Recognition server unreachable. Your browser VPN or proxy is likely blocking Google Speech API. Please pause your VPN or use 1-Click Quick Phrases.';
+            logConsoleAction('SPEECH ERROR', warningMsg);
+            if (btm) btm.innerText = warningMsg;
+            if (alertBox) {
+              alertBox.classList.remove('hidden');
+              alertBox.innerHTML = '<strong>⚠️ Google Speech API Blocked:</strong> Could not connect to Google speech servers. Your browser VPN extension or firewall is blocking the stream. Pause your VPN for this page or use the Quick Phrases.';
+            }
+            showSpeechErrorNotification('network');
+          } else if (event.error === 'not-allowed') {
+            const warningMsg = '⚠️ MIC ACCESS BLOCKED: Microphone permission denied. Click the padlock / settings icon in your address bar to allow microphone access.';
+            logConsoleAction('MIC PERMISSION', warningMsg);
+            if (btm) btm.innerText = warningMsg;
+            if (alertBox) {
+              alertBox.classList.remove('hidden');
+              alertBox.innerHTML = '<strong>⚠️ Microphone Blocked:</strong> Click the padlock / settings icon in your browser URL bar and allow microphone permissions.';
+            }
+            showSpeechErrorNotification('permission');
+          } else if (event.error === 'audio-capture') {
+            const warningMsg = '⚠️ AUDIO CAPTURE ERROR: No microphone found or it is locked by another program.';
+            logConsoleAction('MIC CAPTURE', warningMsg);
+            if (btm) btm.innerText = warningMsg;
           }
         };
 
         this.recognition.onend = () => {
-          // If PTT is active or still draining, keep recognition alive
+          this.isRecognizing = false;
+          // If PTT is active or still draining, restart recognition
           if (this.isPTTActive || this.isDraining) {
-            try { this.recognition.start(); } catch(e) {}
+            try {
+              this.recognition.start();
+            } catch(e) {}
           }
         };
+      }
+
+      handlePTTClick(e) {
+        if (this.isLatchingMode) {
+          if (e) e.preventDefault();
+          this.togglePTT();
+        }
+      }
+
+      handlePTTMousedown(e) {
+        if (!this.isLatchingMode) {
+          this.startPTT();
+        }
+      }
+
+      handlePTTMouseup(e) {
+        if (!this.isLatchingMode) {
+          this.stopPTT();
+        }
+      }
+
+      handlePTTMouseleave(e) {
+        if (!this.isLatchingMode && this.isPTTActive) {
+          this.stopPTT();
+        }
+      }
+
+      handlePTTTouchstart(e) {
+        if (e) e.preventDefault();
+        if (this.isLatchingMode) {
+          this.togglePTT();
+        } else {
+          this.startPTT();
+        }
+      }
+
+      handlePTTTouchend(e) {
+        if (e) e.preventDefault();
+        if (!this.isLatchingMode) {
+          this.stopPTT();
+        }
+      }
+
+      togglePTT() {
+        if (this.isPTTActive) {
+          this.stopPTT();
+        } else {
+          this.startPTT();
+        }
       }
 
       startPTT() {
@@ -2564,14 +2921,11 @@
         pilotSpeech.cancel();
         stationOperatorSpeech.cancel();
 
-        // Step 1: Pre-warm mic stream if not already active
-        this.prewarmMicrophone();
-
         audioEngine.playMicClick(true);
         setTileTX(selectedTileId, true);
 
         const pttLabel = document.getElementById('ptt-label-text');
-        if (pttLabel) pttLabel.innerText = '🔴 PTT ACTIVE - TRANSMITTING';
+        if (pttLabel) pttLabel.innerText = this.isLatchingMode ? '🔴 TX ON (CLICK TO STOP)' : '🔴 PTT ACTIVE - TRANSMITTING';
 
         const pttBtn = document.getElementById('ptt-btn');
         if (pttBtn) {
@@ -2582,16 +2936,18 @@
         const chan = TILES.find(t => t.id === selectedTileId);
         const chanName = chan ? `${chan.name} (${chan.freq})` : 'Tone Remote 1';
 
-        logConsoleAction('PTT TRANSMIT', `🔴 PTT DEPRESSED ON ${chanName} ➔ Speak into microphone or hold Spacebar...`);
+        logConsoleAction('PTT TRANSMIT', `🔴 PTT DEPRESSED ON ${chanName} ➔ Speak into microphone...`);
 
         const btm = document.getElementById('bottom-status-message');
         if (btm) btm.innerText = `PTT ACTIVE: Transmitting on ${chanName} - Speak into microphone...`;
 
         if (this.isSupported && this.recognition) {
           try {
-            this.recognition.start();
+            if (!this.isRecognizing) {
+              this.recognition.start();
+            }
           } catch(e) {
-            // Already started or restarting
+            console.log("Recognition start handled:", e);
           }
         }
       }
@@ -2633,7 +2989,7 @@
             if (!this.isDraining) return;
             this.isDraining = false;
 
-            if (pttLabel) pttLabel.innerText = 'PTT TRANSMIT';
+            if (pttLabel) pttLabel.innerText = this.isLatchingMode ? 'CLICK TO TALK' : 'PTT TRANSMIT';
             if (pttBtn) {
               pttBtn.classList.remove('bg-amber-400');
               pttBtn.classList.add('bg-[#f26666]');
@@ -2672,6 +3028,174 @@
     }
 
     const speechInput = new SpeechInputEngine();
+
+    /* =========================================================================
+     * 5.5 AUDIO SETTINGS & MICROPHONE DIAGNOSTICS HELPERS
+     * ========================================================================= */
+    window.currentAudioProfile = localStorage.getItem('audio_profile') || 'subtle';
+
+    function setAudioProfile(profile) {
+      window.currentAudioProfile = profile;
+      localStorage.setItem('audio_profile', profile);
+
+      ['clear', 'subtle', 'authentic'].forEach(p => {
+        const btn = document.getElementById(`profile-btn-${p}`);
+        if (btn) {
+          if (p === profile) {
+            btn.className = 'audio-profile-btn p-2 rounded border-2 border-cyan-400 bg-cyan-950/60 text-cyan-200 text-center cursor-pointer transition-all shadow-inner';
+          } else {
+            btn.className = 'audio-profile-btn p-2 rounded border border-slate-600 bg-slate-950 text-slate-300 text-center hover:border-cyan-400 cursor-pointer transition-all';
+          }
+        }
+      });
+
+      logConsoleAction('AUDIO PROFILE', `🎧 Audio atmosphere profile set to: ${profile.toUpperCase()}`);
+    }
+
+    function togglePTTLatchMode() {
+      speechInput.isLatchingMode = !speechInput.isLatchingMode;
+      localStorage.setItem('ptt_latching', String(speechInput.isLatchingMode));
+      updatePTTModeButton();
+      const pttLabel = document.getElementById('ptt-label-text');
+      if (pttLabel && !speechInput.isPTTActive) {
+        pttLabel.innerText = speechInput.isLatchingMode ? 'CLICK TO TALK' : 'PTT TRANSMIT';
+      }
+    }
+
+    function updatePTTModeButton() {
+      const btn = document.getElementById('ptt-mode-toggle-btn');
+      if (btn) {
+        btn.innerText = speechInput.isLatchingMode ? 'Mode: Click-to-Talk (Latching)' : 'Mode: Hold Spacebar (PTT)';
+        btn.className = speechInput.isLatchingMode
+          ? 'btn-3d px-3 py-2 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-xs rounded shadow cursor-pointer whitespace-nowrap'
+          : 'btn-3d px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold text-xs rounded shadow cursor-pointer whitespace-nowrap';
+      }
+    }
+
+    function openAudioSettingsModal() {
+      const modal = document.getElementById('audio-settings-modal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        pilotSpeech.populateVoiceDropdown();
+        setAudioProfile(window.currentAudioProfile || 'subtle');
+        updatePTTModeButton();
+      }
+    }
+
+    function closeAudioSettingsModal() {
+      const modal = document.getElementById('audio-settings-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    let isTestingMic = false;
+    let micTestTimer = null;
+    let micTestRec = null;
+
+    function testMicrophoneDiagnostic() {
+      const btnText = document.getElementById('test-mic-text');
+      const btnIcon = document.getElementById('test-mic-icon');
+      const outputText = document.getElementById('mic-output-text');
+      const statusBadge = document.getElementById('mic-status-badge');
+      const alertBox = document.getElementById('mic-diagnostic-alert');
+
+      if (isTestingMic) return;
+
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRec) {
+        if (outputText) outputText.innerHTML = '<span class="text-red-400">❌ Web Speech API is not supported in this browser. Please use Google Chrome or Microsoft Edge.</span>';
+        return;
+      }
+
+      isTestingMic = true;
+      if (btnText) btnText.innerText = 'Listening... Speak now (4s)';
+      if (btnIcon) btnIcon.innerText = '🔴';
+      if (statusBadge) {
+        statusBadge.innerText = 'RECORDING';
+        statusBadge.className = 'text-[10px] bg-red-600 text-white font-bold px-2 py-0.5 rounded animate-pulse';
+      }
+      if (outputText) outputText.innerHTML = '<span class="text-yellow-300 animate-pulse">🎙️ Listening... Say: "Foxtrot-Bravo-Oscar, Mawson Base"</span>';
+      if (alertBox) alertBox.classList.add('hidden');
+
+      let recognizedText = '';
+
+      try {
+        micTestRec = new SpeechRec();
+        micTestRec.continuous = false;
+        micTestRec.interimResults = true;
+        micTestRec.lang = navigator.language || 'en-AU';
+
+        micTestRec.onresult = (e) => {
+          let str = '';
+          for (let i = 0; i < e.results.length; ++i) {
+            str += e.results[i][0].transcript;
+          }
+          recognizedText = str;
+          if (outputText) outputText.innerHTML = `<span class="text-emerald-300 font-bold">Heard: "${str}"</span>`;
+        };
+
+        micTestRec.onerror = (e) => {
+          console.warn("Diagnostic mic error:", e.error);
+          if (alertBox) {
+            alertBox.classList.remove('hidden');
+            if (e.error === 'network') {
+              alertBox.innerHTML = '<strong>⚠️ Google Speech API Network Error:</strong> Google Speech servers are unreachable. Your browser VPN extension or proxy is blocking speech API. Please disable your VPN or use Quick Phrases.';
+            } else if (e.error === 'not-allowed') {
+              alertBox.innerHTML = '<strong>⚠️ Microphone Permission Blocked:</strong> Click the microphone or lock icon in your browser address bar and choose "Allow".';
+            } else {
+              alertBox.innerHTML = `<strong>⚠️ Mic Error (${e.error}):</strong> Speech recognition encountered an issue.`;
+            }
+          }
+        };
+
+        micTestRec.onend = () => {
+          finishMicTest(recognizedText);
+        };
+
+        micTestRec.start();
+
+        micTestTimer = setTimeout(() => {
+          if (micTestRec) {
+            try { micTestRec.stop(); } catch(err) {}
+          }
+        }, 4500);
+
+      } catch (err) {
+        finishMicTest('');
+        if (outputText) outputText.innerHTML = `<span class="text-red-400">Error starting mic: ${err.message}</span>`;
+      }
+    }
+
+    function finishMicTest(heard) {
+      isTestingMic = false;
+      if (micTestTimer) clearTimeout(micTestTimer);
+      const btnText = document.getElementById('test-mic-text');
+      const btnIcon = document.getElementById('test-mic-icon');
+      const outputText = document.getElementById('mic-output-text');
+      const statusBadge = document.getElementById('mic-status-badge');
+
+      if (btnText) btnText.innerText = 'Test Microphone Again';
+      if (btnIcon) btnIcon.innerText = '🎙️';
+      if (statusBadge) {
+        statusBadge.innerText = heard ? 'SUCCESS' : 'NO SPEECH';
+        statusBadge.className = heard ? 'text-[10px] bg-emerald-600 text-white font-bold px-2 py-0.5 rounded' : 'text-[10px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded';
+      }
+
+      if (heard && outputText) {
+        outputText.innerHTML = `<span class="text-emerald-400 font-bold">✅ SUCCESS! Heard: "${heard}"</span>`;
+      } else if (!heard && outputText && !outputText.innerHTML.includes('Error')) {
+        outputText.innerHTML = '<span class="text-slate-400">No speech was recognized. Ensure your microphone is plugged in, or check if a VPN is blocking Google Speech.</span>';
+      }
+    }
+
+    function showSpeechErrorNotification(type) {
+      const bannerText = document.getElementById('sim-action-text');
+      if (type === 'network') {
+        if (bannerText) bannerText.innerHTML = '⚠️ <span class="font-black text-amber-300">VPN / NETWORK CONFLICT:</span> Google Speech API blocked by browser VPN. Turn off browser VPN or use Quick Phrases below.';
+        addCallHistoryRow('SYSTEM NOTICE', 'Warning', 'In', getUtcTimeString(), 'Speech Recognition blocked by browser VPN or proxy. Please pause your browser VPN extension or use 1-Click Quick Phrases.', 'VPN CONFLICT', 'yellow');
+      } else if (type === 'permission') {
+        if (bannerText) bannerText.innerHTML = '⚠️ <span class="font-black text-red-300">MIC ACCESS BLOCKED:</span> Allow microphone in browser address bar.';
+      }
+    }
 
     /* =========================================================================
      * 6. WEATHER AMDS (AUTOMATED WEATHER STATION) ENGINE
@@ -4940,7 +5464,11 @@
           }
           e.preventDefault();
           if (!e.repeat) {
-            speechInput.startPTT();
+            if (speechInput.isLatchingMode) {
+              speechInput.togglePTT();
+            } else {
+              speechInput.startPTT();
+            }
           }
         }
       });
@@ -4952,7 +5480,7 @@
             return;
           }
           e.preventDefault();
-          if (speechInput.isPTTActive) {
+          if (!speechInput.isLatchingMode && speechInput.isPTTActive) {
             speechInput.stopPTT();
           }
         }
@@ -4960,12 +5488,12 @@
 
       // Global mouseup and touchend fallback so releasing outside the button also stops PTT
       window.addEventListener('mouseup', () => {
-        if (speechInput.isPTTActive) {
+        if (!speechInput.isLatchingMode && speechInput.isPTTActive) {
           speechInput.stopPTT();
         }
       });
       window.addEventListener('touchend', () => {
-        if (speechInput.isPTTActive) {
+        if (!speechInput.isLatchingMode && speechInput.isPTTActive) {
           speechInput.stopPTT();
         }
       });
@@ -4993,10 +5521,11 @@
       selectTile(1);
       stageEngine.initScenario('A');
       updateSideScriptCard();
+      setAudioProfile(window.currentAudioProfile || 'subtle');
 
-      // Step 1: Pre-warm hardware microphone on boot (if browser permissions are already granted)
-      if (speechInput && typeof speechInput.prewarmMicrophone === 'function') {
-        speechInput.prewarmMicrophone();
+      if (speechInput && speechInput.isLatchingMode) {
+        const pttLabel = document.getElementById('ptt-label-text');
+        if (pttLabel) pttLabel.innerText = 'CLICK TO TALK';
       }
 
       addCallHistoryRow('ZETRON', 'System', 'In', getUtcTimeString(), 'Zetron DCS5020 Dispatch Console Online. Station Mawson.', 'Online', 'white');
