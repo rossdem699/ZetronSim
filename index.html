@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>ZETRON DCS5020 Dispatch Console | Mawson Station Air-Ground Voice Simulator</title>
   
   <!-- Tailwind CSS CDN -->
@@ -106,23 +109,8 @@
     /* Responsive viewport height optimizations for laptops (1366x768 / 1080p scaled) */
     @media (max-height: 850px) {
       .radio-card {
-        height: 80px !important;
-        padding: 4px !important;
-      }
-      .radio-card .btn-3d {
-        height: 20px !important;
-        font-size: 8.5px !important;
-      }
-      #sim-action-banner {
-        margin-bottom: 4px !important;
-        padding-top: 2px !important;
-        padding-bottom: 2px !important;
-      }
-    }
-    @media (max-height: 720px) {
-      .radio-card {
-        height: 72px !important;
-        padding: 3px !important;
+        height: 68px !important;
+        padding: 3px 4px !important;
       }
       .radio-card .btn-3d {
         height: 18px !important;
@@ -132,6 +120,87 @@
         margin-bottom: 2px !important;
         padding-top: 1px !important;
         padding-bottom: 1px !important;
+      }
+    }
+    @media (max-height: 720px) {
+      .radio-card {
+        height: 55px !important;
+        padding: 2px 3px !important;
+      }
+      .radio-card .btn-3d {
+        height: 15px !important;
+        font-size: 7.5px !important;
+        padding: 0 !important;
+      }
+      .radio-card > div:nth-child(2) {
+        padding-top: 1px !important;
+        padding-bottom: 1px !important;
+        font-size: 8px !important;
+      }
+      #sim-action-banner {
+        margin-bottom: 1px !important;
+        padding-top: 1px !important;
+        padding-bottom: 1px !important;
+      }
+      #tx-led-ladder span, #rx-led-ladder span {
+        height: 2.5px !important;
+      }
+      #ptt-btn {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+        font-size: 11px !important;
+      }
+    }
+    @media (max-height: 650px) {
+      .radio-card {
+        height: 48px !important;
+        padding: 1.5px 2px !important;
+      }
+      .radio-card .btn-3d {
+        height: 13.5px !important;
+        font-size: 7px !important;
+        padding: 0 !important;
+      }
+      .radio-card > div:nth-child(2) {
+        padding: 0 !important;
+        font-size: 7px !important;
+      }
+      #sim-action-banner {
+        margin-bottom: 1px !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        font-size: 9.5px !important;
+      }
+      header {
+        height: 26px !important;
+      }
+      nav {
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+      }
+      #tx-led-ladder span, #rx-led-ladder span {
+        height: 2px !important;
+      }
+      #ptt-btn {
+        padding-top: 3px !important;
+        padding-bottom: 3px !important;
+        font-size: 10px !important;
+      }
+    }
+    @media (max-height: 580px) {
+      .radio-card {
+        height: 44px !important;
+        padding: 1px !important;
+      }
+      .radio-card .btn-3d {
+        height: 12.5px !important;
+        font-size: 6.5px !important;
+      }
+      header {
+        height: 24px !important;
+      }
+      #side-script-card {
+        min-height: 80px !important;
       }
     }
   </style>
@@ -187,24 +256,24 @@
   <!-- 2. CONSOLE CONTROL BAR (DIRECT CONTROLS - NO TABS NEEDED)                  -->
   <!-- ========================================================================= -->
   <nav class="bg-[#c8c8c8] px-2.5 py-1 xl:px-3 xl:py-1.5 border-b-2 border-[#808080] flex items-center justify-between flex-shrink-0 shadow-sm">
-    <div class="flex items-center gap-2.5">
-      <div class="flex items-center gap-2 bg-[#1b2533] text-white px-2.5 py-1 rounded border border-cyan-500/60 shadow-inner">
+    <div class="flex items-center gap-2">
+      <div class="flex items-center gap-1.5 bg-[#1b2533] text-white px-2 py-0.5 rounded border border-cyan-500/60 shadow-inner shrink-0">
         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
         <span class="text-xs font-black font-sans tracking-wide text-cyan-300">ZETRON DCS5020</span>
-        <span class="text-[10px] font-mono text-slate-300 hidden md:inline">| AIR-GROUND MATRIX</span>
+        <span class="text-[10px] font-mono text-slate-300 hidden 2xl:inline">| AIR-GROUND MATRIX</span>
       </div>
 
-      <!-- Live Weather Telemetry Badges directly visible on bar -->
-      <div class="hidden lg:flex items-center gap-2 text-xs font-mono">
-        <div class="bg-white/80 px-2 py-0.5 rounded border border-slate-400 text-slate-800 font-bold flex items-center gap-1 shadow-sm">
+      <!-- Live Weather Telemetry Badges directly visible on bar (2xl+ only) -->
+      <div class="hidden 2xl:flex items-center gap-1.5 text-xs font-mono">
+        <div class="bg-white/80 px-1.5 py-0.5 rounded border border-slate-400 text-slate-800 font-bold flex items-center gap-1 shadow-sm">
           <span class="text-slate-500 text-[10px]">WIND:</span>
           <span id="nav-wind-val" class="text-blue-900 font-black">140° @ 25kt</span>
         </div>
-        <div class="bg-white/80 px-2 py-0.5 rounded border border-slate-400 text-slate-800 font-bold flex items-center gap-1 shadow-sm">
+        <div class="bg-white/80 px-1.5 py-0.5 rounded border border-slate-400 text-slate-800 font-bold flex items-center gap-1 shadow-sm">
           <span class="text-slate-500 text-[10px]">QNH:</span>
           <span id="nav-qnh-val" class="text-amber-900 font-black">992 hPa</span>
         </div>
-        <div class="bg-white/80 px-2 py-0.5 rounded border border-slate-400 text-slate-800 font-bold flex items-center gap-1 shadow-sm">
+        <div class="bg-white/80 px-1.5 py-0.5 rounded border border-slate-400 text-slate-800 font-bold flex items-center gap-1 shadow-sm">
           <span class="text-slate-500 text-[10px]">SARWATCH:</span>
           <span id="nav-sar-val" class="text-emerald-700 font-black">ACTIVE</span>
         </div>
@@ -212,10 +281,10 @@
     </div>
 
     <!-- Direct Scenario Selection & Quick Action Controls -->
-    <div class="flex items-center gap-2 text-xs font-mono">
-      <div class="flex items-center gap-1.5">
+    <div class="flex items-center gap-1.5 xl:gap-2 text-xs font-mono">
+      <div class="flex items-center gap-1">
         <label for="scenario-dropdown" class="font-bold text-slate-800 hidden sm:inline text-xs font-sans">SCENARIO:</label>
-        <select id="scenario-dropdown" onchange="stageEngine.initScenario(this.value)" class="bg-[#111923] text-amber-300 font-mono text-xs font-bold px-2 py-1 rounded border border-slate-600 shadow-inner cursor-pointer focus:outline-none focus:border-amber-400">
+        <select id="scenario-dropdown" onchange="stageEngine.initScenario(this.value)" class="bg-[#111923] text-amber-300 font-mono text-xs font-bold px-1.5 py-1 rounded border border-slate-600 shadow-inner cursor-pointer focus:outline-none focus:border-amber-400 max-w-[240px] xl:max-w-none truncate">
           <option value="A">A: Rumdoodle Skiway Inbound (Twin Otter VHG-FBO)</option>
           <option value="B">B: Sea Ice Skiway Inbound (Basler BT-67 VKB-BTG)</option>
           <option value="C">C: SAR Emergency (Inbound Overdue)</option>
@@ -224,36 +293,36 @@
         </select>
       </div>
 
-      <button onclick="randomizeWeather()" title="Cycle Weather Telemetry" class="btn-3d px-2 py-1 bg-[#dfdfdf] hover:bg-[#eaeaea] text-slate-800 text-xs font-sans font-bold rounded flex items-center gap-1 border border-slate-400 shadow">
+      <button onclick="randomizeWeather()" title="Cycle Weather Telemetry" class="btn-3d px-1.5 xl:px-2 py-1 bg-[#dfdfdf] hover:bg-[#eaeaea] text-slate-800 text-xs font-sans font-bold rounded flex items-center gap-1 border border-slate-400 shadow">
         <i data-lucide="cloud-snow" class="w-3.5 h-3.5 text-blue-700"></i>
-        <span class="hidden sm:inline">New Weather</span>
+        <span class="hidden xl:inline">New Weather</span>
       </button>
 
-      <button onclick="audioEngine.testBeep()" title="Audio Test" class="btn-3d px-2 py-1 bg-[#dfdfdf] hover:bg-[#eaeaea] text-slate-800 text-xs font-sans font-bold rounded flex items-center gap-1 border border-slate-400 shadow">
+      <button onclick="audioEngine.testBeep()" title="Audio Test" class="btn-3d px-1.5 xl:px-2 py-1 bg-[#dfdfdf] hover:bg-[#eaeaea] text-slate-800 text-xs font-sans font-bold rounded flex items-center gap-1 border border-slate-400 shadow">
         <i data-lucide="volume-2" class="w-3.5 h-3.5 text-blue-700"></i>
-        <span>Test Beep</span>
+        <span class="hidden sm:inline">Test Beep</span>
       </button>
 
       <!-- Instant Mr. T Voice Test Button -->
-      <button onclick="triggerMrTCelebration('Aircraft down and safe, waiting for pick up.')" title="Instant Test: Mr. T Mission Complete Voice-Over" class="btn-3d px-2 py-1 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 text-xs font-sans font-black rounded flex items-center gap-1 border border-amber-700 shadow cursor-pointer">
+      <button onclick="triggerMrTCelebration('Aircraft down and safe, waiting for pick up.')" title="Instant Test: Mr. T Mission Complete Voice-Over" class="btn-3d px-1.5 xl:px-2 py-1 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 text-xs font-sans font-black rounded flex items-center gap-1 border border-amber-700 shadow cursor-pointer">
         <span>🎖️</span>
-        <span class="hidden md:inline">Mr. T Voice</span>
+        <span class="hidden 2xl:inline">Mr. T Voice</span>
       </button>
 
       <!-- Audio, Voice & Mic Settings Button -->
-      <button onclick="openAudioSettingsModal()" title="Configure Natural Pilot Voice, Audio Quality & Test Microphone" class="btn-3d px-2.5 py-1 bg-[#1e293b] hover:bg-[#334155] text-cyan-300 font-sans font-bold text-xs rounded flex items-center gap-1 border border-cyan-500/80 shadow cursor-pointer">
+      <button onclick="openAudioSettingsModal()" title="Configure Natural Pilot Voice, Audio Quality & Test Microphone" class="btn-3d px-2 py-1 bg-[#1e293b] hover:bg-[#334155] text-cyan-300 font-sans font-bold text-xs rounded flex items-center gap-1 border border-cyan-500/80 shadow cursor-pointer">
         <span>🎙️</span>
         <span>Voice & Mic</span>
       </button>
 
       <!-- Fullscreen Kiosk Mode Toggle Button -->
-      <button id="btn-fullscreen-toggle" onclick="toggleConsoleFullscreen()" title="Toggle Fullscreen Kiosk Mode (F11) - Maximizes screen height on laptops" class="btn-3d px-2.5 py-1 bg-[#1e293b] hover:bg-[#334155] text-amber-300 font-sans font-bold text-xs rounded flex items-center gap-1 border border-amber-500/80 shadow cursor-pointer">
+      <button id="btn-fullscreen-toggle" onclick="toggleConsoleFullscreen()" title="Toggle Fullscreen Kiosk Mode (F11) - Maximizes screen height on laptops" class="btn-3d px-2 py-1 bg-[#1e293b] hover:bg-[#334155] text-amber-300 font-sans font-bold text-xs rounded flex items-center gap-1 border border-amber-500/80 shadow cursor-pointer">
         <span id="fullscreen-btn-icon">⛶</span>
         <span id="fullscreen-btn-text" class="hidden sm:inline">Fullscreen</span>
       </button>
 
       <!-- Prominent Example Play Scenario Button -->
-      <button id="btn-example-play" onclick="autoPlayEngine.toggle()" title="Auto-Play Scenario with Voice & Button Actions" class="btn-3d px-3 py-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:from-amber-300 hover:to-yellow-200 text-slate-950 font-black text-xs rounded border border-amber-700 flex items-center gap-1.5 shadow-md transition-all hover:scale-105 select-none cursor-pointer">
+      <button id="btn-example-play" onclick="autoPlayEngine.toggle()" title="Auto-Play Scenario with Voice & Button Actions" class="btn-3d px-2.5 xl:px-3 py-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:from-amber-300 hover:to-yellow-200 text-slate-950 font-black text-xs rounded border border-amber-700 flex items-center gap-1.5 shadow-md transition-all hover:scale-105 select-none cursor-pointer shrink-0">
         <span class="text-sm">▶</span>
         <span id="example-play-btn-text">EXAMPLE PLAY SCENARIO</span>
       </button>
@@ -263,85 +332,75 @@
   <!-- ========================================================================= -->
   <!-- 2.5 AUTO-PLAY SIMULATION HUD BANNER (COLLAPSIBLE / DYNAMIC)               -->
   <!-- ========================================================================= -->
-  <div id="autoplay-hud" class="hidden hud-banner-bar px-3 py-1.5 flex flex-col gap-1 shadow-2xl text-xs font-mono flex-shrink-0 animate-fadeIn z-30">
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-3 overflow-hidden">
-        <div class="flex items-center gap-2 flex-shrink-0 bg-black/60 px-2 py-0.5 rounded border border-amber-400/60 shadow-inner">
-          <span class="relative flex h-2.5 w-2.5">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-400"></span>
-          </span>
-          <span class="font-black text-amber-300 tracking-wider text-[11px]">AUTO-PLAY SIMULATION</span>
-        </div>
-
-        <div class="flex items-center gap-2 flex-shrink-0">
-          <span id="hud-step-badge" class="px-2.5 py-0.5 rounded bg-amber-400 text-slate-950 font-black text-[11px] shadow-sm">
-            STEP 1/12
-          </span>
-          <span id="hud-action-title" class="font-bold text-white text-sm">
-            Radio Setup & Link Verification
-          </span>
-        </div>
-
-        <div class="hidden md:flex items-center text-cyan-300 text-xs truncate max-w-2xl">
-          <span class="text-slate-500 mr-2">|</span>
-          <span id="hud-narration-text" class="text-cyan-200 font-sans italic truncate">
-            Station Operator verifies Tone Remote 1 is selected on AIR VHF 126.700 MHz.
-          </span>
-        </div>
+  <div id="autoplay-hud" class="hidden hud-banner-bar px-2 xl:px-3 py-1 flex items-center justify-between shadow-2xl text-xs font-mono flex-shrink-0 animate-fadeIn z-30">
+    <div class="flex items-center gap-2 overflow-hidden">
+      <div class="flex items-center gap-1.5 flex-shrink-0 bg-black/70 px-1.5 py-0.5 rounded border border-amber-400/60 shadow-inner">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
+        </span>
+        <span class="font-black text-amber-300 tracking-wider text-[10px]">AUTO-PLAY</span>
       </div>
 
-      <div class="flex items-center gap-2 flex-shrink-0">
-        <button id="btn-hud-pause" onclick="autoPlayEngine.togglePause()" class="btn-3d px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded font-sans text-xs flex items-center gap-1 font-bold">
-          <span id="hud-pause-icon">⏸</span>
-          <span id="hud-pause-text">Pause</span>
-        </button>
+      <span id="hud-step-badge" class="px-2 py-0.5 rounded bg-amber-400 text-slate-950 font-black text-[10px] shadow-sm flex-shrink-0">
+        STEP 1/12
+      </span>
 
-        <button onclick="autoPlayEngine.nextStep()" class="btn-3d px-3 py-1 bg-blue-700 hover:bg-blue-600 text-white rounded font-sans text-xs flex items-center gap-1 font-bold">
-          <span>⏭ Skip</span>
-        </button>
+      <span id="hud-action-title" class="font-bold text-white text-xs truncate flex-shrink-0">
+        Radio Setup & Link Verification
+      </span>
 
-        <button onclick="autoPlayEngine.stop()" class="btn-3d px-3 py-1 bg-red-600 hover:bg-red-500 text-white rounded font-sans text-xs font-black flex items-center gap-1">
-          <span>⏹ Exit</span>
-        </button>
+      <div class="hidden lg:flex items-center text-cyan-300 text-[11px] truncate max-w-xl">
+        <span class="text-slate-500 mx-1">|</span>
+        <span id="hud-narration-text" class="text-cyan-200 font-sans italic truncate">
+          Station Operator verifies Tone Remote 1 is selected on AIR VHF 126.700 MHz.
+        </span>
+      </div>
+
+      <div class="hidden 2xl:flex items-center text-amber-200 text-[11px] truncate">
+        <span class="text-slate-500 mx-1">|</span>
+        <span id="hud-live-action-text" class="font-mono text-amber-200 font-bold truncate">
+          [READY]
+        </span>
       </div>
     </div>
 
-    <!-- Live Execution Status Bar -->
-    <div class="flex items-center justify-between bg-black/60 border border-amber-400/40 rounded px-2.5 py-0.5 text-[11px]">
-      <div class="flex items-center gap-2 overflow-hidden">
-        <span id="hud-status-badge" class="px-1.5 py-0.2 bg-amber-400 text-slate-950 font-black text-[10px] rounded uppercase shrink-0">
-          CONSOLE ACTION:
-        </span>
-        <span id="hud-live-action-text" class="font-mono text-amber-200 font-bold truncate">
-          [READY] Click 'Example Play Scenario' to start simulation
-        </span>
-      </div>
-      <div class="flex items-center gap-2 shrink-0 ml-2">
-        <span id="hud-channel-state-tag" class="px-1.5 py-0.2 bg-emerald-600 text-slate-950 font-black text-[10px] rounded shadow">
-          CH 1: ON (126.700 MHz)
-        </span>
-        <span id="hud-ptt-state-tag" class="px-1.5 py-0.2 bg-slate-800 text-slate-300 font-black text-[10px] rounded">
-          PTT: IDLE
-        </span>
-      </div>
+    <div class="flex items-center gap-1.5 flex-shrink-0">
+      <span id="hud-channel-state-tag" class="hidden xl:inline px-1.5 py-0.5 bg-emerald-700 text-white font-bold text-[9.5px] rounded shadow">
+        CH 1: ON
+      </span>
+      <span id="hud-ptt-state-tag" class="hidden xl:inline px-1.5 py-0.5 bg-slate-800 text-slate-300 font-bold text-[9.5px] rounded">
+        PTT: IDLE
+      </span>
+      <button id="btn-hud-pause" onclick="autoPlayEngine.togglePause()" class="btn-3d px-2 py-0.5 bg-slate-700 hover:bg-slate-600 text-white rounded font-sans text-[10.5px] flex items-center gap-1 font-bold">
+        <span id="hud-pause-icon">⏸</span>
+        <span id="hud-pause-text">Pause</span>
+      </button>
+
+      <button onclick="autoPlayEngine.nextStep()" class="btn-3d px-2 py-0.5 bg-blue-700 hover:bg-blue-600 text-white rounded font-sans text-[10.5px] flex items-center gap-1 font-bold">
+        <span>⏭ Skip</span>
+      </button>
+
+      <button onclick="autoPlayEngine.stop()" class="btn-3d px-2 py-0.5 bg-red-600 hover:bg-red-500 text-white rounded font-sans text-[10.5px] font-black flex items-center gap-1">
+        <span>⏹ Exit</span>
+      </button>
     </div>
   </div>
 
   <!-- ========================================================================= -->
   <!-- 2.6 ACCELERATED SARWATCH COUNTDOWN BANNER (EXPIRING 5-MIN WINDOW)         -->
   <!-- ========================================================================= -->
-  <div id="sarsearch-countdown-banner" class="hidden bg-gradient-to-r from-red-950 via-red-900 to-amber-950 border-b-2 border-red-500 px-4 py-1.5 flex items-center justify-between text-xs font-mono shadow-2xl flex-shrink-0 animate-fadeIn z-20">
-    <div class="flex items-center gap-3">
-      <span class="text-base animate-spin">⏱️</span>
-      <div class="flex items-center gap-2">
-        <span class="font-black text-amber-300 uppercase tracking-wider">SARWATCH 5-MINUTE WINDOW (ACCELERATED):</span>
-        <span id="sarsearch-timer-digits" class="bg-black/70 px-2 py-0.5 rounded border border-red-400 text-yellow-300 text-sm font-black font-mono tracking-widest">05:00</span>
+  <div id="sarsearch-countdown-banner" class="hidden bg-gradient-to-r from-red-950 via-red-900 to-amber-950 border-b border-red-500 px-3 py-0.5 flex items-center justify-between text-xs font-mono shadow-2xl flex-shrink-0 animate-fadeIn z-20">
+    <div class="flex items-center gap-2">
+      <span class="text-sm animate-spin">⏱️</span>
+      <div class="flex items-center gap-1.5">
+        <span class="font-black text-amber-300 uppercase tracking-wider text-[10.5px]">SARWATCH 5-MIN WINDOW:</span>
+        <span id="sarsearch-timer-digits" class="bg-black/80 px-1.5 py-0.2 rounded border border-red-400 text-yellow-300 text-xs font-black font-mono tracking-widest">05:00</span>
       </div>
-      <span id="sarsearch-countdown-label" class="text-slate-300 text-[11px] italic hidden sm:inline">Simulating 5-minute flight out of skiway...</span>
+      <span id="sarsearch-countdown-label" class="text-slate-300 text-[10px] italic hidden sm:inline">Simulating 5-minute flight out of skiway...</span>
     </div>
     <div class="flex items-center gap-2">
-      <span class="px-2 py-0.5 rounded bg-red-600/80 text-white font-black text-[10px] uppercase tracking-wider animate-pulse">FAST-FORWARD CLOCK</span>
+      <span class="px-1.5 py-0.2 rounded bg-red-600 text-white font-black text-[9px] uppercase tracking-wider animate-pulse">FAST-FORWARD CLOCK</span>
     </div>
   </div>
 
@@ -353,173 +412,138 @@
     <!-- ======================================================================= -->
     <!-- LEFT PANEL: TETRA / SELECTED AIR CHANNEL DISPLAY & REPORT SCRIPT CARD   -->
     <!-- ======================================================================= -->
-    <section class="w-64 md:w-72 bg-[#d4d4d4] beveled-out p-1.5 flex flex-col justify-between flex-shrink-0 shadow-md h-full overflow-hidden">
+    <section class="w-64 md:w-72 bg-[#d4d4d4] beveled-out p-1 xl:p-1.5 flex flex-col justify-between flex-shrink-0 shadow-md h-full overflow-hidden">
       <div class="flex flex-col flex-1 min-h-0 overflow-hidden">
-        <div class="text-[11px] font-bold font-sans tracking-wide text-red-700 border-b border-[#999999] pb-0.5 mb-1 flex items-center justify-between flex-shrink-0">
+        <div class="text-[10.5px] xl:text-[11px] font-bold font-sans tracking-wide text-red-700 border-b border-[#999999] pb-0.5 mb-1 flex items-center justify-between flex-shrink-0">
           <span>AIR CHANNEL FOCUS</span>
           <span class="w-2 h-2 rounded-full bg-red-600 animate-pulse"></span>
         </div>
 
         <!-- Teal LCD Screen (Simulating Sepura / TETRA Radio Display) -->
-        <div class="bg-[#009b9e] beveled-in p-1.5 text-black font-sans rounded shadow-inner mb-1 relative overflow-hidden flex-shrink-0">
-          <div class="flex items-start justify-between">
-            <div class="w-7 h-9 bg-white/80 rounded border border-black/40 p-0.5 flex flex-col items-center justify-between shadow-sm">
-              <div class="w-1 h-1.5 bg-black rounded-t"></div>
-              <div class="w-5 h-2.5 bg-cyan-200 border border-black/40 rounded-sm"></div>
-              <div class="grid grid-cols-2 gap-0.5 w-4">
-                <span class="w-1.5 h-1 bg-black/60"></span>
-                <span class="w-1.5 h-1 bg-black/60"></span>
-              </div>
+        <div class="bg-[#009b9e] beveled-in p-1 xl:p-1.5 text-black font-sans rounded shadow-inner mb-1 relative overflow-hidden flex-shrink-0">
+          <div class="flex items-center justify-between mb-0.5">
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] xl:text-[11px] font-extrabold tracking-tight text-slate-900">MAWSON BASE</span>
+              <span id="screen-rx-tx-badge" class="px-1 bg-black text-cyan-300 rounded text-[8px] font-mono font-bold">RX READY</span>
             </div>
-
-            <div class="text-right flex-1 pl-2">
-              <div class="flex items-center justify-end gap-1 mb-0.5">
-                <span class="w-1.5 h-2 bg-black"></span>
-                <span class="w-1.5 h-3 bg-black"></span>
-                <span class="w-1.5 h-4 bg-black"></span>
-                <span class="w-1.5 h-4 bg-black"></span>
-              </div>
-              <div class="text-[11px] font-extrabold tracking-tight text-slate-900 leading-none">MAWSON BASE</div>
-              <div id="screen-channel-title" class="text-[11px] font-black text-black leading-tight mt-0.5">AIR VHF 126.700</div>
-              <div id="screen-aircraft-call" class="text-[10px] font-bold text-blue-950 mt-0.5">CALL: VHG-FBO</div>
-            </div>
+            <div id="screen-aircraft-call" class="text-[9px] xl:text-[10px] font-black text-blue-950 bg-white/60 px-1 rounded">VHG-FBO</div>
           </div>
 
-          <div class="mt-1 pt-0.5 border-t border-black/20 flex items-center justify-between text-[10px] font-mono font-bold">
-            <span id="screen-mode-text">AM • AIR TRAFFIC</span>
-            <span id="screen-rx-tx-badge" class="px-1 bg-black text-cyan-300 rounded text-[9px]">RX READY</span>
+          <div class="flex items-center justify-between text-[9px] xl:text-[10px] font-mono font-bold">
+            <span id="screen-channel-title" class="font-black text-black">AIR VHF 126.700</span>
+            <span id="screen-mode-text" class="text-[8.5px] text-slate-900 font-sans font-bold">AM</span>
           </div>
 
           <!-- Prominent Active Channel State Pill -->
-          <div id="screen-channel-on-pill" class="mt-1 bg-emerald-950/90 border border-emerald-400 text-emerald-300 font-mono text-[10px] font-black px-1.5 py-0.5 rounded flex items-center justify-between shadow-sm">
-            <span id="screen-channel-on-label">CH 1 AIR VHF 126.700:</span>
-            <span id="screen-channel-on-status" class="px-1 bg-emerald-600 text-white rounded text-[9px] animate-pulse">● ON</span>
+          <div id="screen-channel-on-pill" class="mt-0.5 bg-emerald-950/90 border border-emerald-400 text-emerald-300 font-mono text-[8.5px] xl:text-[9.5px] font-black px-1.5 py-0.2 rounded flex items-center justify-between shadow-sm">
+            <span id="screen-channel-on-label">CH 1 FOCUS:</span>
+            <span id="screen-channel-on-status" class="px-1 bg-emerald-600 text-white rounded text-[8px] animate-pulse">● ON (126.700)</span>
           </div>
         </div>
 
         <!-- 3x2 Keypad Quick Actions Grid -->
-        <div class="grid grid-cols-3 gap-1 mb-1 font-sans text-[10px] flex-shrink-0">
-          <button onclick="quickPhrase(1)" title="Initial Inbound Readback" class="btn-3d bg-[#ececec] p-1 flex flex-col items-center justify-center rounded">
-            <i data-lucide="activity" class="w-3.5 h-3.5 text-blue-800 mb-0.5"></i>
-            <span class="font-bold">Call Stat</span>
+        <div class="grid grid-cols-3 gap-0.5 xl:gap-1 mb-1 font-sans text-[8.5px] xl:text-[9.5px] flex-shrink-0">
+          <button onclick="quickPhrase(1)" title="Initial Inbound Readback" class="btn-3d bg-[#ececec] hover:bg-white h-5 xl:h-6 px-1 flex items-center justify-center gap-1 rounded">
+            <i data-lucide="activity" class="w-2.5 h-2.5 text-blue-800 shrink-0"></i>
+            <span class="font-bold truncate">Call Stat</span>
           </button>
           
-          <button onclick="quickPhrase(2)" title="Descent Check Readback" class="btn-3d bg-[#ececec] p-1 flex flex-col items-center justify-center rounded">
-            <i data-lucide="arrow-right-circle" class="w-3.5 h-3.5 text-emerald-700 mb-0.5"></i>
-            <span class="font-bold">Descent</span>
+          <button onclick="quickPhrase(2)" title="Descent Check Readback" class="btn-3d bg-[#ececec] hover:bg-white h-5 xl:h-6 px-1 flex items-center justify-center gap-1 rounded">
+            <i data-lucide="arrow-right-circle" class="w-2.5 h-2.5 text-emerald-700 shrink-0"></i>
+            <span class="font-bold truncate">Descent</span>
           </button>
 
-          <button onclick="audioEngine.playBreachAlarm()" title="Emergency Warning Horn" class="btn-3d bg-[#ececec] p-1 flex flex-col items-center justify-center rounded">
-            <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-red-600 mb-0.5"></i>
-            <span class="font-bold">Alert</span>
+          <button onclick="audioEngine.playBreachAlarm()" title="Emergency Warning Horn" class="btn-3d bg-[#ececec] hover:bg-white h-5 xl:h-6 px-1 flex items-center justify-center gap-1 rounded">
+            <i data-lucide="alert-triangle" class="w-2.5 h-2.5 text-red-600 shrink-0"></i>
+            <span class="font-bold truncate">Alert</span>
           </button>
 
-          <button onclick="quickPhrase(3)" title="Circuit Downwind Readback" class="btn-3d bg-[#ececec] p-1 flex flex-col items-center justify-center rounded">
-            <i data-lucide="compass" class="w-3.5 h-3.5 text-indigo-700 mb-0.5"></i>
-            <span class="font-bold">Circuit</span>
+          <button onclick="quickPhrase(3)" title="Circuit Downwind Readback" class="btn-3d bg-[#ececec] hover:bg-white h-5 xl:h-6 px-1 flex items-center justify-center gap-1 rounded">
+            <i data-lucide="compass" class="w-2.5 h-2.5 text-indigo-700 shrink-0"></i>
+            <span class="font-bold truncate">Circuit</span>
           </button>
 
-          <button onclick="quickPhrase(4)" title="Touchdown Down & Safe Readback" class="btn-3d bg-[#ececec] p-1 flex flex-col items-center justify-center rounded">
-            <i data-lucide="check-circle" class="w-3.5 h-3.5 text-teal-700 mb-0.5"></i>
-            <span class="font-bold">Down Safe</span>
+          <button onclick="quickPhrase(4)" title="Touchdown Down & Safe Readback" class="btn-3d bg-[#ececec] hover:bg-white h-5 xl:h-6 px-1 flex items-center justify-center gap-1 rounded">
+            <i data-lucide="check-circle" class="w-2.5 h-2.5 text-teal-700 shrink-0"></i>
+            <span class="font-bold truncate">Down Safe</span>
           </button>
 
-          <button onclick="randomizeWeather()" title="Cycle Weather Telemetry" class="btn-3d bg-[#ececec] p-1 flex flex-col items-center justify-center rounded">
-            <i data-lucide="cloud-snow" class="w-3.5 h-3.5 text-cyan-700 mb-0.5"></i>
-            <span class="font-bold">AWS Met</span>
+          <button onclick="randomizeWeather()" title="Cycle Weather Telemetry" class="btn-3d bg-[#ececec] hover:bg-white h-5 xl:h-6 px-1 flex items-center justify-center gap-1 rounded">
+            <i data-lucide="cloud-snow" class="w-2.5 h-2.5 text-cyan-700 shrink-0"></i>
+            <span class="font-bold truncate">AWS Met</span>
           </button>
         </div>
 
-        <!-- NEW: LIVE REPORT SCRIPT & TELEMETRY CHECKLIST CARD (OCCUPIES PREVIOUSLY EMPTY SPACE) -->
-        <div id="side-script-card" class="bg-[#101721] border-2 border-cyan-500/90 rounded p-1.5 xl:p-2 flex flex-col justify-between shadow-xl flex-1 overflow-hidden min-h-0">
-          <div class="flex flex-col flex-1 overflow-hidden">
+        <!-- LIVE REPORT SCRIPT & TELEMETRY CHECKLIST CARD -->
+        <div id="side-script-card" class="bg-[#101721] border-2 border-cyan-500/90 rounded p-1 xl:p-1.5 flex flex-col justify-between shadow-xl flex-1 overflow-hidden min-h-[140px]">
+          <div class="flex flex-col flex-1 min-h-0 overflow-hidden">
             <!-- Header: Title & Phase Badge -->
-            <div class="flex items-center justify-between border-b border-cyan-700/60 pb-0.5 xl:pb-1 mb-0.5 xl:mb-1 flex-shrink-0">
-              <div class="flex items-center gap-1.5">
+            <div class="flex items-center justify-between border-b border-cyan-700/60 pb-0.5 mb-0.5 flex-shrink-0">
+              <div class="flex items-center gap-1">
                 <span class="text-amber-400 text-xs">📋</span>
-                <span class="text-[10px] xl:text-[11px] font-black text-cyan-200 uppercase tracking-wide font-sans">REPORT SCRIPT</span>
+                <span class="text-[9.5px] xl:text-[10.5px] font-black text-cyan-200 uppercase tracking-wide font-sans">REPORT SCRIPT</span>
               </div>
-              <span id="side-script-phase-badge" class="px-1.5 py-0.2 bg-amber-400 text-slate-950 font-black text-[8.5px] xl:text-[9px] rounded font-mono uppercase">
+              <span id="side-script-phase-badge" class="px-1.5 py-0.2 bg-amber-400 text-slate-950 font-black text-[8px] xl:text-[8.5px] rounded font-mono uppercase">
                 STAGE 1/4
               </span>
             </div>
 
             <!-- Stage Subtitle -->
-            <div id="side-stage-title" class="text-[9.5px] xl:text-[10px] font-bold text-amber-300 font-sans truncate mb-0.5 xl:mb-1 flex-shrink-0">
+            <div id="side-stage-title" class="text-[9px] xl:text-[9.5px] font-bold text-amber-300 font-sans truncate mb-0.5 flex-shrink-0">
               Initial Inbound Contact (~35-40 min out)
             </div>
 
-            <!-- Telemetry Checklist (List format) -->
-            <div class="bg-black/70 border border-slate-700/80 rounded p-1 xl:p-1.5 mb-1 xl:mb-1.5 font-mono text-[9px] xl:text-[10px] space-y-0.5 flex-shrink-0">
-              <div class="text-[8.5px] xl:text-[9px] font-bold text-cyan-400 border-b border-slate-800 pb-0.5 mb-0.5 flex items-center justify-between">
+            <!-- Telemetry Checklist (Compact 2-Row Grid format) -->
+            <div class="bg-black/70 border border-slate-700/80 rounded px-1 py-0.5 mb-1 font-mono text-[8px] xl:text-[8.5px] flex-shrink-0 leading-tight">
+              <div class="text-[7.5px] font-bold text-cyan-400 border-b border-slate-800 pb-0.2 mb-0.5 flex items-center justify-between">
                 <span>DATA TO REPORT:</span>
                 <span id="side-checklist-aircraft" class="text-white font-bold">VHG-FBO</span>
               </div>
-              <div class="flex justify-between items-center text-slate-300">
-                <span class="text-slate-400">AIRCRAFT:</span>
-                <span id="side-flight-ident" class="text-white font-bold truncate max-w-[140px] text-right">DHC-6 Twin Otter</span>
-              </div>
-              <div class="flex justify-between items-center text-slate-300">
-                <span class="text-slate-400">EST ARRIVAL:</span>
-                <span id="side-eta-ident" class="text-amber-300 font-bold">07:45 UTC</span>
-              </div>
-              <div class="flex justify-between items-center text-slate-300">
-                <span class="text-slate-400">SKIWAY (SLA):</span>
-                <span id="side-check-sla" class="text-emerald-300 font-bold"><span id="side-sla-ident">RUMDOODLE</span> CLEAR</span>
-              </div>
-              <div class="flex justify-between items-center text-slate-300">
-                <span class="text-slate-400">SURFACE WIND:</span>
-                <span id="side-check-wind" class="text-cyan-300 font-bold">140° @ 25 kt (G34kt)</span>
-              </div>
-              <div class="flex justify-between items-center text-slate-300">
-                <span class="text-slate-400">VIS / TEMP:</span>
-                <span id="side-check-vis-temp" class="text-slate-200">10 km / -16°C</span>
-              </div>
-              <div class="flex justify-between items-center text-slate-300">
-                <span class="text-slate-400">QNH ALTIMETER:</span>
-                <span id="side-check-qnh" class="text-amber-300 font-black">992 hPa</span>
+              <div class="grid grid-cols-3 gap-x-1 gap-y-0.2 text-slate-300">
+                <div><span class="text-slate-400">ETA:</span> <span id="side-eta-ident" class="text-amber-300 font-bold">07:45</span></div>
+                <div><span class="text-slate-400">QNH:</span> <span id="side-check-qnh" class="text-amber-300 font-bold">992</span></div>
+                <div class="truncate"><span class="text-slate-400">SLA:</span> <span id="side-check-sla" class="text-emerald-300 font-bold"><span id="side-sla-ident">RUMD</span> CLR</span></div>
+                <div class="col-span-2 truncate"><span class="text-slate-400">WIND:</span> <span id="side-check-wind" class="text-cyan-300 font-bold">140°/25k</span></div>
+                <div class="truncate"><span class="text-slate-400">VIS:</span> <span id="side-check-vis-temp" class="text-slate-200">10k/-16°</span></div>
               </div>
             </div>
 
             <!-- Current Script Box (What to say) -->
-            <div class="flex flex-col flex-1 min-h-0 overflow-hidden">
-              <div class="text-[8.5px] xl:text-[9px] font-bold text-amber-300 font-mono flex items-center justify-between mb-0.5 flex-shrink-0">
+            <div class="flex flex-col flex-1 min-h-[60px] overflow-hidden">
+              <div class="text-[8px] xl:text-[8.5px] font-bold text-amber-300 font-mono flex items-center justify-between mb-0.5 flex-shrink-0">
                 <span>WHAT TO SAY (AROC SCRIPT):</span>
-                <span class="text-[7.5px] xl:text-[8px] text-slate-400 italic">Click box to copy</span>
+                <span class="text-[7.5px] text-slate-400 italic">Click to copy</span>
               </div>
-              <div id="side-script-box" onclick="copyModelToInput()" title="Click to copy into TX Text box" class="p-1 xl:p-1.5 bg-black/90 border border-amber-400/70 rounded text-[9.5px] xl:text-[10.5px] font-mono text-amber-100 leading-tight xl:leading-relaxed overflow-y-auto shadow-inner cursor-pointer hover:border-amber-300 hover:bg-black transition flex-1 select-text">
+              <div id="side-script-box" onclick="copyModelToInput()" title="Click to copy into TX Text box" class="p-1 bg-black/95 border border-amber-400/80 rounded text-[9px] xl:text-[9.5px] font-mono text-amber-100 leading-snug overflow-y-auto shadow-inner cursor-pointer hover:border-amber-300 transition flex-1 select-text">
                 "Foxtrot-Bravo-Oscar, Mawson Base, read you strength 5. Rumdoodle Ski Landing Area currently reported clear. Surface wind 140 degrees at 25 knots, visibility 10 kilometres, temperature minus 16, QNH 992. No conflicting traffic."
               </div>
             </div>
           </div>
 
           <!-- Bottom Actions & Safety Notice -->
-          <div class="mt-1 pt-1 border-t border-slate-800 flex-shrink-0">
-            <div class="text-[8.5px] font-mono text-red-400 font-bold flex items-center gap-1 mb-1">
-              <span>⚠️</span>
-              <span>UNICOM: Never say "Cleared to land"</span>
+          <div class="mt-0.5 pt-0.5 border-t border-slate-800 flex-shrink-0">
+            <div class="text-[7.5px] xl:text-[8px] font-mono text-red-400 font-bold flex items-center justify-between mb-0.5">
+              <span>⚠️ UNICOM: Never say "Cleared to land"</span>
             </div>
             <div class="grid grid-cols-2 gap-1">
-              <button onclick="copyModelToInput()" title="Copy script into bottom TX text box" class="btn-3d px-1.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px] rounded flex items-center justify-center gap-1 shadow">
-                <span>📋</span>
-                <span>Copy Script</span>
+              <button onclick="copyModelToInput()" title="Copy script into bottom TX text box" class="btn-3d px-1 py-0.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[8.5px] xl:text-[9px] rounded flex items-center justify-center gap-1 shadow cursor-pointer">
+                <span>📋 Copy</span>
               </button>
-              <button onclick="speakCurrentScript()" title="Hold PTT and broadcast script over radio" class="btn-3d px-1.5 py-1 bg-cyan-700 hover:bg-cyan-600 text-white font-black text-[10px] rounded flex items-center justify-center gap-1 shadow">
-                <span>🎙️</span>
-                <span>PTT Read</span>
+              <button onclick="speakCurrentScript()" title="Hold PTT and broadcast script over radio" class="btn-3d px-1 py-0.5 bg-cyan-700 hover:bg-cyan-600 text-white font-black text-[8.5px] xl:text-[9px] rounded flex items-center justify-center gap-1 shadow cursor-pointer">
+                <span>🎙️ PTT Read</span>
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Two Large Bottom Red/Coral Buttons -->
-      <div class="flex flex-col gap-1 mt-1 flex-shrink-0">
-        <button id="btn-terminate-sarwatch" onclick="terminateSARWATCH()" class="btn-3d bg-[#d93838] hover:bg-[#c32f2f] text-white font-extrabold py-1.5 px-1 text-xs rounded text-center tracking-wide uppercase shadow">
+      <!-- Two Large Bottom Red/Coral Buttons (Grid 2-col to save space) -->
+      <div class="grid grid-cols-2 gap-1 mt-1 flex-shrink-0">
+        <button id="btn-terminate-sarwatch" onclick="terminateSARWATCH()" class="btn-3d bg-[#d93838] hover:bg-[#c32f2f] text-white font-extrabold py-0.5 px-0.5 text-[9px] xl:text-[9.5px] rounded text-center tracking-tight uppercase shadow leading-tight cursor-pointer">
           TERMINATE SARWATCH
         </button>
 
-        <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#b82828] hover:bg-[#a32020] text-white font-extrabold py-1.5 px-1 text-xs rounded text-center tracking-wide uppercase shadow">
+        <button onclick="audioEngine.playBreachAlarm()" class="btn-3d bg-[#b82828] hover:bg-[#a32020] text-white font-extrabold py-0.5 px-0.5 text-[9px] xl:text-[9.5px] rounded text-center tracking-tight uppercase shadow leading-tight cursor-pointer">
           EMERGENCY ACK
         </button>
       </div>
@@ -1022,98 +1046,98 @@
           Radio Functions
         </div>
 
-        <div class="grid grid-cols-2 gap-1 mb-1.5 xl:mb-2 font-sans text-[9.5px] xl:text-[10px] font-bold">
-          <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1 xl:p-1.5 rounded flex items-center justify-center gap-1">
-            <i data-lucide="link" class="w-3.5 h-3.5 text-slate-900"></i>
+        <div class="grid grid-cols-2 gap-1 mb-1 xl:mb-1.5 font-sans text-[9px] xl:text-[9.5px] font-bold">
+          <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] py-0.5 xl:py-1 px-1 rounded flex items-center justify-center gap-1">
+            <i data-lucide="link" class="w-3 h-3 text-slate-900"></i>
             <span>Patch</span>
           </button>
 
-          <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1 xl:p-1.5 rounded flex items-center justify-center">
+          <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] py-0.5 xl:py-1 px-1 rounded flex items-center justify-center">
             <span>Simul Select</span>
           </button>
 
-          <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1 xl:p-1.5 rounded flex items-center justify-center">
+          <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] py-0.5 xl:py-1 px-1 rounded flex items-center justify-center">
             <span>SELCAL</span>
           </button>
 
-          <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1 xl:p-1.5 rounded flex items-center justify-center">
+          <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] py-0.5 xl:py-1 px-1 rounded flex items-center justify-center">
             <span>Working Group</span>
           </button>
 
-          <button onclick="audioEngine.toggleRF()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1 xl:p-1.5 rounded flex items-center justify-center">
-            <span id="btn-vox-label">VOX Filter: ON</span>
+          <button onclick="audioEngine.toggleRF()" class="btn-3d bg-[#90b890] hover:bg-[#80a880] py-0.5 xl:py-1 px-1 rounded flex items-center justify-center">
+            <span id="btn-vox-label">VOX: ON</span>
           </button>
 
-          <button onclick="audioEngine.playMicClick(true)" class="btn-3d bg-[#90b890] hover:bg-[#80a880] p-1 xl:p-1.5 rounded flex items-center justify-center gap-1">
-            <i data-lucide="headphones" class="w-3.5 h-3.5 text-slate-900"></i>
+          <button onclick="audioEngine.playMicClick(true)" class="btn-3d bg-[#90b890] hover:bg-[#80a880] py-0.5 xl:py-1 px-1 rounded flex items-center justify-center gap-1">
+            <i data-lucide="headphones" class="w-3 h-3 text-slate-900"></i>
             <span>Monitor</span>
           </button>
         </div>
 
         <!-- Giant Coral PTT Pushbutton -->
-        <button id="ptt-btn" onclick="speechInput.handlePTTClick(event)" onmousedown="speechInput.handlePTTMousedown(event)" onmouseup="speechInput.handlePTTMouseup(event)" onmouseleave="speechInput.handlePTTMouseleave(event)" ontouchstart="speechInput.handlePTTTouchstart(event)" ontouchend="speechInput.handlePTTTouchend(event)" class="btn-3d w-full bg-[#f26666] hover:bg-[#e45555] active:bg-[#c93d3d] text-slate-950 font-black text-xs xl:text-sm py-2 xl:py-3 rounded flex items-center justify-center gap-2 shadow-md uppercase tracking-wider select-none cursor-pointer">
-          <span class="text-lg xl:text-xl text-yellow-300 filter drop-shadow">⚡</span>
+        <button id="ptt-btn" onclick="speechInput.handlePTTClick(event)" onmousedown="speechInput.handlePTTMousedown(event)" onmouseup="speechInput.handlePTTMouseup(event)" onmouseleave="speechInput.handlePTTMouseleave(event)" ontouchstart="speechInput.handlePTTTouchstart(event)" ontouchend="speechInput.handlePTTTouchend(event)" class="btn-3d w-full bg-[#f26666] hover:bg-[#e45555] active:bg-[#c93d3d] text-slate-950 font-black text-xs xl:text-sm py-1.5 xl:py-2.5 rounded flex items-center justify-center gap-1.5 shadow-md uppercase tracking-wider select-none cursor-pointer">
+          <span class="text-base xl:text-lg text-yellow-300 filter drop-shadow">⚡</span>
           <span id="ptt-label-text">PTT TRANSMIT</span>
         </button>
-        <div class="text-[8.5px] xl:text-[9px] text-center font-mono text-slate-600 mt-0.5 xl:mt-1">HOLD SPACEBAR OR CLICK PTT</div>
+        <div class="text-[8px] xl:text-[8.5px] text-center font-mono text-slate-600 mt-0.5">HOLD SPACEBAR OR CLICK PTT</div>
       </div>
 
       <!-- BOTTOM BOX: GENERAL FUNCTIONS -->
       <div class="bg-[#dcdcdc] beveled-in p-1 xl:p-1.5 rounded flex flex-col justify-between flex-1">
         <div>
-          <div class="text-[11px] font-bold font-sans text-slate-800 border-b border-[#aaaaaa] pb-0.5 mb-1.5">
+          <div class="text-[10.5px] xl:text-[11px] font-bold font-sans text-slate-800 border-b border-[#aaaaaa] pb-0.5 mb-1">
             General Functions
           </div>
 
-          <div class="grid grid-cols-2 gap-1 mb-2 font-sans text-[10px] font-bold">
-            <button onclick="toggleTileMute(selectedTileId)" id="gen-mute-btn" class="btn-3d bg-[#efa764] hover:bg-[#e09854] p-1.5 rounded flex items-center justify-center gap-1">
-              <i data-lucide="volume-x" class="w-3.5 h-3.5 text-red-800"></i>
+          <div class="grid grid-cols-2 gap-0.5 xl:gap-1 mb-1 font-sans text-[9px] xl:text-[9.5px] font-bold">
+            <button onclick="toggleTileMute(selectedTileId)" id="gen-mute-btn" class="btn-3d bg-[#efa764] hover:bg-[#e09854] py-1 px-0.5 rounded flex items-center justify-center gap-1">
+              <i data-lucide="volume-x" class="w-3 h-3 text-red-800"></i>
               <span>Mute Line</span>
             </button>
 
-            <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#efa764] hover:bg-[#e09854] p-1.5 rounded flex items-center justify-center gap-1">
-              <i data-lucide="mic-off" class="w-3.5 h-3.5 text-red-800"></i>
+            <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#efa764] hover:bg-[#e09854] py-1 px-0.5 rounded flex items-center justify-center gap-1">
+              <i data-lucide="mic-off" class="w-3 h-3 text-red-800"></i>
               <span>Mic Mute</span>
             </button>
 
-            <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#efa764] hover:bg-[#e09854] p-1.5 rounded flex items-center justify-center">
-              <span>Speaker Enable</span>
+            <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#efa764] hover:bg-[#e09854] py-1 px-0.5 rounded flex items-center justify-center">
+              <span>Speaker En</span>
             </button>
 
-            <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#efa764] hover:bg-[#e09854] p-1.5 rounded flex items-center justify-center">
-              <span>Ring Disable</span>
+            <button onclick="audioEngine.testBeep()" class="btn-3d bg-[#efa764] hover:bg-[#e09854] py-1 px-0.5 rounded flex items-center justify-center">
+              <span>Ring Dis</span>
             </button>
 
             <!-- Yellow IRR Button -->
-            <button onclick="irrEngine.replay(0)" class="btn-3d bg-[#ffd700] hover:bg-[#e6c200] text-black font-black p-2 rounded flex items-center justify-center gap-1 shadow">
-              <span class="text-xs font-mono font-extrabold bg-black text-yellow-300 px-1 rounded">IRR</span>
-              <span>REPLAY LAST</span>
+            <button onclick="irrEngine.replay(0)" class="btn-3d bg-[#ffd700] hover:bg-[#e6c200] text-black font-black py-1 px-0.5 rounded flex items-center justify-center gap-1 shadow">
+              <span class="text-[10px] font-mono font-extrabold bg-black text-yellow-300 px-0.5 rounded">IRR</span>
+              <span>REPLAY</span>
             </button>
 
             <!-- Green ALARM Button -->
-            <button onclick="audioEngine.playBreachAlarm()" class="btn-3d bg-[#00dd55] hover:bg-[#00bb44] text-slate-950 font-black p-2 rounded flex items-center justify-center gap-1 shadow">
-              <i data-lucide="bell" class="w-3.5 h-3.5 text-black"></i>
+            <button onclick="audioEngine.playBreachAlarm()" class="btn-3d bg-[#00dd55] hover:bg-[#00bb44] text-slate-950 font-black py-1 px-0.5 rounded flex items-center justify-center gap-1 shadow">
+              <i data-lucide="bell" class="w-3 h-3 text-black"></i>
               <span>ALARM</span>
             </button>
           </div>
 
           <!-- Volume Sliders -->
-          <div class="grid grid-cols-2 gap-1 mb-2 text-[9px] font-sans font-bold">
-            <div class="bg-white/80 p-1 rounded border border-slate-300 text-center">
-              <div>HS Volume</div>
+          <div class="grid grid-cols-2 gap-1 mb-1 text-[8.5px] xl:text-[9px] font-sans font-bold">
+            <div class="bg-white/80 p-0.5 xl:p-1 rounded border border-slate-300 text-center">
+              <div>HS Vol</div>
               <input type="range" min="0" max="100" value="90" oninput="audioEngine.setVolume(this.value)" class="w-full accent-blue-600 h-1">
             </div>
-            <div class="bg-white/80 p-1 rounded border border-slate-300 text-center">
-              <div>Line Volume</div>
+            <div class="bg-white/80 p-0.5 xl:p-1 rounded border border-slate-300 text-center">
+              <div>Line Vol</div>
               <input type="range" min="0" max="100" value="85" class="w-full accent-blue-600 h-1">
             </div>
           </div>
         </div>
 
         <!-- Vertical Dual 10-Segment LED VU Ladder -->
-        <div class="bg-black beveled-in p-1.5 rounded flex items-center justify-around">
+        <div class="bg-black beveled-in p-1 xl:p-1.5 rounded flex items-center justify-around">
           <div class="flex flex-col items-center">
-            <span class="text-[9px] font-bold text-slate-300 font-mono">TX</span>
+            <span class="text-[8.5px] xl:text-[9px] font-bold text-slate-300 font-mono">TX</span>
             <div class="flex flex-col gap-0.5 mt-0.5" id="tx-led-ladder">
               <span class="w-3 h-1 bg-red-950 rounded-xs" id="tx-led-10"></span>
               <span class="w-3 h-1 bg-red-950 rounded-xs" id="tx-led-9"></span>
@@ -1128,10 +1152,10 @@
             </div>
           </div>
 
-          <div class="h-14 w-[1px] bg-[#333333]"></div>
+          <div class="h-8 xl:h-12 w-[1px] bg-[#333333]"></div>
 
           <div class="flex flex-col items-center">
-            <span class="text-[9px] font-bold text-slate-300 font-mono">RX</span>
+            <span class="text-[8.5px] xl:text-[9px] font-bold text-slate-300 font-mono">RX</span>
             <div class="flex flex-col gap-0.5 mt-0.5" id="rx-led-ladder">
               <span class="w-3 h-1 bg-red-950 rounded-xs" id="rx-led-10"></span>
               <span class="w-3 h-1 bg-red-950 rounded-xs" id="rx-led-9"></span>
