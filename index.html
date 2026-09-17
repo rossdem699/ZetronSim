@@ -290,6 +290,7 @@
           <option value="C">C: SAR Emergency (Inbound Overdue)</option>
           <option value="D">D: Rumdoodle Takeoff (Normal Departure)</option>
           <option value="E">E: Takeoff, Comms Dropout & Failed SARSEARCH</option>
+          <option value="F">F: Emergency Medevac Inbound (Doctor Standby)</option>
         </select>
       </div>
 
@@ -3527,6 +3528,44 @@
             expectedModel: 'Foxtrot-Bravo-Oscar, Mawson copies operations normal on alternate comms, SARWATCH alert cancelled. Good flight to Davis.'
           }
         ]
+      },
+      F: {
+        id: 'F',
+        name: 'F: Emergency Medevac Inbound (Doctor Standby)',
+        type: 'medevac',
+        aircraftCall: 'VHG-FBO',
+        pilotCallPhonetic: 'Foxtrot-Bravo-Oscar',
+        aircraftType: 'Twin Otter DHC-6',
+        route: 'DEEP FIELD CAMP -> RUMDOODLE',
+        slaName: 'RUMDOODLE (Plateau - Elev 498m)',
+        slaSurface: 'Firm sastrugi, emergency perimeter flare path lit',
+        initialEtaMinutes: 28,
+        stages: [
+          {
+            stageNum: 1,
+            title: 'Initial Inbound Priority Medevac Contact',
+            pilotCall: 'Mawson Traffic, Twin Otter Foxtrot-Bravo-Oscar, 35 miles south, priority medical evacuation inbound with injured patient, estimating Rumdoodle at [ETA] UTC. Request medical team and heated Hägglunds ambulance standby at skiway.',
+            expectedModel: 'Foxtrot-Bravo-Oscar, Mawson Base, read you strength 5. Priority acknowledged. Rumdoodle Ski Landing Area reported clear. Station doctor and heated medical Hägglunds standing by. Surface wind [WIND], QNH [QNH]. No conflicting traffic.'
+          },
+          {
+            stageNum: 2,
+            title: 'Descent Check & Medical Standby Confirmation',
+            pilotCall: 'QNH [QNH], Foxtrot-Bravo-Oscar descending 3,500 feet over glacier, patient stable, request direct ambulance transfer on shutdown.',
+            expectedModel: 'Foxtrot-Bravo-Oscar, Mawson Base copies descent to 3,500 feet. Doctor and medical team in position at skiway perimeter.'
+          },
+          {
+            stageNum: 3,
+            title: 'Circuit & Final Approach',
+            pilotCall: 'Mawson Traffic, Foxtrot-Bravo-Oscar turning final Rumdoodle skiway, visual with runway markers.',
+            expectedModel: 'Foxtrot-Bravo-Oscar, copy final, surface wind [WIND], skiway clear.'
+          },
+          {
+            stageNum: 4,
+            title: 'Touchdown & Patient Transfer',
+            pilotCall: 'Foxtrot-Bravo-Oscar down and safe at Rumdoodle, vacating skiway to ambulance. Shutting down.',
+            expectedModel: 'Foxtrot-Bravo-Oscar, Mawson Base copies down and safe at [UTC] UTC. Medical team approaching aircraft. Terminating SARWATCH.'
+          }
+        ]
       }
     };
 
@@ -4027,7 +4066,9 @@
               ? (sc.id === 'E'
                   ? `${sc.pilotCallPhonetic}, SARWATCH alert cancelled, climbing on course for Davis, thanks Mawson Base!`
                   : `${sc.pilotCallPhonetic}, SARWATCH transferred, cruising 9,000 feet, thanks Mawson Base! Have a good day.`)
-              : `${sc.pilotCallPhonetic}, engine shutdown complete, skiway clear, waiting for pick up. Thanks Mawson!`;
+              : (sc.id === 'F'
+                  ? `${sc.pilotCallPhonetic}, engines shut down, patient safely transferred to doctor and Hägglunds ambulance. Thank you Mawson Dispatch!`
+                  : `${sc.pilotCallPhonetic}, engine shutdown complete, skiway clear, waiting for pick up. Thanks Mawson!`);
 
             addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), endReply, 'COMPLETED', 'blue');
             pilotSpeech.speak(endReply, `PILOT (${sc.aircraftCall})`, () => {
@@ -5459,6 +5500,126 @@
                   virtualClick('btn-terminate-sarwatch', "PRESS TERMINATE SARWATCH", () => {
                     terminateSARWATCH();
                     logConsoleAction('SARWATCH', '👉 PRESSED [TERMINATE SARWATCH] ➔ SARWATCH emergency alert safely cancelled on HF', 'SARWATCH alert closed on HF. Aircraft operations normal enroute to Davis.');
+                    this.scheduleNext(1600);
+                  });
+                });
+              }
+            }
+          ];
+        } else if (scenarioId === 'F') {
+          this.steps = [
+            {
+              title: "Select AIR VHF 126.700 MHz",
+              narration: "Mawson Dispatch verifies Tone Remote 1 is selected on AIR VHF 126.700 MHz for priority inbound medical flight.",
+              action: () => {
+                virtualClick('sel-btn-1', "SELECT AIR VHF 126.700 (TURN ON)", () => {
+                  selectTile(1);
+                  logConsoleAction('CHANNEL ON', '👉 PRESSED [SEL AIR VHF 126.700] ➔ Tone Remote 1 is now ACTIVE (ON)', 'Selected Tone Remote 1 (AIR VHF 126.700 MHz AM). Priority Air channel is ON.');
+                  this.scheduleNext(1300);
+                });
+              }
+            },
+            {
+              title: "Verify Rumdoodle Mountain Repeater Link",
+              narration: "Station engages Rumdoodle SLA Mountain Repeater (149.800 MHz) for plateau coverage.",
+              action: () => {
+                virtualClick('rpt-btn-5', "PRESS RUMDOODLE RPT LINK", () => {
+                  toggleRepeater(5);
+                  logConsoleAction('RPT LINK', '👉 PRESSED [RPT RUMDOODLE 149.800] ➔ Mountain Repeater link engaged on DCS5020', 'Engaged Rumdoodle VHF Repeater on 149.800 MHz.');
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Pilot Inbound Medevac Call (~30 min out)",
+              narration: "Twin Otter calls 35 miles south with priority medical evacuation of injured patient.",
+              action: () => {
+                const pilotText = `Mawson Traffic, Twin Otter Foxtrot-Bravo-Oscar, 35 miles south, priority medical evacuation inbound with injured patient, estimating Rumdoodle at ${etaStr.replace(' UTC','')}. Request medical team and heated Hägglunds ambulance standby at skiway.`;
+                logConsoleAction('PILOT RX', `✈️ PILOT MEDEVAC CALL [126.700 MHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Emergency', 'In', getUtcTimeString(), pilotText, 'Received', 'red');
+                pilotSpeech.speak(pilotText, `PILOT (${sc.aircraftCall})`, () => {
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Mawson Station Priority Advisory & Medical Standby",
+              narration: "Operator reads back priority acknowledgement, confirms station doctor and heated Hägglunds are standing by, and transmits skiway wind and altimeter.",
+              action: () => {
+                const replyText = `Foxtrot-Bravo-Oscar, Mawson Base, read you strength 5. Priority acknowledged. Rumdoodle Ski Landing Area currently reported clear. Station doctor and heated medical Hägglunds standing by. Surface wind ${weatherData.windDir} degrees at ${weatherData.windSpeed} knots, visibility ${weatherData.visKm} kilometres, temperature ${weatherData.tempC}, QNH ${weatherData.qnh}. No conflicting traffic.`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT (MEDEVAC ADVISORY)", replyText, 1, () => {
+                  stageEngine.currentStageIndex = 1;
+                  this.scheduleNext(1600);
+                });
+              }
+            },
+            {
+              title: "Pilot Descent Check & Medical Briefing",
+              narration: "Aircraft reports descending to 3,500 feet, patient stable, requesting direct ambulance transfer on shutdown.",
+              action: () => {
+                const pilotText = `QNH ${weatherData.qnh}, Foxtrot-Bravo-Oscar descending 3,500 feet over glacier, patient stable, request direct ambulance transfer on shutdown.`;
+                logConsoleAction('PILOT RX', `✈️ PILOT DESCENT REPORT [126.700 MHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotText, 'Received', 'blue');
+                pilotSpeech.speak(pilotText, `PILOT (${sc.aircraftCall})`, () => {
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Mawson Station Confirms Medical Position",
+              narration: "Operator copies descent and confirms medical team and ambulance are in position at skiway perimeter.",
+              action: () => {
+                const replyText = `Foxtrot-Bravo-Oscar, Mawson Base copies descent to 3,500 feet. Doctor and medical team in position at skiway perimeter.`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT (DESCENT ACK)", replyText, 1, () => {
+                  stageEngine.currentStageIndex = 2;
+                  this.scheduleNext(1600);
+                });
+              }
+            },
+            {
+              title: "Pilot Turning Final at Rumdoodle",
+              narration: "Aircraft turns final for Rumdoodle plateau skiway with runway markers in sight.",
+              action: () => {
+                const pilotText = `Mawson Traffic, Foxtrot-Bravo-Oscar turning final Rumdoodle skiway, visual with runway markers.`;
+                logConsoleAction('PILOT RX', `✈️ PILOT FINAL CALL [126.700 MHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotText, 'Received', 'blue');
+                pilotSpeech.speak(pilotText, `PILOT (${sc.aircraftCall})`, () => {
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Mawson Station Final Wind Check",
+              narration: "Operator transmits final surface wind and confirms clear skiway.",
+              action: () => {
+                const replyText = `Foxtrot-Bravo-Oscar, copy final, surface wind now ${weatherData.windDir} degrees at ${weatherData.windSpeed} knots, skiway clear.`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT (WIND CHECK)", replyText, 1, () => {
+                  stageEngine.currentStageIndex = 3;
+                  this.scheduleNext(1600);
+                });
+              }
+            },
+            {
+              title: "Pilot Touchdown & Emergency Vacate",
+              narration: "Twin Otter touches down safely, vacates skiway toward ambulance, and begins engine shutdown.",
+              action: () => {
+                const pilotText = `Foxtrot-Bravo-Oscar down and safe at Rumdoodle, vacating skiway to ambulance. Shutting down.`;
+                logConsoleAction('PILOT RX', `✈️ PILOT TOUCHDOWN REPORT [126.700 MHz] ➔ "${pilotText}" (Cockpit Turboprop Audio Active)`);
+                addCallHistoryRow(`PILOT (${sc.aircraftCall})`, 'Normal', 'In', getUtcTimeString(), pilotText, 'Received', 'blue');
+                pilotSpeech.speak(pilotText, `PILOT (${sc.aircraftCall})`, () => {
+                  this.scheduleNext(1400);
+                });
+              }
+            },
+            {
+              title: "Mawson Station Touchdown Acknowledgment & SARWATCH Termination",
+              narration: "Operator copies safe landing, advises medical team is approaching aircraft, and terminates SARWATCH.",
+              action: () => {
+                const replyText = `Foxtrot-Bravo-Oscar, Mawson Base copies down and safe at ${utcNow()} UTC. Medical team approaching aircraft. Terminating SARWATCH.`;
+                virtualHoldPTTAndTransmit("PTT TRANSMIT (TOUCHDOWN ACK)", replyText, 1, () => {
+                  virtualClick('btn-terminate-sarwatch', "PRESS TERMINATE SARWATCH", () => {
+                    terminateSARWATCH();
+                    logConsoleAction('SARWATCH', '👉 PRESSED [TERMINATE SARWATCH] ➔ Flight safety monitoring safely terminated', 'SARWATCH closed. Patient transfer underway.');
                     this.scheduleNext(1600);
                   });
                 });
